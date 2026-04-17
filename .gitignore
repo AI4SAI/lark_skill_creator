@@ -1,0 +1,33 @@
+# === 环境变量 ===
+.env
+
+# === rcoder 会话状态 ===
+.rcoder/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# === uv / virtualenv ===
+.venv/
+venv/
+ENV/
+env/
+
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === 日志 ===
+*.log

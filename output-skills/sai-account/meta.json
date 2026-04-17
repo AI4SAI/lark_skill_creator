@@ -1,0 +1,85 @@
+{
+  "name": "sai-account",
+  "description": "SAI超级计算机账户与计费系统核心Skill，全面管理余额查询充值、卡时与人民币换算、红包兑现、消费明细导出、发票申请、优惠激励等所有账户财务相关操作。Make sure to use this skill whenever users ask about account balance, querying remaining credits, checking wallet balance, or any balance-related questions. Always use this when users mention '怎么充值'、'余额多少'、'还有多少卡时'、'账户余额查询' or similar queries about money, credits, or account status. Use this skill whenever users want to understand their consumption details, download billing records, run 'dump_job_history' command, or need GPU usage reports for reimbursement. Use this whenever users ask about recharge policies, tiered discounts for large充值, group充值 bonuses, annual agreements, or any充值优惠 questions. Use this when users inquire about redeeming红包, claiming rewards, paper acknowledgment incentives (Nature/Science/Cell), posting to earn credits, or any promotional activities. Use this skill whenever users ask about converting 卡时 to CNY/RMB, understanding withdrawal rules, 可提现 vs 不可提现余额, or how红包 and discounts affect their balance. Always invoke for invoice applications, 发票开具, 充值凭证, or questions about payment methods like 公对公转账 or 科研经费支付. Use when users need to understand 后付费模式, 弹性订阅, or 弹性计费 plans.",
+  "tags": [
+    "账户余额",
+    "充值",
+    "卡时",
+    "人民币计费",
+    "CNY",
+    "红包",
+    "可提现余额",
+    "不可提现余额",
+    "消费明细",
+    "dump_job_history",
+    "发票",
+    "优惠政策",
+    "阶梯充值",
+    "论文致谢激励",
+    "发帖换机时",
+    "用户组余额",
+    "私有余额",
+    "V100定价",
+    "计费系统迁移",
+    "提现",
+    "弹性订阅",
+    "后付费"
+  ],
+  "summary": "SAI超级计算机一站式账户财务管理系统，处理余额查询、充值退款、卡时与CNY换算、红包激励、消费明细导出、发票申请、论文致谢激励等全部账户财务操作，支持用户组与个人余额管理。",
+  "doc_count": 4,
+  "docs": [
+    {
+      "title": "[重要]_计费系统迁移Q&A",
+      "filepath": "账号与充值/[重要]_计费系统迁移Q&A.md",
+      "tags": [
+        "计费系统迁移",
+        "卡时到人民币换算",
+        "可提现/不可提现余额",
+        "红包机制",
+        "充值折扣处理",
+        "弹性订阅模式",
+        "自助服务平台"
+      ]
+    },
+    {
+      "title": "机时充值与优惠方案（2026_Q1）",
+      "filepath": "账号与充值/机时充值与优惠方案（2026_Q1）.md",
+      "tags": [
+        "机时充值优惠",
+        "试用机时",
+        "论文致谢激励",
+        "阶梯充值赠机时",
+        "发帖换机时",
+        "长期合作协议",
+        "机时基准定价",
+        "充值流程"
+      ]
+    },
+    {
+      "title": "🔥 导出GPU使用明细 `dump_job_history`",
+      "filepath": "账号与充值/账号与充值.md",
+      "tags": [
+        "dump_job_history命令",
+        "GPU卡时消耗统计",
+        "用户组与用户个人账号管理",
+        "机时余额（共享余额与私有余额）",
+        "SLURM任务记录导出",
+        "计算资源使用明细",
+        "财务核算"
+      ]
+    },
+    {
+      "title": "<text color=\"red\">（已结束）</text>赛先生超级计算机2025年度活动",
+      "filepath": "账号与充值/限时优惠活动.md",
+      "tags": [
+        "首次充值奖励",
+        "组团充值优惠",
+        "累计充值折扣",
+        "推广大使奖励",
+        "机时价格折扣",
+        "超级计算机算力",
+        "限时优惠活动"
+      ]
+    }
+  ]
+}

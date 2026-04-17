@@ -1,0 +1,180 @@
+{
+  "name": "sai-user-guide",
+  "description": "SAI超算平台的综合用户指南，涵盖登录认证、GPU计算节点使用、Slurm任务调度、存储管理、软件环境配置及性能调优等全流程操作规范。Make sure to use this skill whenever用户询问如何登录SAI集群、SSH密钥配置、修改初始密码、遇到登录失败或IP封禁等问题； whenever需要提交计算任务但不知如何写sbatch脚本、设置QOS参数（rush-gpu、huge-gpu、improper-gpu等）、理解资源配额限制或解决排队问题； whenever对GPU分区选择有疑问，比如4V100分区和4V100PX分区的NVLink/VRAM差异、如何为VASP/ABACUS/LAMMPS/CP2K等软件选择合适分区； whenever需要将文件从本地传输到集群或反向下载，不确定用RaiDrive/MobaXterm还是sftp命令； whenever需要管理软件环境，遇到Module/Conda/Apptainer配置问题、Perl模块安装、Python包安装失败； whenever需要优化计算性能，不确定MPI Rank映射策略、CUDA-MPS配置或VASP NSIM/KPAR等参数如何设置； whenever需要查看存储占用、Home目录配额限制、或使用ncdu工具分析磁盘使用； whenever运行任务时遇到报错提示（如QOSMinGRES、AssocGrpGRES、QOSMaxGRESPerUser等排队原因）。This skill always covers both interactive scenarios (what buttons to click, what commands to type) and scripting scenarios (how to write automation).",
+  "tags": [
+    "SAI超算平台",
+    "SSH登录",
+    "Slurm调度",
+    "sbatch脚本",
+    "GPU计算",
+    "QOS配置",
+    "文件传输",
+    "RaiDrive",
+    "存储管理",
+    "ncdu",
+    "Environment Modules",
+    "Conda",
+    "Apptainer",
+    "性能优化",
+    "MPI Rank映射",
+    "CUDA-MPS",
+    "VASP",
+    "ABACUS",
+    "LAMMPS",
+    "GROMACS"
+  ],
+  "summary": "SAI超算平台的完整用户操作指南，提供从登录认证、任务提交管理、GPU资源使用、存储优化到软件环境配置的全流程指导，包含丰富的sbatch脚本模板和性能调优建议。",
+  "doc_count": 12,
+  "docs": [
+    {
+      "title": "AI助手",
+      "filepath": "用户手册/FAQ.md",
+      "tags": [
+        "登录认证与账户安全",
+        "GPU硬件分区配置（4V100/4V100PX）",
+        "Slurm任务提交与QOS设置",
+        "资源配额与排队机制",
+        "Perl模块安装（CPAN）"
+      ]
+    },
+    {
+      "title": "登录超算",
+      "filepath": "用户手册/SAI用户特殊注意事项汇总.md",
+      "tags": [
+        "SSH密钥登录",
+        "Slurm任务调度",
+        "GPU QOS配置",
+        "计算节点管理",
+        "CUDA-MPS性能优化",
+        "存储性能优化",
+        "Netdata监控"
+      ]
+    },
+    {
+      "title": "GPU计算节点",
+      "filepath": "用户手册/SAI硬件资源.md",
+      "tags": [
+        "GPU计算节点",
+        "超大规模并行计算",
+        "分子动力学模拟",
+        "第一性原理计算",
+        "硬件分区配置",
+        "计算效率优化",
+        "分布式存储"
+      ]
+    },
+    {
+      "title": "✨sbatch脚本模板`/opt/sbatch_examples`",
+      "filepath": "用户手册/任务提交和管理.md",
+      "tags": [
+        "Slurm作业调度系统",
+        "sbatch批处理脚本模板",
+        "srun交互式任务提交",
+        "GPU资源分配与CUDA-MPS",
+        "squeue任务状态监控",
+        "scontrol任务参数修改",
+        "QOS服务质量等级配置"
+      ]
+    },
+    {
+      "title": "Home目录配额",
+      "filepath": "用户手册/存储空间.md",
+      "tags": [
+        "Home目录配额",
+        "ncdu存储统计工具",
+        "存储空间占用可视化",
+        "透明压缩",
+        "交互式目录查看",
+        "文件数量统计",
+        "显示模式切换"
+      ]
+    },
+    {
+      "title": "MACE模型设置",
+      "filepath": "用户手册/常见软件用法.md",
+      "tags": [
+        "MACE模型训练",
+        "MACE模型格式转换",
+        "LAMMPS多GPU并行MD模拟",
+        "ABACUS态密度能带计算",
+        "SAI平台任务提交",
+        "ML-IAP接口配置",
+        "AlphaFold3蛋白质结构预测"
+      ]
+    },
+    {
+      "title": "超算核心概念通用科普",
+      "filepath": "用户手册/快速开始.md",
+      "tags": [
+        "超算核心概念",
+        "GPU调度与Slurm任务提交",
+        "QOS服务质量规则",
+        "系统环境配置",
+        "软件环境管理",
+        "资源配额限制",
+        "快捷命令工具"
+      ]
+    },
+    {
+      "title": "通用性能调优",
+      "filepath": "用户手册/性能调优✨✨✨.md",
+      "tags": [
+        "MPI Rank映射与CPU核心绑定",
+        "NUMA和L3 Cache域优化",
+        "CUDA-MPS多进程GPU共享",
+        "OpenMP多线程配置",
+        "VASP性能参数调优（NSIM/KPAR）",
+        "多卡通信优化（UCX/NCCL）"
+      ]
+    },
+    {
+      "title": "🔥 RaiDrive挂载 (强烈推荐)",
+      "filepath": "用户手册/数据传输.md",
+      "tags": [
+        "RaiDrive SFTP挂载",
+        "集群存储访问",
+        "SFTP/SCP文件传输",
+        "MobaXterm工具使用",
+        "TRZSZ文件传输工具",
+        "trz/tsz命令用法",
+        "终端兼容配置"
+      ]
+    },
+    {
+      "title": "用户手册",
+      "filepath": "用户手册/用户手册.md",
+      "tags": [
+        "移动端浏览器兼容性",
+        "目录导航",
+        "用户界面操作",
+        "菜单图标使用"
+      ]
+    },
+    {
+      "title": "登录节点",
+      "filepath": "用户手册/登录超算.md",
+      "tags": [
+        "登录节点",
+        "SSH连接",
+        "MobaXterm",
+        "密码修改",
+        "SSH密钥配置",
+        "超算系统登录",
+        "远程终端工具"
+      ]
+    },
+    {
+      "title": "环境管理",
+      "filepath": "用户手册/软件环境.md",
+      "tags": [
+        "Environment-Modules",
+        "Conda环境管理",
+        "Apptainer容器",
+        "sbatch脚本模板",
+        "GPU加速软件",
+        "软件编译安装",
+        "MPI编译器"
+      ]
+    }
+  ]
+}
