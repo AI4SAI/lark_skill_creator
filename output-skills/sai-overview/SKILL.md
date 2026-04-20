@@ -1,13 +1,13 @@
 ---
 name: "sai-overview"
-description: "这是SAI（赛先生）超级计算机的综合知识库，涵盖从入门到精通的全部指南。当用户询问SAI是什么、超级计算机怎么用、如何提交任务、哪个软件怎么跑、成本和自建超算对比、账号申请、集群部署等问题时，必须调用此Skill Make sure to use this skill whenever用户说'SAI是什么'或'赛先生是什么'或想了解这个平台；whenever用户问怎么登录超算、怎么用MobaXterm、怎么进入计算节点、srun/sbatch命令怎么写、nvidia-smi怎么查GPU；whenever用户问VASP怎么跑、ABACUS怎么用、CP2K怎么做、GMX模拟、DeePMD训练等科学计算软件操作；whenever用户问租用SAI多少钱、和自建超算哪个划算、成本分析公式怎么算、卡时费用；whenever用户问怎么申请账号、怎么加入用户群、问题怎么反馈、建议怎么提；whenever用户问怎么部署卫星集群、姊妹集群、接入门槛是什么、本地集群怎么连；whenever用户问论文怎么致谢SAI、奖励机制是什么、有哪些论文引用了SAI；even if用户只是说'任务跑不起来'、'登不上去'、'不知道从哪开始'等模糊表述，也要调用此Skill查找相关指南。"
+description: "SAI（赛先生）超级计算机全方面知识库助手。Make sure to use this skill whenever用户询问SAI是什么/超级计算机简介/基本介绍，或者需要了解SAI的能力和优势（千卡超节点、万原子VASP、十亿原子分子动力学、AI for Science）；whenever提到登录超算/MobaXterm/srun/交互式使用/GPU监控/nvidia-smi；whenever询问任务提交/sbatch/作业管理/计算节点使用；whenever用户想对比自建超算和租用SAI的成本/每卡时费用/性价比；whenever涉及卫星集群/姊妹集群/本地集群接入/微卫星集群门槛；whenever需要了解论文致谢SAI的激励计划/奖励标准/已发表论文列表；whenever用户遇到使用问题/登录不了/任务报错/想反馈建议；whenever询问账号申请/用户模式（个人/实验室/企业）；even if用户只说'超算怎么用'/'赛先生是什么'/'我要跑计算'/'哪里有教程'/'成本多少'/'集群怎么接入'等模糊表达，也应该调用此skill。"
 ---
 
 # SAI Skill: sai-overview
 
 ## 概述
 
-SAI（赛先生）是ENTROPY-YU开发的开源超级计算机，专注科学计算与AI for Science，支持VASP/ABACUS/CP2K/DeePMD等主流软件，实现万原子级分子动力学模拟。采用原生Slurm调度和先进Fabric架构，改进型V100性能媲美A100，支持卫星/姊妹集群接入。提供完整入门教程、任务提交指南、成本对比分析、账号申请和问题反馈渠道。
+SAI（赛先生）是由ENTROPY-YU独立设计的开源超级计算机，基于千卡GPU集群和先进Fabric互联架构，专注服务科学计算与AI for Science，可轻松启动万原子级VASP、十亿原子级分子动力学等大规模计算任务。
 
 ## 包含文档
 
@@ -22,7 +22,7 @@ SAI（赛先生）是ENTROPY-YU开发的开源超级计算机，专注科学计�
 
 ## 关键词
 
-SAI, 赛先生, 超级计算机, 科学计算, AI for Science, GPU集群, Slurm调度, VASP, ABACUS, CP2K, DeePMD, 分子动力学, 第一性原理计算, 千卡并行, 卫星集群, 开源超算, 自建超算成本, 租用SAI
+SAI超级计算机, 科学计算, AI for Science, Slurm调度, GPU集群, VASP, 分子动力学, ABACUS, 自建超算成本, 论文激励, 卫星集群, srun, sbatch, MobaXterm, nvidia-smi, Dragonfly+拓扑
 
 ---
 

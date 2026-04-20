@@ -1,13 +1,13 @@
 ---
 name: "sai-user-guide"
-description: "SAI超算平台的综合用户指南，涵盖登录认证、GPU计算节点使用、Slurm任务调度、存储管理、软件环境配置及性能调优等全流程操作规范。Make sure to use this skill whenever用户询问如何登录SAI集群、SSH密钥配置、修改初始密码、遇到登录失败或IP封禁等问题； whenever需要提交计算任务但不知如何写sbatch脚本、设置QOS参数（rush-gpu、huge-gpu、improper-gpu等）、理解资源配额限制或解决排队问题； whenever对GPU分区选择有疑问，比如4V100分区和4V100PX分区的NVLink/VRAM差异、如何为VASP/ABACUS/LAMMPS/CP2K等软件选择合适分区； whenever需要将文件从本地传输到集群或反向下载，不确定用RaiDrive/MobaXterm还是sftp命令； whenever需要管理软件环境，遇到Module/Conda/Apptainer配置问题、Perl模块安装、Python包安装失败； whenever需要优化计算性能，不确定MPI Rank映射策略、CUDA-MPS配置或VASP NSIM/KPAR等参数如何设置； whenever需要查看存储占用、Home目录配额限制、或使用ncdu工具分析磁盘使用； whenever运行任务时遇到报错提示（如QOSMinGRES、AssocGrpGRES、QOSMaxGRESPerUser等排队原因）。This skill always covers both interactive scenarios (what buttons to click, what commands to type) and scripting scenarios (how to write automation)."
+description: "This is the comprehensive user guide for SAI HPC supercomputing platform. Make sure to use this skill whenever: 1) users cannot login (password issues, IP blocked after failed attempts, MobaXterm connection problems); 2) task submission errors (QOSMinGRES, QOSMaxGRESPerUser, tasks killed after starting, GPU count not divisible by 4); 3) GPU partition selection (4V100 vs 4V100PX, which for VASP/ABACUS/CP2K/DeePMD); 4) sbatch script templates or Slurm commands (squeue/sacct/scontrol); 5) environment setup (Conda, Environment Modules, Apptainer, Perl); 6) file transfer (RaiDrive SFTP, MobaXterm, TRZSZ); 7) performance optimization (MPI mapping, CUDA-MPS, VASP tuning); 8) storage quotas (ncdu, transparent compression). Always use when users mention: supercomputer, HPC, Slurm, sbatch, GPU, V100, QOS, partition, login, file transfer, or any SAI platform questions."
 ---
 
 # SAI Skill: sai-user-guide
 
 ## 概述
 
-SAI超算平台的完整用户操作指南，提供从登录认证、任务提交管理、GPU资源使用、存储优化到软件环境配置的全流程指导，包含丰富的sbatch脚本模板和性能调优建议。
+Complete user guide for SAI supercomputing platform covering login, GPU resource selection, Slurm task scheduling, sbatch scripts, environment management, file transfer, and performance optimization with detailed troubleshooting.
 
 ## 包含文档
 
@@ -26,7 +26,7 @@ SAI超算平台的完整用户操作指南，提供从登录认证、任务提�
 
 ## 关键词
 
-SAI超算平台, SSH登录, Slurm调度, sbatch脚本, GPU计算, QOS配置, 文件传输, RaiDrive, 存储管理, ncdu, Environment Modules, Conda, Apptainer, 性能优化, MPI Rank映射, CUDA-MPS, VASP, ABACUS, LAMMPS, GROMACS
+SAI HPC, Slurm job scheduler, sbatch script, GPU computing, V100 partition, QOS resource management, RaiDrive, Environment Modules, Conda environment, Apptainer, file transfer, ncdu storage, MPI optimization
 
 ---
 

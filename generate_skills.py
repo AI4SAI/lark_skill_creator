@@ -41,6 +41,8 @@ client = OpenAI(
 MAX_FILE_LENGTH = 120000
 # LLM输出最大token数
 MAX_TOKENS = 4096
+# description最大长度（Codex标准限制）
+MAX_DESCRIPTION_LENGTH = 1024
 # 重试次数
 MAX_RETRIES = 3
 # 重试间隔（秒）
@@ -354,6 +356,31 @@ def generate_single_doc_meta(doc: SkillDoc) -> SkillMeta:
     return SkillMeta(name=doc.title, description="", tags=[], summary="")
 
 
+def call_llm_with_history(messages: List[Dict[str, str]], temperature: float = 0.3) -> str:
+    """调用LLM，支持多轮对话历史，带重试机制"""
+    for attempt in range(MAX_RETRIES):
+        try:
+            print(f"  🤖 调用LLM (attempt {attempt + 1}/{MAX_RETRIES})...")
+            response = client.chat.completions.create(
+                model=API_MODEL,
+                messages=messages,
+                max_tokens=MAX_TOKENS,
+                temperature=temperature,
+            )
+            content = response.choices[0].message.content.strip()
+            print(f"  ✅ LLM返回 {len(content)} 字符")
+            return content
+        except Exception as e:
+            print(f"  ⚠️ LLM调用失败: {e}")
+            if attempt < MAX_RETRIES - 1:
+                print(f"  ⏳ 等待 {RETRY_DELAY}秒后重试...")
+                time.sleep(RETRY_DELAY)
+            else:
+                print(f"  ❌ 所有重试次数已耗尽，返回空字符串")
+                return ""
+    return ""
+
+
 def generate_skill_package_meta(skill_pkg: SkillPackage) -> SkillMeta:
     """为Skill包生成统一的元数据"""
     # 合并所有文档的内容摘要
@@ -371,7 +398,7 @@ Skill的description是最重要的部分，它是Claude决定是否调用这个S
 当前Claude有"undertrigger"倾向——即使Skill有用也可能不调用。为了对抗这一点，description必须写得"pushy"（主动推荐），明确列举各种触发场景，让Claude一看到相关需求就立即调用。
 你必须严格遵循以下格式，不要添加任何解释性文字，只返回JSON。"""
 
-    prompt = f"""请根据以下文档组的内容，设计一个完整的Skill元数据，以严格的JSON格式返回。
+    initial_prompt = f"""请根据以下文档组的内容，设计一个完整的Skill元数据，以严格的JSON格式返回。
 
 **Skill已固定的名称为：{skill_pkg.name}**（不要更改）
 
@@ -386,7 +413,7 @@ Skill的description是最重要的部分，它是Claude决定是否调用这个S
 ## 请返回以下JSON格式（严格遵循）：
 ```json
 {{
-    "description": "description是Claude决定是否调用此Skill的核心触发机制，必须写得非常pushy（主动推荐）。要求：1）首先一句话概括Skill的核心功能；2）然后用'Make sure to use this skill whenever...'的句式，列举5-8个具体的触发场景——覆盖用户可能提问的各种方式，包括明确的、模糊的、甚至不直接提及关键词的（比如用户说'我任务跑不了'、'怎么登不进去'、'怎么传文件'等口语化表达）；3）场景要具体到真实用户的语言风格（带具体软件名、命令名、报错信息等），不要写抽象的概括；4）语气要坚定主动，使用'always'、'whenever'、'even if'等词确保Claude不会错过。长度控制在300-500字符之间。",
+    "description": "description是Claude决定是否调用此Skill的核心触发机制，必须写得非常pushy（主动推荐）。要求：1）首先一句话概括Skill的核心功能；2）然后用'Make sure to use this skill whenever...'的句式，列举触发场景——覆盖用户可能提问的各种方式，包括明确的、模糊的、甚至不直接提及关键词的（比如用户说'我任务跑不了'、'怎么登不进去'、'怎么传文件'等口语化表达）；3）场景要具体到真实用户的语言风格（带具体软件名、命令名、报错信息等），不要写抽象的概括；4）语气要坚定主动，使用'always'、'whenever'、'even if'等词确保Claude不会错过。【重要】description总长度必须严格控制在1024字符以内！",
     "tags": [从所有文档中整合的关键词列表，去重后的5-10个],
     "summary": "用一段简短的话（100字以内）概括这个Skill的核心价值",
     "covered_topics": [这个Skill覆盖的所有核心主题，每个主题一句话],
@@ -400,25 +427,57 @@ Skill的description是最重要的部分，它是Claude决定是否调用这个S
 3. description 是最重要的触发机制，一定要写得pushy、主动推荐、覆盖尽可能多的触发场景
 4. 不要在JSON中使用Markdown格式
 5. trigger_examples 字段帮助验证description是否覆盖了足够多样的触发场景
+6. description长度必须严格控制在1024字符以内
 """
     
-    # 带JSON解析重试的LLM调用
-    for attempt in range(MAX_RETRIES):
-        response = call_llm(prompt, system_prompt, temperature=0.3)
+    # 构建对话历史
+    messages: List[Dict[str, str]] = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": initial_prompt}
+    ]
+    
+    # 最多尝试5次精简
+    MAX_SHORTEN_ATTEMPTS = 5
+    
+    for attempt in range(MAX_SHORTEN_ATTEMPTS):
+        response = call_llm_with_history(messages, temperature=0.3)
         data, success = parse_meta_json(response)
-        if success:
+        
+        if not success:
+            print(f"  ⚠️ JSON解析失败，重试 ({attempt + 1}/{MAX_SHORTEN_ATTEMPTS})...")
+            messages.append({"role": "assistant", "content": response})
+            messages.append({"role": "user", "content": "上次返回的内容不是标准JSON格式，请严格按照要求，仅返回纯JSON，不要有Markdown代码块标记。"})
+            continue
+        
+        description = data.get("description", "")
+        
+        # 检查长度
+        if len(description) <= MAX_DESCRIPTION_LENGTH:
+            print(f"  ✅ description长度合格 ({len(description)} 字符)")
             return SkillMeta(
                 name=skill_pkg.name,
-                description=data.get("description", ""),
+                description=description,
                 tags=data.get("tags", []),
                 summary=data.get("summary", "")
             )
-        print(f"  ⚠️ JSON解析失败，重试 ({attempt + 1}/{MAX_RETRIES})...")
-        # 第二次之后加强提示让LLM修复JSON
-        if attempt == 0:
-            prompt += "\n\n上次返回的内容不是标准JSON格式，请严格按照上面的要求，仅返回纯小字母组成的标准JSON，不要有Markdown代码块标记。"
+        
+        # 超长，要求精简
+        print(f"  ⚠️ description过长 ({len(description)} > {MAX_DESCRIPTION_LENGTH})，要求LLM精简 (尝试 {attempt + 1}/{MAX_SHORTEN_ATTEMPTS})...")
+        messages.append({"role": "assistant", "content": response})
+        messages.append({"role": "user", "content": f"你生成的description长度为{len(description)}字符，超过了1024字符的限制。请精简description，保留最核心的触发场景和关键词，确保总长度在1024字符以内。只返回精简后的JSON，不要解释。"})
     
-    print(f"  ❌ 多次解析失败，使用空元数据")
+    # 5次后仍超长，强制截断
+    print(f"  ⚠️ 精简{MAX_SHORTEN_ATTEMPTS}次后仍超长，强制截断...")
+    if data:
+        description = data.get("description", "")[:MAX_DESCRIPTION_LENGTH - 3] + "..."
+        return SkillMeta(
+            name=skill_pkg.name,
+            description=description,
+            tags=data.get("tags", []),
+            summary=data.get("summary", "")
+        )
+    
+    print(f"  ❌ 多次尝试失败，使用空元数据")
     return SkillMeta(name=skill_pkg.name, description=skill_pkg.description, tags=[], summary="")
 
 

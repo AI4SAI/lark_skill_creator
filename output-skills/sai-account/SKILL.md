@@ -1,13 +1,13 @@
 ---
 name: "sai-account"
-description: "SAI超级计算机账户与计费系统核心Skill，全面管理余额查询充值、卡时与人民币换算、红包兑现、消费明细导出、发票申请、优惠激励等所有账户财务相关操作。Make sure to use this skill whenever users ask about account balance, querying remaining credits, checking wallet balance, or any balance-related questions. Always use this when users mention '怎么充值'、'余额多少'、'还有多少卡时'、'账户余额查询' or similar queries about money, credits, or account status. Use this skill whenever users want to understand their consumption details, download billing records, run 'dump_job_history' command, or need GPU usage reports for reimbursement. Use this whenever users ask about recharge policies, tiered discounts for large充值, group充值 bonuses, annual agreements, or any充值优惠 questions. Use this when users inquire about redeeming红包, claiming rewards, paper acknowledgment incentives (Nature/Science/Cell), posting to earn credits, or any promotional activities. Use this skill whenever users ask about converting 卡时 to CNY/RMB, understanding withdrawal rules, 可提现 vs 不可提现余额, or how红包 and discounts affect their balance. Always invoke for invoice applications, 发票开具, 充值凭证, or questions about payment methods like 公对公转账 or 科研经费支付. Use when users need to understand 后付费模式, 弹性订阅, or 弹性计费 plans."
+description: "SAI超级计算机账户管理与计费系统，涵盖余额查询、充值、红包、计费、GPU使用明细导出及论文致谢激励。Make sure to use this skill whenever：1) 用户询问'余额还有多少'、'怎么充值'、'账户余额查询'、'余额在哪看'等；2) 用户提到'卡时怎么算'、'计费规则'、'多少钱'、'V100价格'、'计费'、'怎么扣费的'、'job费用'、'红包怎么用'、'充值送多少'、'优惠'等；3) 用户询问'怎么导出明细'、'GPU使用记录'、'dump_job_history'、'卡时消耗'、'job历史'等；4) 用户询问'论文致谢'、'激励'、'发表论文'、'致谢激励标准'等；5) 用户询问'用户组余额'、'共享余额'、'私有余额'、'充值到哪'等；6) 用户提到'2026计费系统迁移'、'人民币计价'、'可提现余额'、'不可提现余额'等；7) 用户询问'试用机时'、'发帖换机时'、'阶梯充值'、'联合充值'等优惠活动相关。"
 ---
 
 # SAI Skill: sai-account
 
 ## 概述
 
-SAI超级计算机一站式账户财务管理系统，处理余额查询、充值退款、卡时与CNY换算、红包激励、消费明细导出、发票申请、论文致谢激励等全部账户财务操作，支持用户组与个人余额管理。
+SAI超级计算机账户管理与计费核心Skill，支持余额查询/充值/红包/计费规则/GPU明细导出/论文致谢激励，覆盖用户组共享/私有余额、差异化定价、2026新计费系统迁移等全场景。
 
 ## 包含文档
 
@@ -18,7 +18,7 @@ SAI超级计算机一站式账户财务管理系统，处理余额查询、充�
 
 ## 关键词
 
-账户余额, 充值, 卡时, 人民币计费, CNY, 红包, 可提现余额, 不可提现余额, 消费明细, dump_job_history, 发票, 优惠政策, 阶梯充值, 论文致谢激励, 发帖换机时, 用户组余额, 私有余额, V100定价, 计费系统迁移, 提现, 弹性订阅, 后付费
+SAI超级计算机, 账户余额, 充值, 红包, 计费系统, 卡时, GPU使用明细, dump_job_history, 论文致谢激励, 用户组管理, V100, 差异化定价, 可提现余额, 不可提现余额
 
 ---
 
