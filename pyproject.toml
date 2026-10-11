@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "飞书文档导出、审核与网站/Skill 构建工具"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ["Pillow>=11.3,<13"]
 
 [project.scripts]
 sai-skill-gen = "generate_skills:main"

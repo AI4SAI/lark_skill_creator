@@ -43,6 +43,7 @@ def review_digest(manifest: dict) -> str:
     reviewed = {
         "space_id": manifest["space_id"],
         "pages": manifest["pages"],
+        "includes": manifest.get("includes", []),
         "content": {
             name: digest
             for name, digest in manifest["files"].items()
