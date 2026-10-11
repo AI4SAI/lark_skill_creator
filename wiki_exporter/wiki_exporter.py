@@ -1,4 +1,4 @@
-"""Export Wiki documents using native Lark export and Pandoc."""
+"""Export complete native Wiki structure through Pandoc."""
 
 import argparse
 import hashlib
@@ -8,10 +8,29 @@ import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from .bundle import build_directory, canonical_directory, write_manifest
 from .lark import ExportError, Lark
 from .markdown import convert
+
+
+def wiki_source(value: str) -> tuple[str, str | None]:
+    if "://" not in value:
+        return value, None
+    parsed = urlsplit(value)
+    match = re.fullmatch(r"/wiki/space/([A-Za-z0-9_-]+)/?", parsed.path)
+    if (
+        parsed.scheme != "https"
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+        or not match
+    ):
+        raise ExportError(
+            "请提供知识库网址，例如 https://example.feishu.cn/wiki/space/SPACE_ID。"
+        )
+    return match.group(1), f"https://{parsed.netloc}"
 
 
 def catalog(lark: Lark, space: str) -> list[dict]:
@@ -47,6 +66,7 @@ def export(
     pandoc: str,
     selected: set[str] | None = None,
     replace: bool = False,
+    source_origin: str | None = None,
 ) -> dict:
     nodes = catalog(lark, space)
     known = {n["page_id"] for n in nodes}
@@ -68,21 +88,33 @@ def export(
             for token in (n["node_token"], n["obj_token"])
         }
         records = []
+        references = {}
+
+        def include(token, block):
+            key = (token, block)
+            if key not in references:
+                source = lark.document(token, block)
+                if any(
+                    doc == token and value["revision_id"] != source["revision_id"]
+                    for (doc, _), value in references.items()
+                ):
+                    raise ExportError("导出期间同步块的源文档发生变化，未发布。")
+                references[key] = source
+                path = staging / "originals" / "includes"
+                path.mkdir(parents=True, exist_ok=True)
+                name = hashlib.sha256((token + "\0" + block).encode()).hexdigest()
+                (path / (name + ".xml")).write_text(source["content"], encoding="utf-8")
+            return references[key]["content"]
+
         for node in chosen:
             token, page_id = node["obj_token"], node["page_id"]
             before = lark.document(token)
             original = staging / "originals" / page_id
             original.mkdir(parents=True)
-            native = original / "source.docx"
             (original / "source.xml").write_text(before["content"], encoding="utf-8")
-            exported_revision = lark.export_docx(token, native, before["revision_id"])
-            if exported_revision != before["revision_id"]:
-                raise ExportError(
-                    "续查完成的是旧版本导出，未替换原输出；请重新执行以导出当前版本。"
-                )
             page = aliases[node["node_token"]]
             warnings, dependencies = convert(
-                native, page, before["content"], aliases, lark, pandoc
+                page, before["content"], aliases, lark, pandoc, include, source_origin
             )
             after = lark.document(token)
             if (
@@ -105,6 +137,13 @@ def export(
                     "dependencies": dependencies,
                 }
             )
+        for (token, block), source in references.items():
+            after = lark.document(token, block)
+            if (
+                source["revision_id"] != after["revision_id"]
+                or source["content"] != after["content"]
+            ):
+                raise ExportError("导出期间同步块的源文档发生变化，未发布。")
         current = catalog(lark, space)
 
         def topology(values):
@@ -126,8 +165,17 @@ def export(
             {
                 "kind": "lark-wiki-export/v1",
                 "space_id": space,
+                "source_origin": source_origin,
                 "exported_at": datetime.now(timezone.utc).isoformat(),
                 "pages": records,
+                "includes": [
+                    {
+                        "document_token": token,
+                        "block_id": block,
+                        "revision": source["revision_id"],
+                    }
+                    for (token, block), source in references.items()
+                ],
                 "selection": sorted(selected) if selected is not None else "all",
             },
         )
@@ -143,7 +191,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="导出飞书文档供审核，不自动发布网站或 Skill。"
     )
-    parser.add_argument("space_id")
+    parser.add_argument("space", help="知识库完整网址，也可传入空间 ID")
     parser.add_argument("--catalog", action="store_true", help="只列目录与稳定文档标识")
     parser.add_argument("--page-id", action="append", help="只导出所选文档，可重复")
     parser.add_argument("--output", type=Path, default=Path("wiki_export/current"))
@@ -154,10 +202,11 @@ def main() -> int:
     args = parser.parse_args()
     lark = Lark(Path.cwd())
     try:
+        space, source_origin = wiki_source(args.space)
         if args.catalog:
             result = [
                 {k: n[k] for k in ("page_id", "title", "obj_type", "parent_node_token")}
-                for n in catalog(lark, args.space_id)
+                for n in catalog(lark, space)
             ]
         else:
             if not shutil.which(args.pandoc):
@@ -169,11 +218,12 @@ def main() -> int:
                 raise ExportError("输出目录须位于当前工作目录内，不能是工作目录本身。")
             result = export(
                 lark,
-                args.space_id,
+                space,
                 output,
                 pandoc=args.pandoc,
                 selected=set(args.page_id) if args.page_id else None,
                 replace=args.replace,
+                source_origin=source_origin,
             )
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0

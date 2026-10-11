@@ -1,4 +1,5 @@
 import base64
+import html
 import json
 import os
 import shutil
@@ -8,10 +9,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from PIL import Image
+
 from generate_skills import build
 from wiki_exporter.bundle import read_manifest
 from wiki_exporter.lark import ExportError, Lark
-from wiki_exporter.wiki_exporter import export
+from wiki_exporter.wiki_exporter import export, wiki_source
 
 
 def response(data, *, ok=True, returncode=0):
@@ -56,64 +59,28 @@ class CliTests(unittest.TestCase):
         ):
             Lark(Path.cwd()).nodes("space")
 
-    def test_pending_export_polls_the_existing_ticket(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            target = root / "source.docx"
-            calls = []
+    def test_space_url_retains_its_tenant_for_document_references(self):
+        self.assertEqual(
+            wiki_source("https://example.feishu.cn/wiki/space/123"),
+            ("123", "https://example.feishu.cn"),
+        )
+        self.assertEqual(wiki_source("123"), ("123", None))
+        with self.assertRaises(ExportError):
+            wiki_source("https://example.feishu.cn/docx/123")
 
-            def call(*args):
-                calls.append(args)
-                if args[1] == "+export":
-                    return {"ticket": "existing-ticket", "ready": False}
-                if args[1] == "+task_result":
-                    return {"file_token": "exported-file", "job_status": 0}
-                target.write_bytes(b"downloaded native file")
-                return {"downloaded": True}
-
-            client = Lark(root)
-            with patch.object(client, "call", side_effect=call):
-                client.export_docx("document", target, 3)
-            self.assertEqual(
-                [c[1] for c in calls], ["+export", "+task_result", "+export-download"]
-            )
-            self.assertIn("existing-ticket", calls[1])
-
-    def test_timeout_resumes_original_ticket_and_revision(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            target = root / "source.docx"
-            client = Lark(root)
-            with (
-                patch.object(
-                    client,
-                    "call",
-                    side_effect=[{"ticket": "original-ticket"}]
-                    + [{"job_status": 2}] * 30,
-                ),
-                patch("wiki_exporter.lark.time.sleep"),
-                self.assertRaises(ExportError),
-            ):
-                client.export_docx("document", target, 3)
-            checkpoint = next((root / ".lark-export-tasks").glob("*.json"))
-            self.assertEqual(checkpoint.stat().st_mode & 0o777, 0o600)
-            self.assertEqual(json.loads(checkpoint.read_text())["revision"], 3)
-            calls = []
-
-            def resume(*args):
-                calls.append(args)
-                if args[1] == "+task_result":
-                    return {"file_token": "exported-file", "job_status": 0}
-                target.write_bytes(b"original version")
-                return {"downloaded": True}
-
-            with patch.object(client, "call", side_effect=resume):
-                self.assertEqual(client.export_docx("document", target, 4), 3)
-            self.assertEqual(
-                [c[1] for c in calls], ["+task_result", "+export-download"]
-            )
-            self.assertIn("original-ticket", calls[0])
-            self.assertFalse(checkpoint.exists())
+    def test_full_native_structure_and_exact_referenced_block(self):
+        client = Lark(Path.cwd())
+        with patch.object(
+            client,
+            "call",
+            return_value={"document": {"revision_id": 3, "content": "<p>Text</p>"}},
+        ) as call:
+            self.assertEqual(client.document("source", "block")["revision_id"], 3)
+            args = call.call_args.args
+            self.assertEqual(args[args.index("--detail") + 1], "full")
+            self.assertEqual(args[args.index("--scope") + 1], "range")
+            self.assertEqual(args[args.index("--start-block-id") + 1], "block")
+            self.assertEqual(args[args.index("--end-block-id") + 1], "block")
 
 
 class FixtureLark:
@@ -148,20 +115,23 @@ class FixtureLark:
             for label in ("a", "b")
         ]
 
-    def document(self, token):
-        self.calls[token] = self.calls.get(token, 0) + 1
-        revision = self.calls[token] if self.drift else 3
+    def document(self, token, block=None):
+        key = token + (":" + block if block else "")
+        self.calls[key] = self.calls.get(key, 0) + 1
         return {
-            "revision_id": revision,
-            "content": '<title>Guide</title><source token="file" name="example.html"/>',
+            "revision_id": self.calls[key] if self.drift else 3,
+            "content": self.files[key],
         }
 
-    def export_docx(self, token, destination, revision):
-        shutil.copyfile(self.files[token], destination)
-        return revision
-
-    def attachment(self, token, destination):
-        destination.write_bytes(b"<html>synthetic attachment</html>")
+    def attachment(self, token, destination, *, kind="media"):
+        if destination.suffix == ".bin":
+            destination.write_bytes(b"<html>synthetic attachment</html>")
+        else:
+            destination.write_bytes(
+                base64.b64decode(
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII="
+                )
+            )
 
 
 @unittest.skipUnless(
@@ -170,45 +140,35 @@ class FixtureLark:
 class ConversionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.temp = tempfile.TemporaryDirectory()
-        cls.root = Path(cls.temp.name)
         cls.pandoc = os.environ.get("PANDOC") or shutil.which("pandoc")
-        (cls.root / "pixel.png").write_bytes(
-            base64.b64decode(
-                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII="
-            )
-        )
         cls.long_text = "内容需要原样保留。" * 16000 + "最后一句应保留。"
-        bodies = {
-            "a": "# 第一页\n\n[第二页](https://example.feishu.cn/wiki/node-b)\n\n"
-            "![说明图](pixel.png)\n\n| 名称 | 值 |\n|---|---|\n| CPU | 4 |\n\n"
-            "```bash\nprintf 'example'\n```\n\n" + cls.long_text,
-            "b": "# 第二页\n\n短文。",
+        # Native DocxXML shape, not a DOCX generated by Pandoc itself.
+        cls.files = {
+            "doc-a": "<title>第一页</title><h1>示例</h1>"
+            '<p><cite doc-id="node-b" file-type="wiki" title="第二页"/></p>'
+            '<callout emoji="⚠️"><p>重要操作</p></callout>'
+            '<img src="image" mime="image/png" alt="说明图"/>'
+            "<table><tr><th>名称</th><th>值</th></tr><tr><td>CPU</td><td>4</td></tr></table>"
+            '<pre lang="Bash"><code>printf &#39;example&#39;<br/># &lt;literal&gt;</code></pre>'
+            '<source token="file" name="example.html"/><p>'
+            + html.escape(cls.long_text)
+            + "</p>",
+            "doc-b": "<title>第二页</title><p>短文。</p>",
         }
-        cls.files = {}
-        for label, text in bodies.items():
-            path = cls.root / (label + ".docx")
-            subprocess.run(
-                [cls.pandoc, "--from=gfm", "--to=docx", "--output", str(path)],
-                input=text,
-                text=True,
-                cwd=cls.root,
-                check=True,
-                capture_output=True,
-            )
-            cls.files["doc-" + label] = path
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.temp.cleanup()
 
     def setUp(self):
         self.workspace = tempfile.TemporaryDirectory()
         self.addCleanup(self.workspace.cleanup)
         self.work = Path(self.workspace.name)
         self.source = self.work / "export"
-        self.lark = FixtureLark(self.work, self.files)
-        export(self.lark, "space", self.source, pandoc=self.pandoc)
+        self.lark = FixtureLark(self.work, dict(self.files))
+        export(
+            self.lark,
+            "space",
+            self.source,
+            pandoc=self.pandoc,
+            source_origin="https://example.feishu.cn",
+        )
 
     def review(self, page_ids):
         review = self.work / "review.json"
@@ -234,7 +194,10 @@ class ConversionTests(unittest.TestCase):
         first, second = manifest["pages"]
         text = (self.source / "content" / first["path"]).read_text()
         self.assertIn(self.long_text, text)
-        self.assertIn("printf 'example'", text)
+        self.assertIn("# 第一页\n", text)
+        self.assertIn("## 示例\n", text)
+        self.assertIn("``` bash\nprintf 'example'\n# <literal>\n```", text)
+        self.assertIn("> 重要操作", text)
         self.assertIn("| CPU", text)
         self.assertIn("../" + second["path"], text)
         self.assertIn('download="example.html"', text)
@@ -264,13 +227,27 @@ class ConversionTests(unittest.TestCase):
         before = (self.source / "manifest.json").read_bytes()
         self.lark.drift = True
         with self.assertRaises(ExportError):
-            export(self.lark, "space", self.source, pandoc=self.pandoc, replace=True)
+            export(
+                self.lark,
+                "space",
+                self.source,
+                pandoc=self.pandoc,
+                source_origin="https://example.feishu.cn",
+                replace=True,
+            )
         self.assertEqual((self.source / "manifest.json").read_bytes(), before)
         self.lark.drift = False
         page = self.source / "content" / pages[0]["path"]
         page.write_text("manual change")
         with self.assertRaises(ExportError):
-            export(self.lark, "space", self.source, pandoc=self.pandoc, replace=True)
+            export(
+                self.lark,
+                "space",
+                self.source,
+                pandoc=self.pandoc,
+                source_origin="https://example.feishu.cn",
+                replace=True,
+            )
         self.assertEqual(page.read_text(), "manual change")
 
     def test_rename_and_deletion_remove_stale_generated_pages(self):
@@ -278,7 +255,14 @@ class ConversionTests(unittest.TestCase):
         removed = before["pages"][1]["page_id"]
         self.lark.deleted = True
         self.lark.title = "改名后的标题"
-        export(self.lark, "space", self.source, pandoc=self.pandoc, replace=True)
+        export(
+            self.lark,
+            "space",
+            self.source,
+            pandoc=self.pandoc,
+            source_origin="https://example.feishu.cn",
+            replace=True,
+        )
         after = read_manifest(self.source)
         self.assertEqual(after["pages"][0]["page_id"], before["pages"][0]["page_id"])
         self.assertEqual(after["pages"][0]["title"], "改名后的标题")
@@ -287,7 +271,14 @@ class ConversionTests(unittest.TestCase):
     def test_unchanged_content_reuses_review_and_paths_cannot_overlap(self):
         manifest = read_manifest(self.source)
         review = self.review([page["page_id"] for page in manifest["pages"]])
-        export(self.lark, "space", self.source, pandoc=self.pandoc, replace=True)
+        export(
+            self.lark,
+            "space",
+            self.source,
+            pandoc=self.pandoc,
+            source_origin="https://example.feishu.cn",
+            replace=True,
+        )
         self.assertEqual(
             read_manifest(self.source)["content_sha256"], manifest["content_sha256"]
         )
@@ -319,23 +310,20 @@ class ConversionTests(unittest.TestCase):
             build(self.source, review, output, replace=True)
         self.assertEqual(read_manifest(output), previous)
 
-    def test_dynamic_blocks_and_old_export_cannot_be_published(self):
-        before = read_manifest(self.source)
-        with (
-            patch.object(self.lark, "export_docx", return_value=2),
-            self.assertRaisesRegex(ExportError, "旧版本导出"),
-        ):
-            export(self.lark, "space", self.source, pandoc=self.pandoc, replace=True)
-        self.assertEqual(read_manifest(self.source), before)
+    def test_unsupported_dynamic_blocks_cannot_be_published(self):
         with patch.object(
             self.lark,
             "document",
-            return_value={
-                "revision_id": 3,
-                "content": '<synced_reference token="example"/><task/>',
-            },
+            return_value={"revision_id": 3, "content": "<title>Example</title><task/>"},
         ):
-            export(self.lark, "space", self.source, pandoc=self.pandoc, replace=True)
+            export(
+                self.lark,
+                "space",
+                self.source,
+                pandoc=self.pandoc,
+                source_origin="https://example.feishu.cn",
+                replace=True,
+            )
         manifest = read_manifest(self.source)
         self.assertTrue(all(page["warnings"] for page in manifest["pages"]))
         with self.assertRaisesRegex(ExportError, "转换警告"):
@@ -344,6 +332,111 @@ class ConversionTests(unittest.TestCase):
                 self.review([page["page_id"] for page in manifest["pages"]]),
                 self.work / "published",
             )
+
+    def test_synced_content_revision_and_cycle(self):
+        self.lark.files["doc-a"] += (
+            '<synced_reference src-token="linked" src-block-id="block"/>'
+        )
+        self.lark.files["linked:block"] = (
+            "<fragment><synced-source><h2>同步标题</h2><p>引用正文。</p></synced-source></fragment>"
+        )
+        export(
+            self.lark,
+            "space",
+            self.source,
+            pandoc=self.pandoc,
+            source_origin="https://example.feishu.cn",
+            replace=True,
+        )
+        before = read_manifest(self.source)
+        page = before["pages"][0]
+        self.assertIn(
+            "### 同步标题", (self.source / "content" / page["path"]).read_text()
+        )
+        self.assertEqual(
+            before["includes"],
+            [{"document_token": "linked", "block_id": "block", "revision": 3}],
+        )
+        document = self.lark.document
+        count = self.lark.calls["linked:block"]
+
+        def edit_reference(token, block=None):
+            value = document(token, block)
+            if block and self.lark.calls["linked:block"] > count + 1:
+                value["revision_id"] += 1
+            return value
+
+        with (
+            patch.object(self.lark, "document", side_effect=edit_reference),
+            self.assertRaisesRegex(ExportError, "同步块"),
+        ):
+            export(
+                self.lark,
+                "space",
+                self.source,
+                pandoc=self.pandoc,
+                source_origin="https://example.feishu.cn",
+                replace=True,
+            )
+        self.assertEqual(read_manifest(self.source), before)
+        self.lark.files["linked:block"] = (
+            '<synced_reference src-token="linked" src-block-id="block"/>'
+        )
+        with self.assertRaisesRegex(ExportError, "循环"):
+            export(
+                self.lark,
+                "space",
+                self.source,
+                pandoc=self.pandoc,
+                source_origin="https://example.feishu.cn",
+                replace=True,
+            )
+        self.assertEqual(read_manifest(self.source), before)
+
+    def test_image_crops_do_not_publish_hidden_pixels_or_share_wrong_variant(self):
+        self.lark.files["doc-a"] += (
+            '<img src="cropped" mime="image/png" crop="[0,0,0.5,1]"/>'
+            '<img src="cropped" mime="image/png" crop="[0.5,0,1,1]"/>'
+        )
+        attachment = self.lark.attachment
+
+        def download(token, destination, *, kind="media"):
+            if token != "cropped":
+                return attachment(token, destination, kind=kind)
+            original = Image.new("RGB", (4, 2))
+            original.putdata([(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 0)] * 2)
+            original.save(destination, format="PNG")
+
+        with patch.object(self.lark, "attachment", side_effect=download):
+            export(
+                self.lark,
+                "space",
+                self.source,
+                pandoc=self.pandoc,
+                source_origin="https://example.feishu.cn",
+                replace=True,
+            )
+            before = read_manifest(self.source)
+            colors = []
+            for file in (self.source / "content").rglob("*.png"):
+                with Image.open(file) as image:
+                    self.assertNotEqual(image.size, (4, 2))
+                    if image.size == (2, 2):
+                        colors.append(image.getpixel((0, 0)))
+            self.assertCountEqual(colors, [(255, 0, 0), (0, 0, 255)])
+            self.lark.files["doc-a"] += (
+                '<img src="cropped" mime="image/png" crop="[0,0,-1,1]"/>'
+            )
+            with self.assertRaisesRegex(ExportError, "裁剪范围"):
+                export(
+                    self.lark,
+                    "space",
+                    self.source,
+                    pandoc=self.pandoc,
+                    source_origin="https://example.feishu.cn",
+                    replace=True,
+                )
+            self.assertEqual(read_manifest(self.source), before)
 
 
 if __name__ == "__main__":

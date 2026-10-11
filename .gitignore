@@ -39,7 +39,6 @@ dist/
 .wiki-build-*/
 .ruff_cache/
 .pytest_cache/
-.lark-export-tasks/
 
 # Retired unreviewed snapshots are retained in Git history only.
 sai-docs/

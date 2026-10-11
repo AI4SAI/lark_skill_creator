@@ -1,10 +1,8 @@
 """Use the maintained CLI for authentication, pagination and native exports."""
 
-import hashlib
 import json
 import os
 import subprocess
-import time
 from pathlib import Path
 
 
@@ -68,8 +66,8 @@ class Lark:
                 raise ExportError("知识库分页没有前进。")
             seen.add(cursor)
 
-    def document(self, token: str) -> dict:
-        doc = self.call(
+    def document(self, token: str, block: str | None = None) -> dict:
+        args = [
             "docs",
             "+fetch",
             "--doc",
@@ -78,95 +76,31 @@ class Lark:
             "xml",
             "--detail",
             "full",
-        ).get("document")
+        ]
+        if block:
+            args += [
+                "--scope",
+                "range",
+                "--start-block-id",
+                block,
+                "--end-block-id",
+                block,
+            ]
+        doc = self.call(*args).get("document")
         if not isinstance(doc, dict) or type(doc.get("revision_id")) is not int:
             raise ExportError("文档版本缺失，无法确认导出内容。")
         if not isinstance(doc.get("content"), str):
             raise ExportError("文档内容缺失。")
         return doc
 
-    def export_docx(self, token: str, destination: Path, revision: int) -> int:
-        relative = str(destination.parent.relative_to(self.cwd))
-        checkpoint_root = self.cwd / ".lark-export-tasks"
-        checkpoint_root.mkdir(mode=0o700, exist_ok=True)
-        if checkpoint_root.is_symlink():
-            raise ExportError("导出任务目录不能是符号链接。")
-        checkpoint = checkpoint_root / (
-            hashlib.sha256(token.encode()).hexdigest() + ".json"
-        )
-        if checkpoint.exists():
-            if checkpoint.is_symlink():
-                raise ExportError("导出任务记录不能是符号链接。")
-            result = json.loads(checkpoint.read_text())
-            exported_revision = result["revision"]
-        else:
-            exported_revision = revision
-            result = self.call(
-                "drive",
-                "+export",
-                "--token",
-                token,
-                "--doc-type",
-                "docx",
-                "--file-extension",
-                "docx",
-                "--file-name",
-                destination.name,
-                "--output-dir",
-                relative,
-            )
-        if destination.is_file():
-            checkpoint.unlink(missing_ok=True)
-            return exported_revision
-        ticket = result.get("ticket")
-        if not isinstance(ticket, str) or not ticket:
-            raise ExportError("飞书没有返回导出文件或可继续查询的任务。")
-        checkpoint.write_text(
-            json.dumps({"ticket": ticket, "revision": exported_revision})
-        )
-        checkpoint.chmod(0o600)
-        # Continue the same upstream task; never create a replacement on a poll timeout.
-        for _ in range(30):
-            result = self.call(
-                "drive",
-                "+task_result",
-                "--scenario",
-                "export",
-                "--ticket",
-                ticket,
-                "--file-token",
-                token,
-            )
-            exported = result.get("file_token")
-            if exported:
-                self.call(
-                    "drive",
-                    "+export-download",
-                    "--file-token",
-                    exported,
-                    "--file-name",
-                    destination.name,
-                    "--output-dir",
-                    relative,
-                )
-                if destination.is_file():
-                    checkpoint.unlink()
-                    return exported_revision
-                raise ExportError("导出任务完成，但本地文件缺失。")
-            if result.get("job_status") not in (0, 1, 2):
-                checkpoint.unlink()
-                raise ExportError("飞书导出任务失败。")
-            time.sleep(2)
-        raise ExportError("飞书导出仍未完成；原输出保留，再次执行将继续查询同一任务。")
-
-    def attachment(self, token: str, destination: Path) -> None:
+    def attachment(self, token: str, destination: Path, *, kind: str = "media") -> None:
         self.call(
             "docs",
             "+media-download",
             "--token",
             token,
             "--type",
-            "media",
+            kind,
             "--output",
             str(destination.relative_to(self.cwd)),
         )
