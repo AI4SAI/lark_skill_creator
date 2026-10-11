@@ -1,16 +1,27 @@
 [project]
 name = "sai-skill-creator"
 version = "0.1.0"
-description = "SAI Docs → Skill 生成器：解析飞书Markdown文档，调用AIGC自动生成SKILL.md"
+description = "飞书文档导出、审核与网站/Skill 构建工具"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = [
-    "openai>=1.0.0",
-    "python-dotenv>=1.0.0",
-]
+dependencies = []
 
 [project.scripts]
 sai-skill-gen = "generate_skills:main"
+sai-wiki-export = "wiki_exporter.wiki_exporter:main"
 
 [dependency-groups]
 dev = []
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+only-include = ["generate_skills.py", "wiki_exporter"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/generate_skills.py", "/wiki_exporter/*.py", "/tests", "/README.md", "/pyproject.toml", "/uv.lock"]
+
+[tool.hatch.build]
+exclude = ["wiki_exporter/*.md"]
