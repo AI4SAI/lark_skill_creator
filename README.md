@@ -1,4 +1,40 @@
-# SAI 文档与 Skill 构建工具
+# SAI 用户 Skill 与文档工具
+
+普通用户安装一个 [sai-user-guide](skills/sai-user-guide/SKILL.md) 即可。它按任务连接控制台、团队协作、存储、计算、费用、Pilot 和 BBS，详细资料按需读取。完整教程仍由作者在飞书维护。
+
+## 安装与更新
+
+- **Codex**：让自带的 `skill-installer` 安装本仓库的 `skills/sai-user-guide`，指定你选择的 tag 或完整提交号。保留整个目录，不只复制 `SKILL.md`。
+- **其他客户端**：把该目录放入客户端支持的 Skill 位置。发行 ZIP 解压后的目录结构相同，无需飞书账号、Pandoc 或本仓库的 Python 环境。
+- **Pilot／DSH**：复用同一包，放入已有 Skill 目录或通过原生 `customSkillDirs`／`bundledSkillDir` 配置加载。平台托管包固定经过验证的版本，不改变用户私有 Skill 或工作台权限。
+
+首次安装可以使用客户端原生安装器。更新前先比较版本和改动；版本及文件校验值在每包的 `manifest.json` 中。已有旧版或个人修改时，下面的可选迁移工具会保留完整备份，需要 Python 3.10+，不需要其他依赖：
+
+```bash
+python skill_package.py diff ~/.codex/skills/sai-user-guide skills/sai-user-guide
+python skill_package.py install skills/sai-user-guide \
+  --dest ~/.codex/skills --backup-dir ~/.local/share/sai-skill-backups --dry-run
+```
+
+核对后去掉 `--dry-run` 执行。上例是 Codex 安装目录，请按客户端实际位置调整。未改动的有版本安装可以正常升级；无清单的旧包或已修改的文件会停止更新。明确要归档这些旧内容后替换时，加 `--archive-existing`。
+
+旧 `sai-overview` 的平台介绍已并入统一入口；迁移时可显式加 `--retire sai-overview --archive-existing`，将它完整移出发现目录并保存在同一备份中。其他 Skill 不受影响。备份须在同一文件系统、Skill 发现目录之外：直接保留旧目录，也保住编辑器仍在向原文件写入的内容。恢复时先移出新目录，再将备份中的原目录放回；不要直接覆盖新增的个人修改。
+
+SAI CLI 已自带匹配其版本的操作指引，主 Skill 按需运行 `sai skill --format markdown` 读取。无需再默认安装 `sai-cli`；已由其他途径安装的独立 CLI Skill 不由本工具擅自删除。
+
+## 维护与发行
+
+普通用户入口及场景参考维护在 `skills/sai-user-guide/`，不让导出器覆盖这个入口。人工手册继续保留原文和教学材料；有明确授权的内容修订另做差异审查。来源与更新范围见 [维护说明](docs/user-skill-maintenance.md)。
+
+```bash
+python skill_package.py seal skills/sai-user-guide
+python skill_package.py check skills/sai-user-guide
+python skill_package.py pack skills/sai-user-guide --output dist
+```
+
+修改内容时同步更新 `SKILL.md` 的版本号，`seal` 只生成文件清单，不代表人工批准。`check` 检查内容一致性和本地引用，`pack` 生成确定性的 ZIP 与 SHA-256；同版本已有不同内容时拒绝覆盖。CI 执行真实 Pandoc 转换测试、打包及安装迁移测试，并保留待发布包；发布 tag 或 Release 是另外的明确操作。
+
+以下是维护者使用的飞书导出流程，安装用户 Skill 不需要执行。
 
 飞书保留为手册编辑入口。这个工具读取飞书 CLI 提供的完整文档结构，由 Pandoc 生成 Markdown，图片和附件使用飞书原生接口下载。审核通过的同一份正文用于网站和 Skill，构建时不调用模型，也不改写操作说明。
 

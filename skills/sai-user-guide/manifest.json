@@ -1,0 +1,18 @@
+{
+  "kind": "sai-user-skill/v1",
+  "name": "sai-user-guide",
+  "version": "0.2.0",
+  "files": {
+    "SKILL.md": "cc6a4576bfa473f6a24a8d61c88e3e0ef070075c9484a1a4f999b1d3c8052eb6",
+    "references/access.md": "b36edac0cd829c23c97c91fc8bbc0155f365fd1c14bf91097e90e26d31defda0",
+    "references/billing.md": "57d95ae456cfd35becd506fb683805481ee801ba4086aa742bb790413461096a",
+    "references/collaboration.md": "8a4a081a15411530da5dea62bea72b14635b78ee02ebfdf6ee074867141fcd4c",
+    "references/community.md": "eccd87725648c2b9c524a1d87adb220181ab759c9bb35e80f4db7195e6256834",
+    "references/compute.md": "fb2d14de6afcd01386d446678850efb91de323be86d2ae75df7d2f00fd3c5c23",
+    "references/pilot.md": "c5f0dcaa89b143958d9f0398d910424fde54e2044dbe71b91f6519bdaec7549d",
+    "references/platform.md": "7c3ec68cbfccdb8ef97226e1dbed05179ff1b1def3073574992207c296a50d75",
+    "references/software.md": "3f03521d6d8e032835c39c83b67224f5f9b8e1199446686a807cfa6c4c34cfea",
+    "references/storage.md": "8fee14feb9d591e473884e39809e1239fd7309337c52c0133d55ced035b682bc",
+    "references/tools.md": "8f4acdd33f79027f55f55b58dfa102ed888162250ce37028bdff7109eefd0989"
+  }
+}

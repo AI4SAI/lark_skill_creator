@@ -1,6 +1,6 @@
 [project]
 name = "sai-skill-creator"
-version = "0.1.0"
+version = "0.2.0"
 description = "飞书文档导出、审核与网站/Skill 构建工具"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -9,6 +9,7 @@ dependencies = ["Pillow>=11.3,<13"]
 [project.scripts]
 sai-skill-gen = "generate_skills:main"
 sai-wiki-export = "wiki_exporter.wiki_exporter:main"
+sai-skill-package = "skill_package:main"
 
 [dependency-groups]
 dev = []
@@ -18,10 +19,10 @@ requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-only-include = ["generate_skills.py", "wiki_exporter"]
+only-include = ["generate_skills.py", "skill_package.py", "wiki_exporter"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/generate_skills.py", "/wiki_exporter/*.py", "/tests", "/README.md", "/pyproject.toml", "/uv.lock"]
+include = ["/generate_skills.py", "/skill_package.py", "/wiki_exporter/*.py", "/skills", "/docs", "/tests", "/README.md", "/pyproject.toml", "/uv.lock"]
 
 [tool.hatch.build]
 exclude = ["wiki_exporter/*.md"]
