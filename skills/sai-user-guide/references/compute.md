@@ -4,20 +4,9 @@
 
 ## 任务记在哪个账户
 
-新提交任务时：**显式账户 → 任务工作目录（WorkDir）推定 → 已生效的 Slurm 默认账户。** `--account`／`-A`、脚本里的 `#SBATCH` 或 `SBATCH_ACCOUNT` 等环境变量都可能提供显式账户。
+简单解释：“默认身份”决定登录后的起始目录和默认账户。任务实际记到哪个账户，Slurm按以下优先级顺序决定：①你手动通过--account指定的账户；②作业工作目录；③门户网站上设置的默认身份。例如个人home目录通常记个人，组织下的个人目录、共享文件夹目录记组织，项目目录则记对应项目。
 
-假设本人叫 `alice`，组织叫 `lab`，未显式指定账户时：
-
-| WorkDir 或其下级目录 | Slurm Account |
-| --- | --- |
-| `/home/alice` | `private-alice` |
-| `/org/lab`、`/org/lab/alice` | `lab` |
-| `/org/lab/share`、`/org/lab/shr-data` | `lab` |
-| `/org/lab/proj-catalysis` | `proj-catalysis` |
-
-默认身份选了组织，在本人 Home 提交且未指定账户，仍会用个人账户。只有组织根下直接的 `proj-*` 子目录会推定为同名项目账户。这里只决定作业归属；课题与独立项目的资金、预算规则见[团队协作](collaboration.md)。
-
-推定看规范绝对 WorkDir，不解析符号链接；旧 `~/workdir_<组织>` 别名不能据名称推定组织。遇到路径歧义，用规范目录或显式账户；系统仍检查你是否有权使用。排错步骤见[工具使用](tools.md)，完整规则见[账户选择说明](https://github.com/AI4SAI/sai-cli/blob/main/docs/job-submit-policy.md)。
+课题与独立项目的资金、预算见[团队协作](collaboration.md)。需要核对脚本、环境变量、目录或排队任务时，读[工具使用](tools.md)。
 
 ## 从准备到结果
 

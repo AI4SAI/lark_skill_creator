@@ -2,7 +2,7 @@
 name: sai-user-guide
 description: 使用 SAI 科研计算平台时的统一指引，涵盖控制台、账号与团队、存储、任务与费用、Pilot 科研工作台及 BBS 社区。用于选择产品、解释规则、开展已授权的操作和排查使用问题。
 metadata:
-  version: "0.2.1"
+  version: "0.2.2"
 ---
 
 # SAI
