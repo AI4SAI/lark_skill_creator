@@ -2,13 +2,17 @@
 
 普通用户安装一个 [sai-user-guide](skills/sai-user-guide/SKILL.md) 即可。它按任务连接控制台、团队协作、存储、计算、费用、Pilot 和 BBS，详细资料按需读取。完整教程仍由作者在飞书维护。
 
+**[下载安装包](https://github.com/AI4SAI/lark_skill_creator/releases/latest/download/sai-user-guide.zip)** · [版本说明与校验值](https://github.com/AI4SAI/lark_skill_creator/releases/latest) · [官网安装指引](https://www.open-sai.com/docs/agents/)
+
 ## 同一份资料，三个入口
 
-本仓库作为已发布资料的唯一分发源。飞书是人工手册的编辑入口，内容单向导入 Git；差异审阅、版本和回退沿用 PR、tag 和 Git。Skill 的简短指引维护在这里，手册正文由导出器原样转换，构建不调用模型。
+本仓库统一管理内容和版本。飞书是人工手册的编辑入口，内容单向导入 Git；差异审阅、版本和回退沿用 PR、tag 和 Git。Skill 的简短指引维护在这里，手册正文由导出器原样转换，构建不调用模型。
 
 审核后的原文放在 `skills/sai-user-guide/references/handbook/`。bot 现有检索器读取 `references/`，包括原文和 Pilot、BBS 等场景参考；Pilot 和自行安装的客户端加载整个 Skill。三端使用同一个 tag／提交号；各端的索引和安装目录只是可重建副本。接入方式见[维护说明](docs/user-skill-maintenance.md)。
 
 当前提供构建能力；生成候选、合入仓库、发布和各端实际加载分别核验。仓库里的简短 Skill 可独立使用，尚未导入的原文继续通过飞书链接阅读。
+
+正式安装包放在 GitHub Releases，官网文档提供固定安装入口，下载带宽由 GitHub 承担。bot、Pilot 和客户端使用本地安装的版本；网络只用于安装／更新，断网时继续读取已有资料。具体发布要求见[维护说明](docs/user-skill-maintenance.md#安装包与可用性)。CI 附件只用于验证，不作为正式下载地址。
 
 ## 安装与更新
 
