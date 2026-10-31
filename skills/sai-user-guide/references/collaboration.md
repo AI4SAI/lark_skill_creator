@@ -22,3 +22,5 @@
 外校合作者只需要看结果，就授权结果目录；需要一起修改，给编辑权限；需要用项目资源跑任务，再给计算权限。无需为了分享一个目录让对方加入整个组织。邀请是否已接受、站点权限是否已生效，要分别看实际状态；合作结束后收回相应授权。
 
 存储池和 Home 资助见[存储与数据](storage.md)。共享文件不等于共享 Pilot 对话，对话协作见[Pilot](pilot.md)。
+
+加入组织后的访问范围、Home 隐私、文件与计算授权、独立项目升级，见[团队协作 FAQ](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnEJnmwuKAHFeXzpt8USfTPg)。

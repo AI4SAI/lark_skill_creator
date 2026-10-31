@@ -11,3 +11,5 @@
 上传、下载或挂载走[数据传输手册](https://vcnn7siwx4yx.feishu.cn/wiki/YUK3w884Vibfzyk3gdZcSTkungh)。计算的临时数据按站点手册使用节点本地缓存，重要结果写回持久存储；不要把缓存、挂载或共享目录当成自动备份。
 
 原文：[存储空间](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf)。
+
+容量未满却超额、组织总额度与目录分额、节点缓存能否长期保存，见[存储 FAQ](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcndFCaShVMwbjnoNa6FQhPac)。
