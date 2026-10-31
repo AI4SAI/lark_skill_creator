@@ -12,6 +12,7 @@ from unittest.mock import patch
 from PIL import Image
 
 from generate_skills import build
+from skill_package import check as check_skill, pack, seal
 from wiki_exporter.bundle import read_manifest
 from wiki_exporter.lark import ExportError, Lark
 from wiki_exporter.wiki_exporter import export, wiki_source
@@ -24,6 +25,24 @@ def response(data, *, ok=True, returncode=0):
 
 
 class CliTests(unittest.TestCase):
+    def test_public_permission_requires_external_access_and_public_link(self):
+        client = Lark(Path.cwd())
+        for external, sharing, accepted in (
+            (True, "anyone_readable", True), (True, "anyone_editable", True),
+            (False, "anyone_readable", False), (True, "tenant_readable", False),
+            (None, None, False),
+        ):
+            with self.subTest(external=external, sharing=sharing), patch.object(
+                client, "call", return_value={"permission_public": {
+                    "external_access": external, "link_share_entity": sharing,
+                }}
+            ):
+                if accepted:
+                    self.assertEqual(client.public_sharing("doc"), sharing)
+                else:
+                    with self.assertRaises(ExportError):
+                        client.public_sharing("doc")
+
     def test_pagination_and_user_identity(self):
         first = [{"node_token": f"node-{n}"} for n in range(50)]
         with patch(
@@ -90,6 +109,9 @@ class FixtureLark:
         self.calls = {}
         self.deleted = False
         self.title = "相同标题"
+
+    def public_sharing(self, token):
+        return "anyone_readable"
 
     def nodes(self, space, parent):
         if parent:
@@ -176,6 +198,7 @@ class ConversionTests(unittest.TestCase):
             json.dumps(
                 {
                     "content_sha256": read_manifest(self.source)["content_sha256"],
+                    "guide_url": "https://github.com/example/guides/blob/fixed-commit/skills/example-guide",
                     "skills": [
                         {
                             "name": "example-guide",
@@ -187,6 +210,120 @@ class ConversionTests(unittest.TestCase):
             )
         )
         return review
+
+    def guide(self):
+        guide = self.work / "maintained/example-guide"
+        (guide / "references").mkdir(parents=True)
+        (guide / "SKILL.md").write_text(
+            '---\nname: example-guide\ndescription: A guide.\nmetadata:\n  version: "1.0.0"\n---\n\n'
+            'An authored entry. [Pilot](references/pilot.md) [BBS](references/community.md)\n'
+        )
+        for name in ("pilot", "community"):
+            (guide / f"references/{name}.md").write_text(f"Authored {name} advice.\n")
+        seal(guide)
+        return guide
+
+    def public_export(self):
+        export(self.lark, "space", self.source, pandoc=self.pandoc,
+               source_origin="https://example.feishu.cn", replace=True, public_only=True)
+        return read_manifest(self.source)
+
+    def test_one_handbook_is_readable_by_bot_skill_and_site(self):
+        guide = self.guide()
+        before = check_skill(guide)
+        manifest = self.public_export()
+        review = self.review([p["page_id"] for p in manifest["pages"]])
+        output = self.work / "published"
+        build(self.source, review, output, guide=guide, version="1.1.0")
+        compiled = output / "skills/example-guide"
+        self.assertEqual(check_skill(guide), before)
+        self.assertEqual(check_skill(compiled)["version"], "1.1.0")
+        self.assertIn("An authored entry.", (compiled / "SKILL.md").read_text())
+        self.assertEqual((compiled / "references/pilot.md").read_bytes(),
+                         (guide / "references/pilot.md").read_bytes())
+        self.assertEqual((compiled / "references/community.md").read_bytes(),
+                         (guide / "references/community.md").read_bytes())
+        corpus = compiled / "references"
+        rows = json.loads((corpus / "manifest.json").read_text())["documents"]
+        self.assertEqual(len(rows), 4)
+        for row in rows:
+            if row["doc_id"].startswith("doc-"):
+                self.assertEqual((corpus / row["file"]).read_bytes(),
+                                 (output / "site" / row["file"].removeprefix("handbook/")).read_bytes())
+                self.assertEqual(row["revision"], 3)
+            else:
+                self.assertEqual((corpus / row["file"]).read_bytes(), (guide / "references" / row["file"]).read_bytes())
+                self.assertIn("/blob/fixed-commit/", row["url"])
+                self.assertEqual(row["revision"], "1.0.0")
+            self.assertEqual(row["sharing"], "anyone_readable")
+        self.assertEqual({r['doc_id'] for r in rows if r['doc_id'].startswith('example-guide:')},
+                         {'example-guide:pilot.md', 'example-guide:community.md'})
+        self.assertEqual(pack(compiled, self.work / "dist1")["sha256"],
+                         pack(compiled, self.work / "dist2")["sha256"])
+        # A later import removes retired generated pages without changing the
+        # maintained entry or leaving an older answer in the bot's directory.
+        self.lark.deleted = True
+        self.lark.files["doc-a"] = "<title>Updated</title><p>Current rule.</p>"
+        self.public_export()
+        remaining = read_manifest(self.source)["pages"][0]["page_id"]
+        build(self.source, self.review([remaining]), self.work / "next",
+              guide=compiled, version="1.2.0")
+        latest = self.work / "next/skills/example-guide"
+        check_skill(latest)
+        retired = next(r for r in rows if r["doc_id"] == "doc-b")
+        self.assertFalse((latest / "references" / retired["file"]).exists())
+        self.assertEqual((latest / "SKILL.md").read_text().count("references/handbook/index.md"), 1)
+
+    def test_unverified_private_and_mid_export_permission_changes_stop_import(self):
+        guide = self.guide()
+        pages = read_manifest(self.source)["pages"]
+        with self.assertRaisesRegex(ExportError, "public-only"):
+            build(self.source, self.review([p["page_id"] for p in pages]),
+                  self.work / "unverified", guide=guide, version="1.1.0")
+        before = read_manifest(self.source)
+        self.lark.files["doc-a"] += '<synced_reference src-token="linked" src-block-id="qa"/>'
+        self.lark.files["linked:qa"] = "<fragment><p>Private QA</p></fragment>"
+
+        def private_source(token):
+            if token == "linked":
+                raise ExportError("未公开")
+            return "anyone_readable"
+
+        with patch.object(self.lark, "public_sharing", side_effect=private_source):
+            with self.assertRaisesRegex(ExportError, "未公开"):
+                self.public_export()
+        self.assertEqual(read_manifest(self.source), before)
+        calls = {}
+
+        def revoke(token):
+            calls[token] = calls.get(token, 0) + 1
+            if calls[token] > 1:
+                raise ExportError("已撤回公开")
+            return "anyone_readable"
+
+        with patch.object(self.lark, "public_sharing", side_effect=revoke):
+            with self.assertRaisesRegex(ExportError, "已撤回公开"):
+                self.public_export()
+        self.assertEqual(read_manifest(self.source), before)
+
+    def test_guide_changes_during_build_and_version_reuse_are_rejected(self):
+        guide = self.guide()
+        manifest = self.public_export()
+        review = self.review([p["page_id"] for p in manifest["pages"]])
+        with self.assertRaisesRegex(ExportError, "新版本"):
+            build(self.source, review, self.work / "same", guide=guide, version="1.0.0")
+        copytree = shutil.copytree
+
+        def copy_and_edit(*args, **kwargs):
+            result = copytree(*args, **kwargs)
+            (guide / "references/pilot.md").write_text("A concurrent edit")
+            return result
+
+        with patch("generate_skills.shutil.copytree", side_effect=copy_and_edit):
+            with self.assertRaises(ExportError):
+                build(self.source, review, self.work / "changed", guide=guide, version="1.1.0")
+        self.assertFalse((self.work / "changed").exists())
+        self.assertEqual((guide / "references/pilot.md").read_text(), "A concurrent edit")
 
     def test_images_tables_long_short_documents_and_links_survive(self):
         manifest = read_manifest(self.source)

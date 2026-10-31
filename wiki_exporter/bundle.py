@@ -44,6 +44,7 @@ def review_digest(manifest: dict) -> str:
         "space_id": manifest["space_id"],
         "pages": manifest["pages"],
         "includes": manifest.get("includes", []),
+        **({"public_sharing": manifest["public_sharing"]} if "public_sharing" in manifest else {}),
         "content": {
             name: digest
             for name, digest in manifest["files"].items()

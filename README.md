@@ -2,6 +2,14 @@
 
 普通用户安装一个 [sai-user-guide](skills/sai-user-guide/SKILL.md) 即可。它按任务连接控制台、团队协作、存储、计算、费用、Pilot 和 BBS，详细资料按需读取。完整教程仍由作者在飞书维护。
 
+## 同一份资料，三个入口
+
+本仓库作为已发布资料的唯一分发源。飞书是人工手册的编辑入口，内容单向导入 Git；差异审阅、版本和回退沿用 PR、tag 和 Git。Skill 的简短指引维护在这里，手册正文由导出器原样转换，构建不调用模型。
+
+审核后的原文放在 `skills/sai-user-guide/references/handbook/`。bot 现有检索器读取 `references/`，包括原文和 Pilot、BBS 等场景参考；Pilot 和自行安装的客户端加载整个 Skill。三端使用同一个 tag／提交号；各端的索引和安装目录只是可重建副本。接入方式见[维护说明](docs/user-skill-maintenance.md)。
+
+当前提供构建能力；生成候选、合入仓库、发布和各端实际加载分别核验。仓库里的简短 Skill 可独立使用，尚未导入的原文继续通过飞书链接阅读。
+
 ## 安装与更新
 
 - **Codex**：让自带的 `skill-installer` 安装本仓库的 `skills/sai-user-guide`，指定你选择的 tag 或完整提交号。保留整个目录，不只复制 `SKILL.md`。
@@ -61,12 +69,15 @@ lark-cli auth status --json --verify
 uv run python -m wiki_exporter https://example.feishu.cn/wiki/space/SPACE_ID --catalog
 uv run python -m wiki_exporter https://example.feishu.cn/wiki/space/SPACE_ID \
   --page-id PAGE_ID --page-id ANOTHER_PAGE_ID \
+  --public-only \
   --output wiki_export/current
 ```
 
 建议使用知识库完整网址，以保留引用文档的正确地址。仅传空间 ID 时，缺少完整网址的文档引用会停止导出，不猜测域名。
 
 省略 `--page-id` 会尝试导出整个空间。当前只接受 Docx 文档；其他节点类型会报错，不会悄悄跳过。嵌入的电子表格、多维表格和思维笔记应先在飞书中整理为独立可发布的内容。
+
+`--public-only` 核对正文及同步块源文档的公开权限，导出结束时再核对一次。它用于公共资料包；公开可读仍不等于授权重新发布，内容范围沿用本次人工审核。
 
 分页会取完；同名文档以稳定标识区分。导出前后会核对文档版本和目录，发现编辑中的变化就停止，不替换原输出。同步块会读取其源文档的对应内容并核对版本，不要求取消飞书中的同步关系。正文不截断，短文不丢弃；标题、代码、列表和表格交给 Pandoc 转换。图片按飞书中选定的范围裁剪，由 Pillow 处理，裁剪后的 PNG 不含被隐藏的边缘。动态图的裁剪暂不支持。已导出文档之间的链接改为本地相对路径，带飞书区块锚点的链接保留原地址。
 
@@ -114,6 +125,19 @@ uv run python generate_skills.py \
   --review review.json \
   --output build/reviewed
 ```
+
+SAI 统一包使用已有的普通用户入口，审核记录中只选择 `sai-user-guide`；另填 `guide_url`，指向该入口在本次 Git 提交中的公开地址，例如 `https://github.com/AI4SAI/lark_skill_creator/blob/COMMIT/skills/sai-user-guide`。为候选指定新版本：
+
+```bash
+uv run python generate_skills.py \
+  --source wiki_export/current --review review.json \
+  --guide skills/sai-user-guide --version 0.3.0 \
+  --output build/reviewed
+python skill_package.py diff skills/sai-user-guide build/reviewed/skills/sai-user-guide
+python skill_package.py pack build/reviewed/skills/sai-user-guide --output dist
+```
+
+`--guide` 保留已有入口和场景参考，仅更新版本、加入本地原文索引及 `references/handbook/`。该子目录由飞书导入；再次构建时完整替换候选里的旧子目录，已移除的文档不会继续被检索。构建不改来源目录。审阅后将生成的完整 Skill 纳入同一 PR，再发布同一版本供各端使用。
 
 输出包含：
 

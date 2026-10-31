@@ -93,6 +93,19 @@ class Lark:
             raise ExportError("文档内容缺失。")
         return doc
 
+    def public_sharing(self, token: str) -> str:
+        permission = self.call(
+            "drive", "permission.public", "get", "--token", token, "--type", "docx"
+        ).get("permission_public", {})
+        if not isinstance(permission, dict):
+            raise ExportError("文档公开权限响应不完整。")
+        sharing = permission.get("link_share_entity")
+        if permission.get("external_access") is not True or sharing not in {
+            "anyone_readable", "anyone_editable"
+        }:
+            raise ExportError("文档或同步源未公开，不能进入公开资料包。")
+        return sharing
+
     def attachment(self, token: str, destination: Path, *, kind: str = "media") -> None:
         self.call(
             "docs",

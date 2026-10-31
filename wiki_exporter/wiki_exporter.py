@@ -67,7 +67,10 @@ def export(
     selected: set[str] | None = None,
     replace: bool = False,
     source_origin: str | None = None,
+    public_only: bool = False,
 ) -> dict:
+    if public_only and source_origin is None:
+        raise ExportError("公开资料导出需要知识库完整网址。")
     nodes = catalog(lark, space)
     known = {n["page_id"] for n in nodes}
     if selected and not selected <= known:
@@ -89,10 +92,16 @@ def export(
         }
         records = []
         references = {}
+        sharing = {}
+
+        def check_public(token):
+            if public_only and token not in sharing:
+                sharing[token] = lark.public_sharing(token)
 
         def include(token, block):
             key = (token, block)
             if key not in references:
+                check_public(token)
                 source = lark.document(token, block)
                 if any(
                     doc == token and value["revision_id"] != source["revision_id"]
@@ -108,6 +117,7 @@ def export(
 
         for node in chosen:
             token, page_id = node["obj_token"], node["page_id"]
+            check_public(token)
             before = lark.document(token)
             original = staging / "originals" / page_id
             original.mkdir(parents=True)
@@ -135,6 +145,7 @@ def export(
                     "path": str(page.relative_to(staging / "content")),
                     "warnings": warnings,
                     "dependencies": dependencies,
+                    **({"sharing": sharing[token]} if public_only else {}),
                 }
             )
         for (token, block), source in references.items():
@@ -160,6 +171,9 @@ def export(
 
         if topology(current) != topology(nodes):
             raise ExportError("导出期间知识库目录发生变化，本次输出未发布。")
+        for token, before in sharing.items():
+            if lark.public_sharing(token) != before:
+                raise ExportError("导出期间公开权限发生变化，未发布。")
         write_manifest(
             staging,
             {
@@ -177,6 +191,7 @@ def export(
                     for (token, block), source in references.items()
                 ],
                 "selection": sorted(selected) if selected is not None else "all",
+                **({"public_sharing": sharing} if public_only else {}),
             },
         )
     return {
@@ -199,6 +214,7 @@ def main() -> int:
         "--replace", action="store_true", help="更新未被手工修改的生成目录"
     )
     parser.add_argument("--pandoc", default="pandoc")
+    parser.add_argument("--public-only", action="store_true", help="核对正文和同步源公开权限")
     args = parser.parse_args()
     lark = Lark(Path.cwd())
     try:
@@ -224,6 +240,7 @@ def main() -> int:
                 selected=set(args.page_id) if args.page_id else None,
                 replace=args.replace,
                 source_origin=source_origin,
+                public_only=args.public_only,
             )
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0
