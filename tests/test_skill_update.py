@@ -423,6 +423,26 @@ class SkillUpdateTests(unittest.TestCase):
             self.assertEqual(error.exception.code, "LOCAL_MODIFIED")
             self.assertEqual((target / "references/handbook/manual.md").read_text(), "Unique personally sealed text")
 
+    @unittest.skipIf(os.geteuid() == 0, "User install intentionally refuses root")
+    def test_backup_retention_is_per_native_destination(self):
+        self.refresh()
+        account = types.SimpleNamespace(pw_dir=str(self.home))
+        with patch.object(skill_update.pwd, "getpwuid", return_value=account):
+            install_user(self.store, agent="codex")
+            self.publish("1.1.0", "Second"); self.refresh()
+            install_user(self.store, agent="claude")
+            self.publish("1.2.0", "Third"); self.refresh()
+            codex_backup = install_user(self.store, agent="opencode")["backup"]
+            self.publish("1.3.0", "Fourth"); self.refresh()
+            claude_backup = install_user(self.store, agent="claude")["backup"]
+            self.assertEqual(check(Path(codex_backup) / "sai-user-guide")["version"], "1.0.0")
+            self.assertEqual(check(Path(claude_backup) / "sai-user-guide")["version"], "1.1.0")
+            self.publish("1.4.0", "Fifth"); self.refresh()
+            result = install_user(self.store, agent="codex")
+            self.assertIn(codex_backup, result["removed_backups"])
+            self.assertTrue(Path(claude_backup).exists())
+            self.assertEqual(check(Path(result["backup"]) / "sai-user-guide")["version"], "1.2.0")
+
     def test_root_and_unavailable_source_return_machine_codes(self):
         with patch.object(skill_update.os, "geteuid", return_value=0):
             with self.assertRaises(UpdateError) as error:

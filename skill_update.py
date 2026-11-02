@@ -274,7 +274,9 @@ def prune_backups(root, keep=None, dry_run=False):
                 continue
             try:
                 receipt = json.loads((run / "backup.json").read_text(encoding="utf-8"))
-                if receipt.get("kind") != "sai-skill-backup/v1" or not isinstance(receipt.get("created_at"), str) or not receipt.get("packages"):
+                if (receipt.get("kind") != "sai-skill-backup/v1" or not isinstance(receipt.get("created_at"), str)
+                        or not isinstance(receipt.get("destination"), str) or not Path(receipt["destination"]).is_absolute()
+                        or not receipt.get("packages")):
                     raise ValueError("unmanaged")
                 expected = {"backup.json"}
                 for relative, original in receipt["packages"].items():
@@ -295,13 +297,18 @@ def prune_backups(root, keep=None, dry_run=False):
                 before = snapshot(run)
                 if set(before) != expected:
                     raise ValueError("modified")
-                candidates.append((receipt["created_at"], run, before))
+                candidates.append((receipt["created_at"], run, before, receipt["destination"]))
             except (ExportError, OSError, ValueError, KeyError, TypeError, AttributeError):
                 retained.append({"path": str(run), "reason": "modified_or_unmanaged"})
-        if not keep and candidates:
-            keep = str(max(candidates)[1])
-        for _, run, before in candidates:
-            if str(run) == keep:
+        newest = {}
+        for created_at, run, _, destination in candidates:
+            if destination not in newest or (created_at, str(run)) > newest[destination]:
+                newest[destination] = (created_at, str(run))
+        keep_paths = {row[1] for row in newest.values()}
+        if keep:
+            keep_paths.add(keep)
+        for _, run, before, _ in candidates:
+            if str(run) in keep_paths:
                 continue
             if _open_backup_files(run):
                 retained.append({"path": str(run), "reason": "open_or_unobservable"})

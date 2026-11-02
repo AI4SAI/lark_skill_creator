@@ -220,7 +220,7 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                     "release": provenance}
             (backup_run / "backup.json").write_text(json.dumps({
                 "kind": "sai-skill-backup/v1", "created_at": datetime.now(timezone.utc).isoformat(),
-                "packages": packages,
+                "destination": str(target), "packages": packages,
             }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         moved = []
         published = False

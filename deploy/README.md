@@ -95,8 +95,10 @@ must read back before being reported as completed.
 
 Personal copies are portable across the user's shared home; they do not link
 to a host-local `/var/lib` path that may be missing on another login or compute
-node. A normal sequence of explicit upgrades keeps the current copy and its
-most recent backup. The installer's own `~/.local/state/sai-skills/installed.json`
+node. A normal sequence of explicit upgrades keeps each native destination's
+current copy and its most recent backup. Codex and OpenCode share one
+destination; Claude's separate copy keeps its own rollback. The installer's
+own `~/.local/state/sai-skills/installed.json`
 receipt records only verified release origins for those copies. Older backups
 may be collected only when their original receipt and complete file hashes
 still match. User edits, unknown provenance and observed open editor handles
