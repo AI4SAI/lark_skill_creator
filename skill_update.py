@@ -175,8 +175,8 @@ def _locked(store):
 
 
 def _json_atomic(path, payload):
-    if path.is_symlink():
-        raise UpdateError("LOCAL_MODIFIED", "更新记录已被改为链接。")
+    if path.is_symlink() or (path.exists() and not path.is_file()):
+        raise UpdateError("LOCAL_MODIFIED", "更新记录已被修改，无法写入。")
     with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, delete=False) as stream:
         temporary = Path(stream.name)
         try:
@@ -279,7 +279,22 @@ def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index
             if changed:
                 _switch(store, version, previous["target"] if previous else None)
             try:
+                # Even an unchanged remote release can race an administrator's
+                # rollback. Never report the release discovered on the network
+                # as the installed version without checking the actual pointer.
+                if os.readlink(store / "current") != "versions/" + version:
+                    raise UpdateError("LOCAL_MODIFIED", "检查期间当前版本入口发生变化。")
                 active = current_package(store, name, require_index)
+                if active["target"] != "versions/" + version:
+                    raise UpdateError("LOCAL_MODIFIED", "读回期间当前版本入口发生变化。")
+                result = {"ok": True, "state": "updated" if changed else "current", "name": name,
+                          "version": version, "path": active["path"], "current": str(store / "current" / name),
+                          "previous": previous["manifest"]["version"] if previous else None,
+                          "updated": changed, "sha256": release["sha256"], "release": release["release"],
+                          "checked_at": datetime.now(timezone.utc).isoformat()}
+                # Publishing the delivery receipt is part of successful update
+                # completion, so failure here follows the same pointer rollback.
+                _json_atomic(store / "status.json", result)
             except BaseException:
                 if changed:
                     if previous:
@@ -287,18 +302,17 @@ def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index
                     elif os.readlink(store / "current") == "versions/" + version:
                         (store / "current").unlink()
                 raise
-            result = {"ok": True, "state": "updated" if changed else "current", "name": name,
-                      "version": version, "path": active["path"], "current": str(store / "current" / name),
-                      "previous": previous["manifest"]["version"] if previous else None,
-                      "updated": changed, "sha256": release["sha256"], "release": release["release"],
-                      "checked_at": datetime.now(timezone.utc).isoformat()}
-            _json_atomic(store / "status.json", result)
             return result
         except (ExportError, OSError, ValueError, KeyError, TypeError, AttributeError, zipfile.BadZipFile, NotImplementedError) as error:
             result = {"ok": False, "state": "failed", "code": getattr(error, "code", "INVALID_PACKAGE"),
                       "error": str(error), "checked_at": datetime.now(timezone.utc).isoformat(),
                       "version": previous["manifest"]["version"] if previous else None}
-            _json_atomic(store / "status.json", result)
+            try:
+                _json_atomic(store / "status.json", result)
+            except (ExportError, OSError):
+                # A replaced or unwritable receipt must not mask the original
+                # failure. The CLI and native service journal still report it.
+                pass
             if isinstance(error, UpdateError):
                 raise
             raise UpdateError("INVALID_PACKAGE", "更新未完成，已有版本保留。") from error

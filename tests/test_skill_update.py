@@ -178,6 +178,45 @@ class SkillUpdateTests(unittest.TestCase):
         self.assertEqual(error.exception.code, "UPDATE_BUSY")
         self.assertEqual(self.installed()["version"], "1.0.0")
 
+    def test_failed_status_publication_restores_previous_and_preserves_replacement(self):
+        before = snapshot(Path(self.refresh()["path"]))
+        self.publish("1.1.0", "New manual")
+        status = self.store / "status.json"
+        outside = self.root / "preserved.txt"
+        outside.write_text("KEEP")
+        status.unlink()
+        for replacement in ("symlink", "directory"):
+            if replacement == "symlink":
+                status.symlink_to(outside)
+            else:
+                status.mkdir()
+            with self.assertRaises(UpdateError) as error:
+                self.refresh()
+            self.assertEqual(error.exception.code, "LOCAL_MODIFIED")
+            self.assertEqual(os.readlink(self.store / "current"), "versions/1.0.0")
+            self.assertEqual(snapshot(Path(self.installed()["path"])), before)
+            self.assertEqual(outside.read_text(), "KEEP")
+            status.unlink() if replacement == "symlink" else status.rmdir()
+
+    def test_same_remote_version_cannot_override_or_misreport_admin_rollback(self):
+        self.refresh()
+        self.publish("1.1.0", "New manual")
+        self.refresh()
+
+        def fetch(url, *args):
+            if url.endswith(".sha256"):
+                pointer = self.store / "admin-rollback"
+                pointer.symlink_to("versions/1.0.0")
+                pointer.replace(self.store / "current")
+            return self.fetch(url, *args)
+
+        with self.assertRaises(UpdateError) as error:
+            update(self.store, require_index=True, fetch=fetch)
+        self.assertEqual(error.exception.code, "LOCAL_MODIFIED")
+        self.assertEqual(os.readlink(self.store / "current"), "versions/1.0.0")
+        self.assertEqual(self.installed()["version"], "1.0.0")
+        self.assertEqual(json.loads((self.store / "status.json").read_text())["state"], "failed")
+
     @unittest.skipIf(os.geteuid() == 0, "User install intentionally refuses root")
     def test_user_copy_uses_nss_home_preserves_edits_and_previous_inodes(self):
         self.refresh()
