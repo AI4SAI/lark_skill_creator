@@ -172,3 +172,17 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 - [组织资助我的 Home 扩容，组里的人就能看我的文件吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnWDXdn1lDLBYWpOxuKFCITg)
 - [有文件编辑权限，就能用这个项目的算力吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnryUp3PZcjCy7pFh1CVoc5k)
 - [组织升级套餐后，独立项目也会一起升级吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcn3gJ29abXXDfT4GyNII7P3e)
+
+### Pilot 与 BBS
+
+#### Q: Pilot 的模型费用和计算任务费用怎么区分？
+
+> **A：**模型调用与 Slurm 计算分别计费。让 Pilot 分析输入、写脚本会产生模型用量；提交计算任务后，另按占用的算力资源计费。两项费用分别在对应明细中核对。
+
+#### Q: Pilot 对话停了，已经提交的计算任务会怎样？
+
+> **A：**已提交的批处理任务会继续。到任务列表查看状态和结果；需要停止计算时，取消对应任务并确认已结束。
+
+#### Q: 从 Pilot 发起的 BBS 提问什么时候公开？
+
+> **A：**先由你确认要公开的内容，再提交社区。显示“待审核”时尚在审核，发布成功后会得到帖子链接。私密账号、账单和未发表数据应留在授权范围内。

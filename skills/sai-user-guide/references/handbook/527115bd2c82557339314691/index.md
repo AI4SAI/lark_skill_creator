@@ -2,6 +2,8 @@
 
 第一次使用，先完成[账号申请](../5be412539311c935c3d4b2cb/index.md)，再按下面的步骤开始计算。
 
+想让 Agent 帮你读文件、写脚本和准备计算，可使用 [SAI Pilot](https://pilot.open-sai.com/)；想找同行经验、提问或分享成果，可到 [SAI BBS](https://bbs.open-sai.com/)。自己的命令行 Agent 可[安装 SAI Skill](https://www.open-sai.com/docs/agents/)。
+
 1.  [登录超算：连接主机、用户名与密钥](../891ee584b71ab6f7b0d6d62d/index.md)
 2.  [5分钟上手：检查 GPU，提交第一个任务](../df8c6d77197060d17cc2d0d2/index.md)
 3.  [数据传输：上传输入、下载结果](../2145e4dfd26ad7d6fd4a40fc/index.md)

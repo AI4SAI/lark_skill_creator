@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-02T01:03:07.143091+00:00",
+  "fetched_at": "2026-11-02T01:49:57.390052+00:00",
   "source": "Published SAI guide and handbook",
   "documents": [
     {
@@ -50,12 +50,12 @@
       "doc_id": "FtIBdn6fGo0FtNxSnwdcsjcinrd",
       "title": "用户手册",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/BcNrwvz1biY2zrkIRsqc4mhInwd",
-      "revision": 42,
+      "revision": 43,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/527115bd2c82557339314691/index.md",
-      "characters": 748,
-      "sha256": "c34c50fc294fa4be156aa185755a9327e401864f52763241a0ac57ad3d4207b6"
+      "characters": 942,
+      "sha256": "159602942163b9a57fdeca6ea7d41e27f01e98cb083e8313f8454fa5e372995a"
     },
     {
       "doc_id": "RZcTdxGjnofpb4xu4ZXcySLOnqb",
@@ -248,17 +248,17 @@
       "doc_id": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "title": "FAQ",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg",
-      "revision": 810,
+      "revision": 811,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/b0585e709557547e77b329b0/index.md",
-      "characters": 7609,
-      "sha256": "9ef36ec6899e6289924415054215e0f39e0e7c19d590ac2479e9196e7a615314"
+      "characters": 7949,
+      "sha256": "54fd29ba8fcb81e6beffae27891a8f78d06bf257706be5f8b269dbb119f921d1"
     },
     {
       "doc_id": "sai-user-guide:access.md",
       "title": "账号与连接",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/access.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/access.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -269,7 +269,7 @@
     {
       "doc_id": "sai-user-guide:billing.md",
       "title": "费用与服务",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/billing.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/billing.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -280,7 +280,7 @@
     {
       "doc_id": "sai-user-guide:collaboration.md",
       "title": "团队协作",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/collaboration.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/collaboration.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -291,7 +291,7 @@
     {
       "doc_id": "sai-user-guide:community.md",
       "title": "SAI BBS",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/community.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/community.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -302,7 +302,7 @@
     {
       "doc_id": "sai-user-guide:compute.md",
       "title": "计算任务",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/compute.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/compute.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -313,7 +313,7 @@
     {
       "doc_id": "sai-user-guide:pilot.md",
       "title": "SAI Pilot · 赛先生领航员",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/pilot.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/pilot.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -324,7 +324,7 @@
     {
       "doc_id": "sai-user-guide:platform.md",
       "title": "选择入口",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/platform.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/platform.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -335,7 +335,7 @@
     {
       "doc_id": "sai-user-guide:software.md",
       "title": "软件与性能",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/software.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/software.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -346,7 +346,7 @@
     {
       "doc_id": "sai-user-guide:storage.md",
       "title": "存储与数据",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/storage.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/storage.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -357,7 +357,7 @@
     {
       "doc_id": "sai-user-guide:tools.md",
       "title": "让 Agent 操作 SAI",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff09/skills/sai-user-guide/references/tools.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/tools.md",
       "revision": "0.2.4",
       "sharing": "anyone_readable",
       "status": "fetched",
@@ -370,22 +370,22 @@
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "LXq3dX9yVsB9xSbvwAccosAlnRe",
-      "revision": 810
+      "revision": 811
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "Y7ORdw9h1sTJjtbINohcJxu4ngc",
-      "revision": 810
+      "revision": 811
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "QagOdTbmwsOF1VbYWhDc5ekInmd",
-      "revision": 810
+      "revision": 811
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "HjIHdJxYuszonUbafg9c6scbn9R",
-      "revision": 810
+      "revision": 811
     }
   ]
 }

@@ -4,7 +4,7 @@
 - [SAI的故事](a215b4ea65a3da3e6975c589/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/VF9fwo5sciza9pk56BycUvNSnRd) · 修订 73
 - [账号申请](5be412539311c935c3d4b2cb/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/DrcXwp6rZidHSQkoE95cGvLMnPf) · 修订 36
 - [5分钟上手](df8c6d77197060d17cc2d0d2/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/HrR6wu98kiiAvpk6LW6cIXnanRg) · 修订 1100
-- [用户手册](527115bd2c82557339314691/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/BcNrwvz1biY2zrkIRsqc4mhInwd) · 修订 42
+- [用户手册](527115bd2c82557339314691/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/BcNrwvz1biY2zrkIRsqc4mhInwd) · 修订 43
 - [团队协作与资源管理](8bda3bdc3e54a43733f37e8f/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f) · 修订 10
 - [账号、计费与资金](de0cae9d9928cde1be3cc6b6/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d) · 修订 954
 - [卫星集群和姊妹集群](ac41bc6f8d0c7984e7e26283/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/Wg0owQs5qi2qHqki87Sclw0gnl7) · 修订 198
@@ -22,4 +22,4 @@
 - [任务提交和管理](263082edffdfc401aebd0e23/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc) · 修订 5081
 - [常见软件用法](79cb0136e1e12aa366de27e1/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/NgQVwbVndictZqkG9UncfoItnxf) · 修订 1607
 - [性能调优✨✨✨](1ff92c0337e3d406c61a8e77/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/NVfBwF7d2ijPPykuq6ScDb3RnVi) · 修订 367
-- [FAQ](b0585e709557547e77b329b0/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg) · 修订 810
+- [FAQ](b0585e709557547e77b329b0/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg) · 修订 811
