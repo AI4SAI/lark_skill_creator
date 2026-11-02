@@ -316,6 +316,16 @@ def install_user(store, *, agent, dry_run=False):
     except (OSError, KeyError) as error:
         raise UpdateError("IDENTITY_UNAVAILABLE", "无法确认当前登录账号的主目录。") from error
     destination = home / (".claude" if agent == "claude" else ".agents") / "skills"
+    legacy = () if agent == "claude" else (
+        home / ".codex/skills/sai-user-guide", home / ".config/opencode/skills/sai-user-guide")
+    # Reject personal or symlinked copies before touching any discovery root.
+    # Unchanged managed copies use the same installer transaction and backups.
+    for path in legacy:
+        if path.exists() or path.is_symlink():
+            try:
+                check(path)
+            except (ExportError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
+                raise UpdateError("LOCAL_MODIFIED", "旧目录已有个人指引，请保留后再安装。", destination=str(path)) from error
     try:
         source = current_package(Path(store), require_index=True)
         if not source:
@@ -325,7 +335,7 @@ def install_user(store, *, agent, dry_run=False):
     try:
         if dry_run:
             result = install(Path(source["path"]), destination,
-                             backup=home / ".local/share/sai-skill-backups", dry_run=True)
+                             backup=home / ".local/share/sai-skill-backups", dry_run=True, retire_managed=legacy)
         else:
             # Keep independent browser requests from replacing each other's copies.
             # SIGTERM enters the existing installer's inode-preserving rollback.
@@ -336,7 +346,7 @@ def install_user(store, *, agent, dry_run=False):
                 prior_signal = signal.signal(signal.SIGTERM, interrupted)
                 try:
                     result = install(Path(source["path"]), destination,
-                                     backup=home / ".local/share/sai-skill-backups")
+                                     backup=home / ".local/share/sai-skill-backups", retire_managed=legacy)
                 finally:
                     signal.signal(signal.SIGTERM, prior_signal)
     except UpdateError:

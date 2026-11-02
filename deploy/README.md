@@ -66,8 +66,12 @@ Claude Code uses `~/.claude/skills`. This installs a personal copy, with no
 background writer. Repeating the action updates an unchanged managed copy;
 local modifications are preserved and reported as `LOCAL_MODIFIED`. A native
 file lock serializes concurrent installs. Backups retain original inodes at
-`~/.local/share/sai-skill-backups`, outside discovery directories. SIGTERM
-enters normal rollback; after a hard process or host failure, inspect the
+`~/.local/share/sai-skill-backups`, outside discovery directories.
+Earlier unchanged packages in `~/.codex/skills` and
+`~/.config/opencode/skills` are moved into that same backup during installation,
+so the new shared copy does not leave stale duplicates in native discovery.
+Personal or unrecognized old copies are preserved and reported with their path.
+SIGTERM enters normal rollback; after a hard process or host failure, inspect the
 target and retained backup before retrying. Requests that lose their reply
 must read back before being reported as completed.
 

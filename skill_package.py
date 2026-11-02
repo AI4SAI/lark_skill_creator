@@ -134,7 +134,8 @@ def diff(old: Path, new: Path) -> str:
 
 
 def install(source: Path, destination: Path, *, backup: Path | None = None,
-            archive_existing: bool = False, retire: tuple[str, ...] = (), dry_run: bool = False) -> dict:
+            archive_existing: bool = False, retire: tuple[str, ...] = (), dry_run: bool = False,
+            retire_managed: tuple[Path, ...] = ()) -> dict:
     source, destination = canonical_directory(source), canonical_directory(destination)
     manifest = check(source)
     if source.is_relative_to(destination) or destination.is_relative_to(source):
@@ -143,9 +144,13 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
     if any(not NAME.fullmatch(item) or len(item) > 64 or item == name for item in retire):
         raise ExportError("停用名称无效，不能停用正在安装的 Skill。")
     target = destination / name
+    managed = tuple(canonical_directory(path) for path in retire_managed)
+    if any(path.name != name or path.is_relative_to(destination) or destination.is_relative_to(path)
+           or path.is_relative_to(source) or source.is_relative_to(path) for path in managed):
+        raise ExportError("旧安装路径无效。")
     existing = {}
     unchanged = False
-    for path in [target, *(destination / item for item in sorted(set(retire)))]:
+    for path in [target, *(destination / item for item in sorted(set(retire))), *managed]:
         if path.is_symlink():
             raise ExportError(f"{path.name} 是符号链接，请由客户端原有安装方式管理。")
         if not path.exists():
@@ -163,6 +168,12 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                     continue
                 if previous["version"] == manifest["version"]:
                     raise ExportError("相同版本却有不同内容，请先核对来源或更新版本号。")
+        elif path in managed:
+            # A native discovery root may still contain an earlier managed copy.
+            # Only verified packages can be retired by a one-click reinstall.
+            previous = check(path)
+            if previous["name"] != name or (previous["version"] == manifest["version"] and previous != manifest):
+                raise ExportError("旧安装与当前版本冲突，请先核对内容。")
         elif not archive_existing:
             raise ExportError("停用旧 Skill 须显式使用 --archive-existing 并保留备份。")
         existing[path] = files
@@ -170,11 +181,11 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
         raise ExportError("更新或停用已有 Skill 时必须指定 --backup-dir。")
     if backup is not None:
         backup = canonical_directory(backup)
-        if any(backup.is_relative_to(p) or p.is_relative_to(backup) for p in (destination, source)):
+        if any(backup.is_relative_to(p) or p.is_relative_to(backup) for p in (destination, source, *managed)):
             raise ExportError("备份必须位于来源和 Skill 发现目录之外。")
     plan = {"name": name, "version": manifest["version"], "destination": str(target),
-            "replace": [p.name for p in existing], "already_current": unchanged,
-            "dry_run": dry_run}
+            "replace": [p.name for p in existing], "already_current": unchanged and not existing,
+            "dry_run": dry_run, "retire_from": [str(path) for path in managed if path in existing]}
     if dry_run or (unchanged and not existing):
         return plan
     destination.mkdir(parents=True, exist_ok=True)
@@ -201,7 +212,8 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                     raise ExportError("已有内容发生变化，未替换。")
                 # Keep the actual old inodes, including writes through already-open
                 # editor handles. A pre-update copy is not a sufficient backup.
-                saved = backup_run / path.name
+                saved = backup_run / path.name if path not in managed else backup_run / ("legacy-" + str(managed.index(path) + 1)) / name
+                saved.parent.mkdir(parents=True, exist_ok=True)
                 moved.append((path, saved))
                 path.rename(saved)
             if not unchanged:

@@ -14,7 +14,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import skill_update
-from skill_package import check, pack, runtime, seal, snapshot
+from skill_package import check, install, pack, runtime, seal, snapshot
 from skill_update import UpdateError, current, install_user, update
 
 
@@ -225,6 +225,55 @@ class SkillUpdateTests(unittest.TestCase):
                 with self.assertRaises(UpdateError):
                     install_user(self.store, agent="codex")
             self.assertEqual(snapshot(destination), before)
+
+    @unittest.skipIf(os.geteuid() == 0, "User install intentionally refuses root")
+    def test_native_legacy_roots_migrate_without_duplicate_discovery(self):
+        self.refresh()
+        account = types.SimpleNamespace(pw_dir=str(self.home))
+        legacy = self.home / ".codex/skills/sai-user-guide"
+        install(self.source, legacy.parent)
+        old = snapshot(legacy)
+        self.publish("1.1.0", "New shared version")
+        self.refresh()
+        with patch.object(skill_update.pwd, "getpwuid", return_value=account):
+            plan = install_user(self.store, agent="codex", dry_run=True)
+            self.assertEqual(plan["retire_from"], [str(legacy)])
+            self.assertTrue(legacy.exists())
+            with (legacy / "references/handbook/manual.md").open("a") as writer:
+                result = install_user(self.store, agent="codex")
+                self.assertFalse(legacy.exists())
+                saved = Path(result["backup"]) / "legacy-1/sai-user-guide"
+                self.assertEqual(snapshot(saved), old)
+                writer.write("Late write to original")
+                writer.flush()
+                self.assertIn("Late write", (saved / "references/handbook/manual.md").read_text())
+            # A later personal copy in the legacy root is never discarded.
+            legacy.mkdir(parents=True)
+            (legacy / "SKILL.md").write_text("Personal guidance")
+            with self.assertRaises(UpdateError) as error:
+                install_user(self.store, agent="codex")
+            self.assertEqual(error.exception.details["destination"], str(legacy))
+            self.assertEqual((legacy / "SKILL.md").read_text(), "Personal guidance")
+
+    @unittest.skipIf(os.geteuid() == 0, "User install intentionally refuses root")
+    def test_legacy_migration_failure_restores_every_original(self):
+        self.refresh()
+        account = types.SimpleNamespace(pw_dir=str(self.home))
+        legacy = self.home / ".config/opencode/skills/sai-user-guide"
+        install(self.source, legacy.parent)
+        old = snapshot(legacy)
+        rename = Path.rename
+
+        def fail_publish(path, target):
+            if path.name == "sai-user-guide" and path.parent.name.startswith(".skill-install-"):
+                raise OSError("Publish failed")
+            return rename(path, target)
+
+        with patch.object(skill_update.pwd, "getpwuid", return_value=account), patch.object(Path, "rename", fail_publish):
+            with self.assertRaises(UpdateError):
+                install_user(self.store, agent="opencode")
+        self.assertEqual(snapshot(legacy), old)
+        self.assertFalse((self.home / ".agents/skills/sai-user-guide").exists())
 
     def test_root_and_unavailable_source_return_machine_codes(self):
         with patch.object(skill_update.os, "geteuid", return_value=0):
