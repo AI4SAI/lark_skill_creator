@@ -303,6 +303,14 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                 observed["SKILL.md"] = observed.pop(".SKILL.md.retired")
                 if observed != existing[path] or open_files(temporary):
                     raise ExportError(f"迁移期间旧指引发生变化，原目录保留：{path}")
+            if retired:
+                receipt = backup_run / "backup.json"
+                metadata = json.loads(receipt.read_text(encoding="utf-8"))
+                metadata["retained_originals"] = [
+                    {"path": str(temporary), "reason": "cross_mount_cleanup"} for _, temporary in retired]
+                # Record potential cleanup residue while original inodes can
+                # still be restored if this final receipt write fails.
+                receipt.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         except BaseException:
             for path, temporary in reversed(retired):
                 if not temporary.exists():
@@ -335,11 +343,6 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                 # Installation and discovery retirement already completed.
                 # Preserve and expose any cleanup residue instead of hiding it.
                 retained_originals.append({"path": str(temporary), "reason": "cross_mount_cleanup"})
-        if retained_originals:
-            receipt = backup_run / "backup.json"
-            metadata = json.loads(receipt.read_text(encoding="utf-8"))
-            metadata["retained_originals"] = retained_originals
-            receipt.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return {**plan, "backup": str(backup_run) if backup_run else None, "verified": True,
             "copied_legacy": [str(path) for path, _, _ in copied], "retained_backups": retained_originals}
 
