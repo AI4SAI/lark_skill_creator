@@ -109,6 +109,17 @@ Earlier unchanged packages in `~/.codex/skills` and
 `~/.config/opencode/skills` are moved into that same backup during installation,
 so the new shared copy does not leave stale duplicates in native discovery.
 Personal or unrecognized old copies are preserved and reported with their path.
+An exact native bind mount may reject the old-directory rename with `EXDEV`
+even on the same filesystem. Only verified, unchanged legacy copies use the
+copy fallback: verify the backup bytes, publish and read back the destination,
+then retire the original within its own mount. In-place rollback preserves the
+original inodes while checks run; a completed cross-mount backup is a verified
+copy and does not preserve those inodes. Changed originals or observed open
+editor handles abort the migration and restore the original directory.
+Retired temporary entries cannot be discovered as Skills; normal migration
+removes them. A cleanup failure retains and exposes its path through the same
+backup receipt, including on the next status read. The existing process-view
+limits also apply here: this does not promise visibility into remote editors.
 SIGTERM enters normal rollback; after a hard process or host failure, inspect the
 target and retained backup before retrying. Requests that lose their reply
 must read back before being reported as completed.

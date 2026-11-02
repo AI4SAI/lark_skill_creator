@@ -2,8 +2,10 @@
 
 import argparse
 import difflib
+import errno
 import hashlib
 import json
+import os
 import re
 import shutil
 import sys
@@ -28,6 +30,32 @@ def snapshot(root: Path) -> dict[str, str]:
     if manifest.is_file():
         files["manifest.json"] = hashlib.sha256(manifest.read_bytes()).hexdigest()
     return files
+
+
+def open_files(root):
+    """Observe same-user open inodes on this host, including bind aliases."""
+    files = {(path.stat().st_dev, path.stat().st_ino) for path in root.rglob("*") if path.is_file()}
+    try:
+        processes = list(Path("/proc").iterdir())
+    except OSError:
+        return True
+    for process in processes:
+        if not process.name.isdecimal():
+            continue
+        try:
+            if process.stat().st_uid != os.geteuid():
+                continue
+            for descriptor in (process / "fd").iterdir():
+                try:
+                    info = descriptor.stat()
+                    if (info.st_dev, info.st_ino) in files:
+                        return True
+                except FileNotFoundError:
+                    continue
+        except (FileNotFoundError, PermissionError):
+            # The native process view does not expose every host or namespace.
+            continue
+    return False
 
 
 def skill_metadata(root: Path) -> tuple[str, str]:
@@ -223,6 +251,8 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                 "destination": str(target), "packages": packages,
             }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         moved = []
+        copied = []
+        retired = []
         published = False
         try:
             for path, files in existing.items():
@@ -233,7 +263,21 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                 saved = backup_run / path.name if path not in managed else backup_run / ("legacy-" + str(managed.index(path) + 1)) / name
                 saved.parent.mkdir(parents=True, exist_ok=True)
                 moved.append((path, saved))
-                path.rename(saved)
+                try:
+                    path.rename(saved)
+                except OSError as error:
+                    if error.errno != errno.EXDEV or path not in managed:
+                        raise
+                    moved.pop()
+                    # An exact native bind mount can reject rename even when
+                    # both paths share st_dev. Only unchanged managed legacy
+                    # copies may use this byte-preserving migration.
+                    if open_files(path):
+                        raise ExportError(f"旧指引正在被使用，请关闭编辑器后重试：{path}")
+                    shutil.copytree(path, saved)
+                    if snapshot(saved) != files or snapshot(path) != files:
+                        raise ExportError(f"复制期间旧指引发生变化，原目录保留：{path}")
+                    copied.append((path, saved, files))
             if not unchanged:
                 if target.exists() or target.is_symlink():
                     raise ExportError("目标已被其他进程创建，未覆盖。")
@@ -241,7 +285,34 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                 candidate.rename(target)
             if check(target) != manifest:
                 raise ExportError("安装读回不一致。")
+            # Publish and verify the new copy before retiring any cross-mount
+            # original. The in-place move retains its inodes for rollback.
+            for path, saved, files in copied:
+                if snapshot(path) != files or open_files(path):
+                    raise ExportError(f"旧指引发生变化或正在被使用，原目录保留：{path}")
+                temporary = path.with_name(".skill-retired-" + uuid.uuid4().hex)
+                retired.append((path, temporary))
+                path.rename(temporary)
+                if snapshot(temporary) != files or open_files(temporary):
+                    raise ExportError(f"迁移期间旧指引发生变化，原目录保留：{path}")
+                # Explicitly remove discovery, even for clients that recurse
+                # into hidden directories. This still preserves the inode.
+                (temporary / "SKILL.md").rename(temporary / ".SKILL.md.retired")
+            for path, temporary in retired:
+                observed = snapshot(temporary)
+                observed["SKILL.md"] = observed.pop(".SKILL.md.retired")
+                if observed != existing[path] or open_files(temporary):
+                    raise ExportError(f"迁移期间旧指引发生变化，原目录保留：{path}")
         except BaseException:
+            for path, temporary in reversed(retired):
+                if not temporary.exists():
+                    continue
+                if path.exists() or path.is_symlink():
+                    raise ExportError(f"恢复目标已被占用，请保留原文件：{temporary}")
+                entry = temporary / ".SKILL.md.retired"
+                if entry.exists():
+                    entry.rename(temporary / "SKILL.md")
+                temporary.rename(path)
             if published and target.exists():
                 # Never delete concurrent user edits during rollback.
                 if snapshot(target) != candidate_snapshot:
@@ -256,7 +327,21 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                     raise ExportError(f"恢复目标已被占用，请从保留备份恢复：{backup_run}")
                 saved.rename(path)
             raise
-    return {**plan, "backup": str(backup_run) if backup_run else None, "verified": True}
+        retained_originals = []
+        for _, temporary in retired:
+            try:
+                shutil.rmtree(temporary)
+            except OSError:
+                # Installation and discovery retirement already completed.
+                # Preserve and expose any cleanup residue instead of hiding it.
+                retained_originals.append({"path": str(temporary), "reason": "cross_mount_cleanup"})
+        if retained_originals:
+            receipt = backup_run / "backup.json"
+            metadata = json.loads(receipt.read_text(encoding="utf-8"))
+            metadata["retained_originals"] = retained_originals
+            receipt.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return {**plan, "backup": str(backup_run) if backup_run else None, "verified": True,
+            "copied_legacy": [str(path) for path, _, _ in copied], "retained_backups": retained_originals}
 
 
 def main() -> int:
