@@ -295,11 +295,13 @@ def prune_backups(root, keep=None, dry_run=False):
                         or not isinstance(receipt.get("destination"), str) or not Path(receipt["destination"]).is_absolute()
                         or not receipt.get("packages")):
                     raise ValueError("unmanaged")
+                has_original = False
                 for original in receipt.get("retained_originals", []):
                     path = Path(original["path"])
                     if path.is_absolute() and path.exists():
+                        has_original = True
                         retained.append({"path": str(path), "reason": "cross_mount_cleanup"})
-                if receipt.get("retained_originals"):
+                if has_original:
                     raise ValueError("retained originals")
                 expected = {"backup.json"}
                 for relative, original in receipt["packages"].items():

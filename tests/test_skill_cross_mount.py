@@ -73,6 +73,7 @@ def exercise(root, scenario):
 
     rename = Path.rename
     copytree = shutil.copytree
+    write_text = Path.write_text
 
     def failing_rename(path, to):
         if scenario == "publish_failure" and path == source:
@@ -92,6 +93,11 @@ def exercise(root, scenario):
             (legacy / "references/use.md").write_text("Changed concurrently during copy")
         return result
 
+    def failed_receipt(path, content, *args, **kwargs):
+        if scenario == "receipt_failure" and path.name == "backup.json" and "retained_originals" in content:
+            raise OSError("Receipt publication failed")
+        return write_text(path, content, *args, **kwargs)
+
     if scenario == "open_editor":
         with (legacy / "references/use.md").open("a") as editor:
             try:
@@ -104,7 +110,7 @@ def exercise(root, scenario):
             editor.flush()
         assert "Later editor save" in (legacy / "references/use.md").read_text()
     else:
-        with patch.object(Path, "rename", failing_rename), patch.object(shutil, "copytree", changed_copy):
+        with patch.object(Path, "rename", failing_rename), patch.object(shutil, "copytree", changed_copy), patch.object(Path, "write_text", failed_receipt):
             try:
                 perform()
             except (ExportError, OSError):
@@ -126,7 +132,7 @@ def exercise(root, scenario):
 @unittest.skipUnless(shutil.which("bwrap") and sys.platform == "linux", "Linux bubblewrap required")
 class CrossMountTests(unittest.TestCase):
     def test_real_bind_mount_install_and_rollback(self):
-        for scenario in ("success", "publish_failure", "copy_edit", "retire_edit", "entry_failure", "open_editor", "cleanup_failure"):
+        for scenario in ("success", "publish_failure", "copy_edit", "retire_edit", "entry_failure", "open_editor", "cleanup_failure", "receipt_failure"):
             with self.subTest(scenario=scenario), tempfile.TemporaryDirectory(prefix="skill-cross-mount-") as temporary:
                 root = Path(temporary)
                 (root / "legacy").mkdir()
