@@ -124,7 +124,8 @@ def export(
             (original / "source.xml").write_text(before["content"], encoding="utf-8")
             page = aliases[node["node_token"]]
             warnings, dependencies = convert(
-                page, before["content"], aliases, lark, pandoc, include, source_origin
+                page, before["content"], aliases, lark, pandoc, include, source_origin,
+                f"{source_origin}/wiki/{node['node_token']}" if source_origin else None,
             )
             after = lark.document(token)
             if (
