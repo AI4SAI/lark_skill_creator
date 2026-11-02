@@ -28,10 +28,30 @@ Deploy that exact artifact at
 `/usr/local/lib/sai-skills/sai-skill-package.pyz` (root-owned, mode 0644),
 alongside these two unit files in `/etc/systemd/system`. The consuming host
 needs Python 3.10+, a system CA bundle and outbound HTTPS to GitHub
-and its release assets. Version discovery uses GitHub's native stable-release
+and its release assets, or the existing SAI public documentation site when the
+primary transport is unavailable. Version discovery uses GitHub's native stable-release
 redirect, without API credentials or anonymous API quota. No exporter
 dependencies or credentials are required.
 The service's only writable persistent directory is its native StateDirectory.
+
+GitHub remains the primary release source. Only a transport error or timeout
+selects the fixed official fallback at
+`https://www.open-sai.com/docs/skills/release.json`. That small static JSON
+contains `name`, stable `version`, `sha256`, the original GitHub `release` URL
+and a basename such as `sai-user-guide-v0.3.1.zip`. The updater validates every
+field and downloads that basename from the same fixed directory. The public
+documentation builder publishes the exact same released ZIP; no new service,
+credentials, global DNS change or alternate content owner is introduced.
+
+Primary discovery and transfer share a 60-second budget, leaving the rest of
+the existing 180-second update deadline for the fallback. Individual network
+operations have at most a 20-second timeout, bounded by their remaining budget;
+the native service also retains its four-minute execution limit. If primary
+metadata was already read, the fallback must identify that exact version and
+SHA. Bad hashes, invalid metadata, same-version conflicts and downgrades fail
+without switching to another source. The installed receipt still identifies
+the GitHub release and SHA; `status.json` and `current` report the successful
+delivery `source` as `github` or `sai`.
 
 Before the first migration, compare the candidate public document IDs against
 the existing consumer manifest and review every removal. This is a release
