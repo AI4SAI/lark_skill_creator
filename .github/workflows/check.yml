@@ -30,6 +30,8 @@ jobs:
           python -m unittest discover -s tests -v
           python skill_package.py check skills/sai-user-guide
           python skill_package.py pack skills/sai-user-guide --output dist
+          python skill_package.py runtime --output dist/sai-skill-package.pyz
+          python dist/sai-skill-package.pyz check skills/sai-user-guide
           git diff --exit-code
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -37,4 +39,5 @@ jobs:
           path: |
             dist/sai-user-guide-*.zip
             dist/sai-user-guide-*.zip.sha256
+            dist/sai-skill-package.pyz
           if-no-files-found: error

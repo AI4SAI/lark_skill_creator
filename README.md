@@ -10,7 +10,7 @@
 
 审核后的原文放在 `skills/sai-user-guide/references/handbook/`。bot 现有检索器读取 `references/`，包括原文和 Pilot、BBS 等场景参考；Pilot 和自行安装的客户端加载整个 Skill。三端使用同一个 tag／提交号；各端的索引和安装目录只是可重建副本。接入方式见[维护说明](docs/user-skill-maintenance.md)。
 
-当前提供构建能力；生成候选、合入仓库、发布和各端实际加载分别核验。仓库里的简短 Skill 可独立使用，尚未导入的原文继续通过飞书链接阅读。
+包内包含 23 篇公开手册及十份场景参考，保留原文、公式、图片和演示视频；正文按需读取。内部销售讨论稿与未公开政策不随包分发。
 
 正式安装包放在 GitHub Releases，官网文档提供固定安装入口，下载带宽由 GitHub 承担。bot、Pilot 和客户端使用本地安装的版本；网络只用于安装／更新，断网时继续读取已有资料。具体发布要求见[维护说明](docs/user-skill-maintenance.md#安装包与可用性)。CI 附件只用于验证，不作为正式下载地址。
 
@@ -85,6 +85,8 @@ uv run python -m wiki_exporter https://example.feishu.cn/wiki/space/SPACE_ID \
 
 分页会取完；同名文档以稳定标识区分。导出前后会核对文档版本和目录，发现编辑中的变化就停止，不替换原输出。同步块会读取其源文档的对应内容并核对版本，不要求取消飞书中的同步关系。正文不截断，短文不丢弃；标题、代码、列表和表格交给 Pandoc 转换。图片按飞书中选定的范围裁剪，由 Pillow 处理，裁剪后的 PNG 不含被隐藏的边缘。动态图的裁剪暂不支持。已导出文档之间的链接改为本地相对路径，带飞书区块锚点的链接保留原地址。
 
+书签与嵌入网页保留为原链接，公式保留为 LaTeX，分栏按原顺序阅读。动态子页面目录链接回该页原文；离线查看全部已收录章节可用包内手册索引。
+
 ```text
 wiki_export/current/
 ├── manifest.json            # 文档版本、目录、转换警告和文件校验值
@@ -135,7 +137,7 @@ SAI 统一包使用已有的普通用户入口，审核记录中只选择 `sai-u
 ```bash
 uv run python generate_skills.py \
   --source wiki_export/current --review review.json \
-  --guide skills/sai-user-guide --version 0.3.0 \
+  --guide skills/sai-user-guide --version 0.3.1 \
   --output build/reviewed
 python skill_package.py diff skills/sai-user-guide build/reviewed/skills/sai-user-guide
 python skill_package.py pack build/reviewed/skills/sai-user-guide --output dist

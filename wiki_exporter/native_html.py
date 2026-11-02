@@ -63,14 +63,17 @@ class NativeHTML(HTMLParser):
         include,
         source_origin: str | None,
         active=frozenset(),
+        source_page_url: str | None = None,
     ):
         super().__init__()
         self.page, self.lark, self.include, self.active = page, lark, include, active
         self.source_origin = source_origin
+        self.source_page_url = source_page_url
         self.parts = []
         self.warnings = []
         self.downloads = {}
         self.images = 0
+        self.math = None
 
     @staticmethod
     def tag(tag: str) -> str:
@@ -80,11 +83,15 @@ class NativeHTML(HTMLParser):
             return "h" + str(min(int(tag[1]) + 1, 6))
         if tag == "callout":
             return "blockquote"
+        if tag in {"grid", "column"}:
+            return "div"
         return tag
 
     def render(self, xml: str) -> str:
         self.feed(xml)
         self.close()
+        if self.math is not None:
+            raise ExportError("公式缺少结束标记，未导出。")
         return "".join(self.parts)
 
     def media(self, attrs: dict, *, image: bool, board: bool = False) -> str:
@@ -114,7 +121,13 @@ class NativeHTML(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
-        if tag in {"synced_reference", "synced-reference"}:
+        if tag == "latex":
+            if self.math is not None:
+                raise ExportError("公式嵌套无效，未导出。")
+            self.math = []
+        elif self.math is not None and tag == "br":
+            self.math.append("\n")
+        elif tag in {"synced_reference", "synced-reference"}:
             key = (values.get("src-token"), values.get("src-block-id"))
             if not all(key) or key in self.active or len(self.active) >= 32:
                 raise ExportError("同步块引用缺失或循环，未导出。")
@@ -124,6 +137,7 @@ class NativeHTML(HTMLParser):
                 self.include,
                 self.source_origin,
                 self.active | {key},
+                source_page_url=f"{self.source_origin}/docx/{key[0]}#{key[1]}" if self.source_origin else None,
             )
             self.parts.append(nested.render(self.include(*key)))
             self.warnings.extend(nested.warnings)
@@ -158,17 +172,28 @@ class NativeHTML(HTMLParser):
             self.parts.append(
                 f'<a href="{html.escape(url, quote=True)}">{html.escape(title)}</a>'
             )
-        elif tag == "iframe":
-            url = values.get("url", "")
+        elif tag in {"iframe", "bookmark"} or (tag == "readonly-block" and values.get("type") == "iframe"):
+            url = values.get("url") or values.get("href", "")
             if urlsplit(url).scheme not in {"https", "http"}:
                 raise ExportError("嵌入页面缺少有效链接，未导出。")
+            title = values.get("name") or "打开原文中的外部页面"
             self.parts.append(
-                f'<a href="{html.escape(url, quote=True)}">打开原文中的外部页面</a>'
+                f'<p><a href="{html.escape(url, quote=True)}">{html.escape(title)}</a></p>'
             )
+        elif tag == "sub-page-list":
+            if not self.source_page_url:
+                raise ExportError("动态子页面目录缺少原文地址，未导出。")
+            # The block carries an internal token that need not resolve as a
+            # Wiki node. Preserve the live directory through its actual page.
+            url = self.source_page_url
+            if values.get("id") and "#" not in url:
+                url += "#" + values["id"]
+            self.parts.append(f'<p><a href="{html.escape(url, quote=True)}">在飞书原文查看子页面目录</a></p>')
         elif (
             tag in self.STANDARD
             or tag == "title"
             or tag == "callout"
+            or tag in {"grid", "column"}
             or tag in {f"h{i}" for i in range(1, 7)}
         ):
             attributes = ""
@@ -196,17 +221,27 @@ class NativeHTML(HTMLParser):
             self.warnings.append(f"原文包含尚未支持的内容块：{tag}。")
 
     def handle_endtag(self, tag):
+        if tag == "latex":
+            if self.math is None:
+                raise ExportError("公式结束标记无效，未导出。")
+            value = html.escape("".join(self.math).strip(), quote=False)
+            self.parts.append('<span class="math">\\(' + value + '\\)</span>')
+            self.math = None
+            return
         if tag in {"br", "hr", "col"}:
             return
         if (
             tag in self.STANDARD
-            or tag in {"title", "callout"}
+            or tag in {"title", "callout", "grid", "column"}
             or tag in {f"h{i}" for i in range(1, 7)}
         ):
             self.parts.append(f"</{self.tag(tag)}>")
 
     def handle_data(self, data):
-        self.parts.append(html.escape(data, quote=False))
+        if self.math is not None:
+            self.math.append(data)
+        else:
+            self.parts.append(html.escape(data, quote=False))
 
     def handle_comment(self, data):
         if "unsupported" in data.lower():

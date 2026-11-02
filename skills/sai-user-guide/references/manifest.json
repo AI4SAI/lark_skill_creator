@@ -1,0 +1,391 @@
+{
+  "fetched_at": "2026-11-02T01:49:57.390052+00:00",
+  "source": "Published SAI guide and handbook",
+  "documents": [
+    {
+      "doc_id": "AZIMdn9kWoBSNQxrTl3cAIJGnGd",
+      "title": "引言",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/RTqhwh7utixXB6kjvkwc4PAInjf",
+      "revision": 1918,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/3549fe29a2cd64c8d2e79b6a/index.md",
+      "characters": 2775,
+      "sha256": "9cf74fe8643160c039cb95de91fab40319230d35ea15d70a8eb8fd09bd06ab5c"
+    },
+    {
+      "doc_id": "Q2radLVgioSUNTxNfH3czr6InUb",
+      "title": "SAI的故事",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/VF9fwo5sciza9pk56BycUvNSnRd",
+      "revision": 73,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/a215b4ea65a3da3e6975c589/index.md",
+      "characters": 1140,
+      "sha256": "92bb1669dae90b9b547544222d6a425e42508977816b04b53a6258780b4c39b6"
+    },
+    {
+      "doc_id": "FPXjdDc2NoFYZExn3AwczaTznxd",
+      "title": "账号申请",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/DrcXwp6rZidHSQkoE95cGvLMnPf",
+      "revision": 36,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/5be412539311c935c3d4b2cb/index.md",
+      "characters": 948,
+      "sha256": "73016df4d0d61f57de1ffa04f88ca3f1b769dac0c20fe0c3a7972bd82711eafa"
+    },
+    {
+      "doc_id": "Lm6UdFiF3osZACxP2qbc1FWgnjb",
+      "title": "5分钟上手",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/HrR6wu98kiiAvpk6LW6cIXnanRg",
+      "revision": 1100,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/df8c6d77197060d17cc2d0d2/index.md",
+      "characters": 2727,
+      "sha256": "a6549b8bfd46d70a95564e2c4848346f9f5bd4a3331ec72994514250a0d7c10d"
+    },
+    {
+      "doc_id": "FtIBdn6fGo0FtNxSnwdcsjcinrd",
+      "title": "用户手册",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/BcNrwvz1biY2zrkIRsqc4mhInwd",
+      "revision": 43,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/527115bd2c82557339314691/index.md",
+      "characters": 942,
+      "sha256": "159602942163b9a57fdeca6ea7d41e27f01e98cb083e8313f8454fa5e372995a"
+    },
+    {
+      "doc_id": "RZcTdxGjnofpb4xu4ZXcySLOnqb",
+      "title": "团队协作与资源管理",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f",
+      "revision": 10,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/8bda3bdc3e54a43733f37e8f/index.md",
+      "characters": 2428,
+      "sha256": "2cf1408ed05abac48ddde8897abdcff9b5c808acf62bbbceae552525c446cbdd"
+    },
+    {
+      "doc_id": "WbogdSYJcoIGRJxwmcwcH2GjnPb",
+      "title": "账号、计费与资金",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d",
+      "revision": 954,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/de0cae9d9928cde1be3cc6b6/index.md",
+      "characters": 2512,
+      "sha256": "dae862835c2cbdd953c29c4498ed615de22b50c2fa252de2f5438c7de7c2b419"
+    },
+    {
+      "doc_id": "G9Yxd4e4coXn4FxajC3czvISnjw",
+      "title": "卫星集群和姊妹集群",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/Wg0owQs5qi2qHqki87Sclw0gnl7",
+      "revision": 198,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/ac41bc6f8d0c7984e7e26283/index.md",
+      "characters": 459,
+      "sha256": "87a67893081be8057f8fcf1566e5a730b77b1b811a602f51da90b5e78d4953d9"
+    },
+    {
+      "doc_id": "EpKpdPXlmoboWOxqXrScHbnunwc",
+      "title": "自建超算vs租用SAI",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/UMpowUQHaiB1mlkA0WacvFiqnK3",
+      "revision": 474,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/ebba2f16f1ab67424d3750bf/index.md",
+      "characters": 6982,
+      "sha256": "b5b13692a5d220fc689b311fad3c468afaa18a9284a12ca2591529cd57ecaa1d"
+    },
+    {
+      "doc_id": "IrJwd1rK2olMqJxAk4Lc8uhZnRf",
+      "title": "致谢SAI的论文列表",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/WZfCwZHRsiSSvAklxVEcYK3inJb",
+      "revision": 164,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/62134adbb553eda913b863d3/index.md",
+      "characters": 9634,
+      "sha256": "78d6aba8651e38a55e5d677f0afe4f7684c13ab36b37140d95f4bedcd851ffb4"
+    },
+    {
+      "doc_id": "OAA1dAZQToSl3ixeO9LcmzcOnDb",
+      "title": "SAI学术委员会",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/WuX6wFh9RiiU9LkE4h6c3XP6naf",
+      "revision": 11,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/a65a0641c65a4b7ddfb12e93/index.md",
+      "characters": 21,
+      "sha256": "c8455e80cb98995e4b10f79c446b4705622efc349b3773d7b24fef69a0e38dc5"
+    },
+    {
+      "doc_id": "P9QidbStZoro2wxLeA4c6LURn8b",
+      "title": "问题反馈",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/S4ufwag6PiHoajkIPaVceqKNnbb",
+      "revision": 7,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/c62336b8dd845c2de07d2bf9/index.md",
+      "characters": 249,
+      "sha256": "13f365784bbe1816137b9cfdd48cdd6ec85d81ffe3da783aa66fddc500467c2f"
+    },
+    {
+      "doc_id": "UbGld8se6oxMxhx4hkNcriWAnUc",
+      "title": "SAI用户特殊注意事项汇总",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/RnOnwxCOiiyQQWkIVoUcLcUlnCe",
+      "revision": 253,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/9710beee666fce2a16739dc0/index.md",
+      "characters": 5731,
+      "sha256": "e60d29428aef0b0368b16b9b77d9418a17fa6cde94bee5dad9e557b16f35600e"
+    },
+    {
+      "doc_id": "DDBQdtR6Zon713xCPOUcdxS2n7f",
+      "title": "快速开始",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/JEdOwsjbdirwA3kTDW0cBwQWnVe",
+      "revision": 2537,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/10e455cfa1c14a90040e58a5/index.md",
+      "characters": 8446,
+      "sha256": "28eabe7ab4567aeac90be9ae36d54c8acdf5ffa04e077a1c823f68196ba8a42d"
+    },
+    {
+      "doc_id": "Kq2mdVWMnoudj1xExCncCvGonrc",
+      "title": "SAI硬件资源",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/LleawhoLoisgSTkLuejcJ6vFnLb",
+      "revision": 2551,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/7d583b3babea8f243329f3c7/index.md",
+      "characters": 9779,
+      "sha256": "272fe8bdab5fc9843ad63c95b34f63df89c335b39954ebffcfe1918eab118ca3"
+    },
+    {
+      "doc_id": "P07CdkkEaoRBzKxdydZc9Gmzndf",
+      "title": "登录超算",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/XDK8wAeomiHdH1kFT11c6NsenYf",
+      "revision": 1508,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/891ee584b71ab6f7b0d6d62d/index.md",
+      "characters": 7646,
+      "sha256": "95ff7da635e5bb212611f14fa3ee7036b9df6f2197a6538f0f87a2f8afdc3fd8"
+    },
+    {
+      "doc_id": "ADIzdtuXPog4vGxE22octCz5nNd",
+      "title": "数据传输",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/YUK3w884Vibfzyk3gdZcSTkungh",
+      "revision": 272,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/2145e4dfd26ad7d6fd4a40fc/index.md",
+      "characters": 4358,
+      "sha256": "b14db41171ec3735517bfdd767d68be8059f81ed50634e127274ea29b32edf41"
+    },
+    {
+      "doc_id": "NQ5ydVRceoXlNPxH347cz6l1nfc",
+      "title": "存储空间",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf",
+      "revision": 133,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/440de28fe59b369e89df5e1c/index.md",
+      "characters": 1075,
+      "sha256": "b9e824f0e019c79bc9bf44b9b3ef83096e4f2c4eb3980f817e3fc609c8696ab2"
+    },
+    {
+      "doc_id": "GdUQdxgTioXaEIxV6VGczohCnMe",
+      "title": "软件环境",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/XEHTw8Y9bidBD6klGh5cuZvbnQb",
+      "revision": 1930,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/f1d4bd8bb10f1064716136f5/index.md",
+      "characters": 5244,
+      "sha256": "1300a34d471d8b0ed709f93c43efe0a81dce0561d960241450bceed9e6573c44"
+    },
+    {
+      "doc_id": "Xy89dsFANog0vsx0J2Vc3qAdnhh",
+      "title": "任务提交和管理",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc",
+      "revision": 5081,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/263082edffdfc401aebd0e23/index.md",
+      "characters": 18583,
+      "sha256": "1c655752b4c5cef690ef56cd39aa2875a7ed15efd7cb0c725207c91acd2fa875"
+    },
+    {
+      "doc_id": "TgoTdpvNpo2NfUxYItucRiiSndf",
+      "title": "常见软件用法",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/NgQVwbVndictZqkG9UncfoItnxf",
+      "revision": 1607,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/79cb0136e1e12aa366de27e1/index.md",
+      "characters": 15201,
+      "sha256": "4f309e8bd9e54f263fa525305eb357536aa7692579869ae576da20b1d04914e9"
+    },
+    {
+      "doc_id": "FrJOdaUFxoAxXlxUiXqc0cqDntd",
+      "title": "性能调优✨✨✨",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/NVfBwF7d2ijPPykuq6ScDb3RnVi",
+      "revision": 367,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/1ff92c0337e3d406c61a8e77/index.md",
+      "characters": 5658,
+      "sha256": "b96dd2d8ca227431e6c71827bb3bf6364d9c6f8cca5a8628ba572f8479be38ac"
+    },
+    {
+      "doc_id": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
+      "title": "FAQ",
+      "url": "https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg",
+      "revision": 811,
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "handbook/b0585e709557547e77b329b0/index.md",
+      "characters": 7949,
+      "sha256": "54fd29ba8fcb81e6beffae27891a8f78d06bf257706be5f8b269dbb119f921d1"
+    },
+    {
+      "doc_id": "sai-user-guide:access.md",
+      "title": "账号与连接",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/access.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "access.md",
+      "characters": 778,
+      "sha256": "3b8bd42527cef12cef6168a762b57027c33b0f847b39b3e8f44e256dc97b1ec6"
+    },
+    {
+      "doc_id": "sai-user-guide:billing.md",
+      "title": "费用与服务",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/billing.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "billing.md",
+      "characters": 978,
+      "sha256": "ce108ec58940f21e6f3ebb1c7e001dfeace0495c3e9d6cefc1dd7db42d535d50"
+    },
+    {
+      "doc_id": "sai-user-guide:collaboration.md",
+      "title": "团队协作",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/collaboration.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "collaboration.md",
+      "characters": 982,
+      "sha256": "d6cbf3fb40a354fedbacc9fa9223807f4552ff33a5a72f0ca0bb9e928771bddb"
+    },
+    {
+      "doc_id": "sai-user-guide:community.md",
+      "title": "SAI BBS",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/community.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "community.md",
+      "characters": 563,
+      "sha256": "eccd87725648c2b9c524a1d87adb220181ab759c9bb35e80f4db7195e6256834"
+    },
+    {
+      "doc_id": "sai-user-guide:compute.md",
+      "title": "计算任务",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/compute.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "compute.md",
+      "characters": 1442,
+      "sha256": "fa7ab7ea53fbe1a7c1851ef74035668ce18368b53a04351b232a9a449d5efcad"
+    },
+    {
+      "doc_id": "sai-user-guide:pilot.md",
+      "title": "SAI Pilot · 赛先生领航员",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/pilot.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "pilot.md",
+      "characters": 627,
+      "sha256": "c5f0dcaa89b143958d9f0398d910424fde54e2044dbe71b91f6519bdaec7549d"
+    },
+    {
+      "doc_id": "sai-user-guide:platform.md",
+      "title": "选择入口",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/platform.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "platform.md",
+      "characters": 615,
+      "sha256": "7c3ec68cbfccdb8ef97226e1dbed05179ff1b1def3073574992207c296a50d75"
+    },
+    {
+      "doc_id": "sai-user-guide:software.md",
+      "title": "软件与性能",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/software.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "software.md",
+      "characters": 699,
+      "sha256": "3f03521d6d8e032835c39c83b67224f5f9b8e1199446686a807cfa6c4c34cfea"
+    },
+    {
+      "doc_id": "sai-user-guide:storage.md",
+      "title": "存储与数据",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/storage.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "storage.md",
+      "characters": 742,
+      "sha256": "3b8164dcab755890dd9c0940af748dadacd62a60809bd62991191efbff41b163"
+    },
+    {
+      "doc_id": "sai-user-guide:tools.md",
+      "title": "让 Agent 操作 SAI",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/tools.md",
+      "revision": "0.2.4",
+      "sharing": "anyone_readable",
+      "status": "fetched",
+      "file": "tools.md",
+      "characters": 1157,
+      "sha256": "e23b09d69ad5ae7d620bd50104a9dee5bd40d5ee38e3e98190ba12293e5ad249"
+    }
+  ],
+  "includes": [
+    {
+      "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
+      "block_id": "LXq3dX9yVsB9xSbvwAccosAlnRe",
+      "revision": 811
+    },
+    {
+      "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
+      "block_id": "Y7ORdw9h1sTJjtbINohcJxu4ngc",
+      "revision": 811
+    },
+    {
+      "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
+      "block_id": "QagOdTbmwsOF1VbYWhDc5ekInmd",
+      "revision": 811
+    },
+    {
+      "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
+      "block_id": "HjIHdJxYuszonUbafg9c6scbn9R",
+      "revision": 811
+    }
+  ]
+}

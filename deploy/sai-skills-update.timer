@@ -1,0 +1,12 @@
+[Unit]
+Description=Check for a published SAI user Skill each hour
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=5min
+Persistent=true
+Unit=sai-skills-update.service
+
+[Install]
+WantedBy=timers.target
+

@@ -77,8 +77,9 @@ def convert(
     pandoc: str,
     include,
     source_origin: str | None,
+    source_page_url: str | None = None,
 ) -> tuple[list[str], list[str]]:
-    resources = NativeHTML(page, lark, include, source_origin)
+    resources = NativeHTML(page, lark, include, source_origin, source_page_url=source_page_url)
     content = resources.render(xml)
     page.parent.mkdir(parents=True, exist_ok=True)
     ast = page.parent / "document.json"
@@ -86,7 +87,7 @@ def convert(
         pandoc_run(
             pandoc,
             [
-                "--from=html",
+                "--from=html+tex_math_single_backslash",
                 "--to=json",
                 "--output=document.json",
             ],

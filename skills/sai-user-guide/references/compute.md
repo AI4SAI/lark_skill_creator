@@ -36,4 +36,4 @@ Job Array、修改排队任务、取消和节点监控见[任务手册](https://
 
 已提交的 sbatch 任务会继续，资源占用期间照常计费。交互式 srun 则可能随终端断开而结束，使用 tmux 时还可能继续。以任务状态为准；要结束计算，请取消对应任务。
 
-取消后的清理、失败任务费用、检查点续算和账户更正，见[任务 FAQ](https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg#HjIHdJxYuszonUbafg9c6scbn9R)。用户希望暂停来节省费用时，先说明暂停仍计费，再确认是保留任务还是结束并释放资源。
+余额不足是否自动取消、取消通知未执行、取消后的清理、失败任务费用、检查点续算和账户更正，见[任务 FAQ](https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg#HjIHdJxYuszonUbafg9c6scbn9R)。用户希望暂停来节省费用时，先说明暂停仍计费，再确认是保留任务还是结束并释放资源。

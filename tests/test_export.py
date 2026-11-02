@@ -357,6 +357,30 @@ class ConversionTests(unittest.TestCase):
         skill = (output / "skills/example-guide/SKILL.md").read_text()
         self.assertLess(len(skill), 1500)
 
+    def test_authored_formulas_bookmarks_columns_and_dynamic_directory_survive(self):
+        self.lark.files["doc-a"] = (
+            '<title>Authored guide</title><p>Formula: <latex>C=\\frac{a}{b}<br/></latex> end.</p>'
+            '<bookmark name="Register here" href="https://example.com/register"/>'
+            '<readonly-block type="iframe" href="https://example.com/form"/>'
+            '<grid><column><p>First column</p><img src="image" mime="image/png"/></column>'
+            '<column><p>Second column</p></column></grid>'
+            '<sub-page-list id="directory-block" wiki-token="internal-not-a-node"/>'
+        )
+        export(self.lark, "space", self.source, pandoc=self.pandoc, replace=True,
+               source_origin="https://example.feishu.cn")
+        manifest = read_manifest(self.source)
+        page = manifest["pages"][0]
+        self.assertEqual(page["warnings"], [])
+        text = (self.source / "content" / page["path"]).read_text()
+        self.assertIn(r"C=\frac{a}{b}", text)
+        self.assertIn("[Register here](https://example.com/register)", text)
+        self.assertIn("https://example.com/form", text)
+        self.assertLess(text.index("First column"), text.index("Second column"))
+        self.assertIn("https://example.feishu.cn/wiki/node-a#directory-block", text)
+        self.assertNotIn("internal-not-a-node", text)
+        self.assertEqual(len(list((self.source / "content" / page["page_id"] / "assets").glob("*.png"))), 1)
+        build(self.source, self.review([p["page_id"] for p in manifest["pages"]]), self.work / "complete")
+
     def test_missing_review_revision_drift_and_manual_edits_preserve_outputs(self):
         pages = read_manifest(self.source)["pages"]
         with self.assertRaises(ExportError):

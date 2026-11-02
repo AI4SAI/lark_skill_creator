@@ -19,10 +19,10 @@ requires = ["hatchling>=1.27,<2"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-only-include = ["generate_skills.py", "skill_package.py", "wiki_exporter"]
+only-include = ["generate_skills.py", "skill_package.py", "skill_update.py", "wiki_exporter"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/generate_skills.py", "/skill_package.py", "/wiki_exporter/*.py", "/skills", "/docs", "/tests", "/README.md", "/pyproject.toml", "/uv.lock"]
+include = ["/generate_skills.py", "/skill_package.py", "/skill_update.py", "/wiki_exporter/*.py", "/skills", "/docs", "/deploy", "/tests", "/README.md", "/pyproject.toml", "/uv.lock"]
 
 [tool.hatch.build]
 exclude = ["wiki_exporter/*.md"]
