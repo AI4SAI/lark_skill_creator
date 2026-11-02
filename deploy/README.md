@@ -3,7 +3,7 @@
 The release maintainer remains the content owner. One native systemd timer
 per consuming host downloads the stable GitHub Release, verifies its checksum,
 complete file manifest and public-document index, and atomically replaces
-`/var/lib/sai-skills/current`. Consumers read fixed local version directories.
+`/var/lib/sai-skills/current`. Consumers validate fixed local version directories.
 An unavailable source, invalid package, modified local tree, conflicting
 version or downgrade leaves the previous version selected. There is no model
 call, question-path download or new service process.
@@ -58,6 +58,24 @@ command's nonzero JSON result and `journalctl -u sai-skills-update.service`.
 The timer checks once an hour, with up to five minutes of jitter, including
 missed runs after reboot. A failed check is retried at the next timer event.
 
+The writer holds `.download.lock` during download, leaving the installed
+version readable even when the release server is slow or unavailable.
+Publication and cleanup take a separate, short exclusive `.update.lock`.
+The Bot acquires its shared side only while constructing a new in-memory index.
+Pilot uses `current --hold`: one compact JSON line is flushed while the shared
+lock stays held, then stdin acknowledgment or EOF releases it (60-second bound).
+It loads the native Skill inside this scope, caches the result, and exposes the
+stable `current` path for later references. Old conversation text remains a
+historical snapshot; later reference reads use the current published documents.
+Ordinary unchanged reads do not revalidate the package or download anything.
+
+After successful activation, package verification and receipt publication,
+cleanup retains the current and previous version. It removes only older,
+unchanged generated directories whose release and file hashes still match.
+An active consumer load or user copy holds the shared lock, so cleanup cannot
+remove its input. Modified or unknown directories are retained with their paths
+in the result. This is content-based retention, not deletion by age.
+
 Pilot's one-click action calls `install-user --store /var/lib/sai-skills
 --agent codex|opencode|claude`; `--dry-run` returns the exact target first.
 The tool rejects root and obtains the real effective UID's home from NSS,
@@ -74,6 +92,19 @@ Personal or unrecognized old copies are preserved and reported with their path.
 SIGTERM enters normal rollback; after a hard process or host failure, inspect the
 target and retained backup before retrying. Requests that lose their reply
 must read back before being reported as completed.
+
+Personal copies are portable across the user's shared home; they do not link
+to a host-local `/var/lib` path that may be missing on another login or compute
+node. A normal sequence of explicit upgrades keeps the current copy and its
+most recent backup. The installer's own `~/.local/state/sai-skills/installed.json`
+receipt records only verified release origins for those copies. Older backups
+may be collected only when their original receipt and complete file hashes
+still match. User edits, unknown provenance and observed open editor handles
+are retained and listed, including after reopening the settings page. Before
+deleting an eligible backup, the installer renames it and checks the same
+inodes again. Process-handle checks cover descriptors visible on the current
+host; they are not a claim to inspect hidden namespaces or other hosts.
+The native OS and existing home isolation retain ownership of that boundary.
 
 To stop automatic updates, disable `sai-skills-update.timer`. Existing local
 packages remain readable. To roll back content, stop the timer, verify the

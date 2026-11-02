@@ -15,7 +15,7 @@ from unittest.mock import patch
 
 import skill_update
 from skill_package import check, install, pack, runtime, seal, snapshot
-from skill_update import UpdateError, current, install_user, update
+from skill_update import UpdateError, current, install_user, reading, update
 
 
 class SkillUpdateTests(unittest.TestCase):
@@ -217,6 +217,71 @@ class SkillUpdateTests(unittest.TestCase):
         self.assertEqual(self.installed()["version"], "1.0.0")
         self.assertEqual(json.loads((self.store / "status.json").read_text())["state"], "failed")
 
+    def test_version_retention_keeps_current_previous_and_changed_data(self):
+        self.refresh()
+        self.publish("1.1.0", "Second")
+        self.refresh()
+        self.publish("1.2.0", "Third")
+        result = self.refresh()
+        self.assertEqual(result["removed_versions"], ["1.0.0"])
+        self.assertEqual({path.name for path in (self.store / "versions").iterdir()}, {"1.1.0", "1.2.0"})
+        (self.store / "versions/1.1.0/sai-user-guide/references/handbook/manual.md").write_text("Operator edit")
+        self.publish("1.3.0", "Fourth")
+        result = self.refresh()
+        self.assertEqual(len(result["retained_versions"]), 1)
+        self.assertEqual((self.store / "versions/1.1.0/sai-user-guide/references/handbook/manual.md").read_text(), "Operator edit")
+
+    def test_reader_lock_prevents_switch_and_cleanup_until_read_finishes(self):
+        self.refresh()
+        self.publish("1.1.0", "Second")
+        self.refresh()
+        self.publish("1.2.0", "Third")
+        with reading(self.store):
+            with self.assertRaises(UpdateError) as error:
+                self.refresh()
+            self.assertEqual(error.exception.code, "UPDATE_BUSY")
+            self.assertTrue((self.store / "versions/1.0.0").exists())
+        self.assertEqual(self.refresh()["removed_versions"], ["1.0.0"])
+
+    def test_cold_consumer_reads_old_version_while_writer_downloads(self):
+        self.refresh()
+        self.publish("1.1.0", "Second")
+        tool = runtime(self.root / "cold-reader.pyz")
+        observations = []
+
+        def fetch(url, *args):
+            if url.endswith(".zip"):
+                process = subprocess.run([sys.executable, tool["archive"], "current", "--store", str(self.store), "--require-index"],
+                                         capture_output=True, text=True, timeout=5)
+                self.assertEqual(process.returncode, 0, process.stderr)
+                observations.append(json.loads(process.stdout)["version"])
+            return self.fetch(url, *args)
+
+        result = update(self.store, require_index=True, fetch=fetch)
+        self.assertEqual(observations, ["1.0.0"])
+        self.assertEqual(result["version"], "1.1.0")
+
+    def test_native_current_hold_releases_on_stdin_ack(self):
+        self.refresh()
+        tool = runtime(self.root / "hold.pyz")
+        child = subprocess.Popen([sys.executable, tool["archive"], "current", "--store", str(self.store), "--require-index", "--hold"],
+                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            receipt = json.loads(child.stdout.readline())
+            self.assertEqual(receipt["version"], "1.0.0")
+            with self.assertRaises(UpdateError) as error:
+                self.refresh()
+            self.assertEqual(error.exception.code, "UPDATE_BUSY")
+            child.stdin.write("\n")
+            child.stdin.flush()
+            self.assertEqual(child.wait(timeout=5), 0)
+        finally:
+            if child.poll() is None:
+                child.terminate()
+                child.wait(timeout=5)
+            child.stdin.close(); child.stdout.close(); child.stderr.close()
+        self.assertFalse(self.refresh()["updated"])
+
     @unittest.skipIf(os.geteuid() == 0, "User install intentionally refuses root")
     def test_user_copy_uses_nss_home_preserves_edits_and_previous_inodes(self):
         self.refresh()
@@ -313,6 +378,50 @@ class SkillUpdateTests(unittest.TestCase):
                 install_user(self.store, agent="opencode")
         self.assertEqual(snapshot(legacy), old)
         self.assertFalse((self.home / ".agents/skills/sai-user-guide").exists())
+
+    @unittest.skipIf(os.geteuid() == 0, "User install intentionally refuses root")
+    def test_user_backup_retention_keeps_previous_and_open_or_changed_originals(self):
+        self.refresh()
+        account = types.SimpleNamespace(pw_dir=str(self.home))
+        with patch.object(skill_update.pwd, "getpwuid", return_value=account):
+            installed = install_user(self.store, agent="codex")
+            original = Path(installed["destination"]) / "references/handbook/manual.md"
+            with original.open("a") as editor:
+                self.publish("1.1.0", "Second")
+                self.refresh()
+                first = install_user(self.store, agent="codex")
+                self.publish("1.2.0", "Third")
+                self.refresh()
+                second = install_user(self.store, agent="codex")
+                self.assertIn(first["backup"], [row["path"] for row in second["retained_backups"]])
+                self.assertTrue(Path(first["backup"]).exists())
+            repeated = install_user(self.store, agent="codex")
+            self.assertIn(first["backup"], repeated["removed_backups"])
+            self.assertTrue(Path(second["backup"]).exists())
+            (Path(second["backup"]) / "sai-user-guide/references/handbook/manual.md").write_text("Personal retained edit")
+            self.publish("1.3.0", "Fourth")
+            self.refresh()
+            third = install_user(self.store, agent="codex")
+            self.assertIn(second["backup"], [row["path"] for row in third["retained_backups"]])
+            self.assertEqual((Path(second["backup"]) / "sai-user-guide/references/handbook/manual.md").read_text(), "Personal retained edit")
+            reopened = install_user(self.store, agent="codex", dry_run=True)
+            self.assertIn(second["backup"], [row["path"] for row in reopened["retained_backups"]])
+
+    @unittest.skipIf(os.geteuid() == 0, "User install intentionally refuses root")
+    def test_self_sealed_personal_package_is_preserved_by_install_provenance(self):
+        self.refresh()
+        account = types.SimpleNamespace(pw_dir=str(self.home))
+        with patch.object(skill_update.pwd, "getpwuid", return_value=account):
+            result = install_user(self.store, agent="codex")
+            target = Path(result["destination"])
+            (target / "references/handbook/manual.md").write_text("Unique personally sealed text")
+            seal(target)
+            self.publish("1.1.0", "Second")
+            self.refresh()
+            with self.assertRaises(UpdateError) as error:
+                install_user(self.store, agent="codex")
+            self.assertEqual(error.exception.code, "LOCAL_MODIFIED")
+            self.assertEqual((target / "references/handbook/manual.md").read_text(), "Unique personally sealed text")
 
     def test_root_and_unavailable_source_return_machine_codes(self):
         with patch.object(skill_update.os, "geteuid", return_value=0):

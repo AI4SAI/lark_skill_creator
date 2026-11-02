@@ -8,6 +8,7 @@ import pwd
 import re
 import shutil
 import signal
+import select
 import stat
 import tempfile
 import time
@@ -18,7 +19,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 
-from skill_package import NAME, check, install
+from skill_package import NAME, check, install, snapshot
 from wiki_exporter.bundle import canonical_directory
 from wiki_exporter.lark import ExportError
 
@@ -142,7 +143,7 @@ def current_package(store, name="sai-user-guide", require_index=False):
     return {"path": str(root), "target": target, "manifest": manifest, "receipt": receipt}
 
 
-def current(store, require_index=False):
+def _current(store, require_index=False):
     package = current_package(Path(store), require_index=require_index)
     if not package:
         raise UpdateError("SOURCE_UNAVAILABLE", "平台指引暂时不可用。")
@@ -161,9 +162,173 @@ def current(store, require_index=False):
 
 
 @contextmanager
-def _locked(store):
+def reading(store):
+    """Native shared lock, held only while a consumer reads a fixed version."""
+    store = canonical_directory(Path(store))
+    try:
+        descriptor = os.open(store / ".update.lock", os.O_RDONLY | os.O_NOFOLLOW)
+    except OSError as error:
+        raise UpdateError("SOURCE_UNAVAILABLE", "平台指引暂时不可用。") from error
+    try:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_SH | fcntl.LOCK_NB)
+        except BlockingIOError as error:
+            raise UpdateError("UPDATE_BUSY", "更新正在进行，请稍后重试。") from error
+        yield
+    finally:
+        os.close(descriptor)
+
+
+def current(store, require_index=False):
+    with reading(store):
+        return _current(store, require_index)
+
+
+def current_hold(store, require_index=False):
+    """One short native-provider load; EOF/newline releases the shared lock."""
+    import sys
+    with reading(store):
+        print(json.dumps(_current(store, require_index), ensure_ascii=False), flush=True)
+        if select.select([sys.stdin], [], [], 60)[0]:
+            sys.stdin.readline(1)
+        else:
+            raise UpdateError("READ_TIMEOUT", "本次读取超时，请重试。")
+
+
+def prune_versions(store, version, previous):
+    """Called under the update lock, after successful activation and readback."""
+    try:
+        roots = sorted((store / "versions").iterdir(), key=lambda path: path.name)
+    except OSError:
+        return {"removed_versions": [], "retained_versions": [{"path": str(store / "versions"), "reason": "unavailable"}]}
+    keep = {version}
+    if previous and previous != version:
+        keep.add(previous)
+    else:
+        older = [path.name for path in roots if VERSION.fullmatch(path.name)
+                 and tuple(map(int, path.name.split("."))) < tuple(map(int, version.split(".")))]
+        if older:
+            keep.add(max(older, key=lambda item: tuple(map(int, item.split(".")))))
+    removed, retained = [], []
+    for root in roots:
+        if root.name in keep:
+            continue
+        try:
+            if not VERSION.fullmatch(root.name) or root.is_symlink() or not root.is_dir():
+                raise ValueError("unmanaged")
+            if {path.name for path in root.iterdir()} != {"sai-user-guide", "release.json"}:
+                raise ValueError("unmanaged")
+            manifest = check(root / "sai-user-guide")
+            receipt = json.loads((root / "release.json").read_text(encoding="utf-8"))
+            if (manifest["version"] != root.name or receipt.get("version") != root.name
+                    or receipt.get("name") != "sai-user-guide"
+                    or receipt.get("manifest_sha256") != hashlib.sha256((root / "sai-user-guide/manifest.json").read_bytes()).hexdigest()):
+                raise ValueError("modified")
+            shutil.rmtree(root)
+            removed.append(root.name)
+        except (OSError, ValueError, ExportError, KeyError, TypeError, AttributeError):
+            retained.append({"path": str(root), "reason": "modified_or_unmanaged"})
+    return {"removed_versions": removed, "retained_versions": retained}
+
+
+def _open_backup_files(root):
+    """Preserve observed open editor handles on this host, including aliases."""
+    files = {(path.stat().st_dev, path.stat().st_ino) for path in root.rglob("*") if path.is_file()}
+    try:
+        processes = list(Path("/proc").iterdir())
+    except OSError:
+        return True
+    for process in processes:
+        if not process.name.isdecimal():
+            continue
+        try:
+            if process.stat().st_uid != os.geteuid():
+                continue
+            descriptors = list((process / "fd").iterdir())
+            for descriptor in descriptors:
+                try:
+                    info = descriptor.stat()
+                    if (info.st_dev, info.st_ino) in files:
+                        return True
+                except FileNotFoundError:
+                    continue
+        except FileNotFoundError:
+            continue
+        except PermissionError:
+            # Other namespaces/hosts may hide process descriptors. Only
+            # observed handles establish a hold; content is checked again after
+            # rename below, without widening process or home permissions.
+            continue
+    return False
+
+
+def prune_backups(root, keep=None, dry_run=False):
+    """Keep one rollback; retain changed, unknown, or observably open originals."""
+    retained, removed, candidates = [], [], []
+    if not root.exists():
+        return {"retained_backups": retained, "removed_backups": removed}
+    try:
+        for run in root.iterdir():
+            if not run.is_dir() or run.is_symlink():
+                retained.append({"path": str(run), "reason": "unmanaged"})
+                continue
+            try:
+                receipt = json.loads((run / "backup.json").read_text(encoding="utf-8"))
+                if receipt.get("kind") != "sai-skill-backup/v1" or not isinstance(receipt.get("created_at"), str) or not receipt.get("packages"):
+                    raise ValueError("unmanaged")
+                expected = {"backup.json"}
+                for relative, original in receipt["packages"].items():
+                    path = PurePosixPath(relative)
+                    provenance = original.get("release")
+                    if (path.is_absolute() or ".." in path.parts or not original.get("managed")
+                            or not isinstance(provenance, dict)
+                            or not re.fullmatch(r"[0-9a-f]{64}", provenance.get("sha256", ""))
+                            or provenance.get("manifest_sha256") != original.get("manifest_sha256")
+                            or provenance.get("version") != original.get("version")):
+                        raise ValueError("personal")
+                    package = canonical_directory(run / relative)
+                    manifest = check(package)
+                    digest = hashlib.sha256((package / "manifest.json").read_bytes()).hexdigest()
+                    if digest != original["manifest_sha256"] or manifest["version"] != original["version"]:
+                        raise ValueError("modified")
+                    expected.update(relative + "/" + filename for filename in (*manifest["files"], "manifest.json"))
+                before = snapshot(run)
+                if set(before) != expected:
+                    raise ValueError("modified")
+                candidates.append((receipt["created_at"], run, before))
+            except (ExportError, OSError, ValueError, KeyError, TypeError, AttributeError):
+                retained.append({"path": str(run), "reason": "modified_or_unmanaged"})
+        if not keep and candidates:
+            keep = str(max(candidates)[1])
+        for _, run, before in candidates:
+            if str(run) == keep:
+                continue
+            if _open_backup_files(run):
+                retained.append({"path": str(run), "reason": "open_or_unobservable"})
+            elif not dry_run:
+                # Retire the old pathname first, then recheck the original
+                # inodes. An editor that raced the first scan keeps its files.
+                retired = run.with_name(".retiring-" + run.name)
+                if retired.exists() or retired.is_symlink():
+                    retained.append({"path": str(run), "reason": "unmanaged"})
+                    continue
+                run.rename(retired)
+                if snapshot(retired) != before or _open_backup_files(retired):
+                    if not run.exists() and not run.is_symlink():
+                        retired.rename(run)
+                    retained.append({"path": str(run if run.exists() else retired), "reason": "modified_or_open"})
+                else:
+                    shutil.rmtree(retired)
+                    removed.append(str(run))
+    except OSError:
+        retained.append({"path": str(root), "reason": "unavailable"})
+    return {"retained_backups": retained, "removed_backups": removed}
+
+
+@contextmanager
+def _locked(store, filename=".update.lock"):
     store.mkdir(parents=True, exist_ok=True)
-    descriptor = os.open(store / ".update.lock", os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o644)
+    descriptor = os.open(store / filename, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o644)
     try:
         try:
             fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -235,7 +400,11 @@ def _switch(store, version, expected):
 
 def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index=False, fetch=None):
     store = canonical_directory(Path(store))
-    with _locked(store):
+    with _locked(store, ".download.lock"):
+        # A slow release host must not stop a cold consumer reading the last
+        # installed package. Serialize writers separately from publication.
+        descriptor = os.open(store / ".update.lock", os.O_CREAT | os.O_RDONLY | os.O_NOFOLLOW, 0o644)
+        os.close(descriptor)
         previous = None
         try:
             previous = current_package(store, name, require_index)
@@ -272,37 +441,35 @@ def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index
                     })
                     staging.chmod(0o755)
                     staging.rename(target)
-            # Detect a writer changing the active package while the download ran.
-            if previous and check(Path(previous["path"])) != previous["manifest"]:
-                raise UpdateError("LOCAL_MODIFIED", "更新期间当前内容发生变化。")
-            changed = not previous or previous["manifest"]["version"] != version
-            if changed:
-                _switch(store, version, previous["target"] if previous else None)
-            try:
-                # Even an unchanged remote release can race an administrator's
-                # rollback. Never report the release discovered on the network
-                # as the installed version without checking the actual pointer.
-                if os.readlink(store / "current") != "versions/" + version:
-                    raise UpdateError("LOCAL_MODIFIED", "检查期间当前版本入口发生变化。")
-                active = current_package(store, name, require_index)
-                if active["target"] != "versions/" + version:
-                    raise UpdateError("LOCAL_MODIFIED", "读回期间当前版本入口发生变化。")
-                result = {"ok": True, "state": "updated" if changed else "current", "name": name,
-                          "version": version, "path": active["path"], "current": str(store / "current" / name),
-                          "previous": previous["manifest"]["version"] if previous else None,
-                          "updated": changed, "sha256": release["sha256"], "release": release["release"],
-                          "checked_at": datetime.now(timezone.utc).isoformat()}
-                # Publishing the delivery receipt is part of successful update
-                # completion, so failure here follows the same pointer rollback.
-                _json_atomic(store / "status.json", result)
-            except BaseException:
+            with _locked(store):
+                # Detect changes made while the writer downloaded separately.
+                if previous and check(Path(previous["path"])) != previous["manifest"]:
+                    raise UpdateError("LOCAL_MODIFIED", "更新期间当前内容发生变化。")
+                changed = not previous or previous["manifest"]["version"] != version
                 if changed:
-                    if previous:
-                        _switch(store, previous["manifest"]["version"], "versions/" + version)
-                    elif os.readlink(store / "current") == "versions/" + version:
-                        (store / "current").unlink()
-                raise
-            return result
+                    _switch(store, version, previous["target"] if previous else None)
+                try:
+                    # The unchanged-release path also checks administrator races.
+                    if os.readlink(store / "current") != "versions/" + version:
+                        raise UpdateError("LOCAL_MODIFIED", "检查期间当前版本入口发生变化。")
+                    active = current_package(store, name, require_index)
+                    if active["target"] != "versions/" + version:
+                        raise UpdateError("LOCAL_MODIFIED", "读回期间当前版本入口发生变化。")
+                    result = {"ok": True, "state": "updated" if changed else "current", "name": name,
+                              "version": version, "path": active["path"], "current": str(store / "current" / name),
+                              "previous": previous["manifest"]["version"] if previous else None,
+                              "updated": changed, "sha256": release["sha256"], "release": release["release"],
+                              "checked_at": datetime.now(timezone.utc).isoformat()}
+                    _json_atomic(store / "status.json", result)
+                except BaseException:
+                    if changed:
+                        if previous:
+                            _switch(store, previous["manifest"]["version"], "versions/" + version)
+                        elif os.readlink(store / "current") == "versions/" + version:
+                            (store / "current").unlink()
+                    raise
+                result.update(prune_versions(store, version, previous["manifest"]["version"] if previous else None))
+                return result
         except (ExportError, OSError, ValueError, KeyError, TypeError, AttributeError, zipfile.BadZipFile, NotImplementedError) as error:
             result = {"ok": False, "state": "failed", "code": getattr(error, "code", "INVALID_PACKAGE"),
                       "error": str(error), "checked_at": datetime.now(timezone.utc).isoformat(),
@@ -319,10 +486,15 @@ def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index
 
 
 def install_user(store, *, agent, dry_run=False):
-    if agent not in {"codex", "opencode", "claude"}:
-        raise UpdateError("INSTALL_FAILED", "请选择支持的命令行 Agent。")
     if os.geteuid() == 0 or os.getuid() != os.geteuid():
         raise UpdateError("IDENTITY_UNAVAILABLE", "请使用本人登录账号安装。")
+    with reading(store):
+        return _install_user(store, agent=agent, dry_run=dry_run)
+
+
+def _install_user(store, *, agent, dry_run=False):
+    if agent not in {"codex", "opencode", "claude"}:
+        raise UpdateError("INSTALL_FAILED", "请选择支持的命令行 Agent。")
     try:
         home = Path(pwd.getpwuid(os.geteuid()).pw_dir).resolve(strict=True)
         if not home.is_absolute() or home.stat().st_uid != os.geteuid():
@@ -347,20 +519,53 @@ def install_user(store, *, agent, dry_run=False):
     except (ExportError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
         raise UpdateError("SOURCE_UNAVAILABLE", "平台指引暂时不可用，请稍后重试。", destination=str(destination)) from error
     try:
+        lock_root = canonical_directory(home / ".local/state/sai-skills")
+        record_path = lock_root / "installed.json"
+
+        def installed_receipts():
+            if not record_path.exists():
+                return {}
+            if record_path.is_symlink():
+                raise ExportError("安装回执不是普通文件。")
+            record = json.loads(record_path.read_text(encoding="utf-8"))
+            if record.get("kind") != "sai-skill-install/v1" or not isinstance(record.get("destinations"), dict):
+                raise ExportError("安装回执已修改。")
+            return record["destinations"]
+
+        def protect_personal(receipts):
+            for path in (destination / "sai-user-guide", *legacy):
+                receipt = receipts.get(str(path))
+                if path.exists() and receipt and receipt.get("manifest_sha256") != hashlib.sha256((path / "manifest.json").read_bytes()).hexdigest():
+                    raise UpdateError("LOCAL_MODIFIED", "已有个人修改，请保留后再安装。", destination=str(path))
+
         if dry_run:
+            receipts = installed_receipts()
+            protect_personal(receipts)
             result = install(Path(source["path"]), destination,
-                             backup=home / ".local/share/sai-skill-backups", dry_run=True, retire_managed=legacy)
+                             backup=home / ".local/share/sai-skill-backups", dry_run=True, retire_managed=legacy,
+                             original_receipts=receipts)
+            result.update(prune_backups(home / ".local/share/sai-skill-backups", dry_run=True))
         else:
             # Keep independent browser requests from replacing each other's copies.
             # SIGTERM enters the existing installer's inode-preserving rollback.
-            lock_root = canonical_directory(home / ".local/state/sai-skills")
             def interrupted(signum, frame):
                 raise InterruptedError("Installation interrupted")
             with _locked(lock_root):
                 prior_signal = signal.signal(signal.SIGTERM, interrupted)
                 try:
+                    receipts = installed_receipts()
+                    protect_personal(receipts)
                     result = install(Path(source["path"]), destination,
-                                     backup=home / ".local/share/sai-skill-backups", retire_managed=legacy)
+                                     backup=home / ".local/share/sai-skill-backups", retire_managed=legacy,
+                                     original_receipts=receipts)
+                    for old in result["retire_from"]:
+                        receipts.pop(old, None)
+                    receipts[result["destination"]] = source["receipt"]
+                    try:
+                        _json_atomic(record_path, {"kind": "sai-skill-install/v1", "destinations": receipts})
+                    except (ExportError, OSError) as error:
+                        raise UpdateError("INSTALL_OUTCOME_UNKNOWN", "安装回执未完成，请刷新查看。", destination=result["destination"]) from error
+                    result.update(prune_backups(home / ".local/share/sai-skill-backups", result.get("backup")))
                 finally:
                     signal.signal(signal.SIGTERM, prior_signal)
     except UpdateError:

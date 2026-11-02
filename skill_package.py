@@ -135,7 +135,7 @@ def diff(old: Path, new: Path) -> str:
 
 def install(source: Path, destination: Path, *, backup: Path | None = None,
             archive_existing: bool = False, retire: tuple[str, ...] = (), dry_run: bool = False,
-            retire_managed: tuple[Path, ...] = ()) -> dict:
+            retire_managed: tuple[Path, ...] = (), original_receipts: dict | None = None) -> dict:
     source, destination = canonical_directory(source), canonical_directory(destination)
     manifest = check(source)
     if source.is_relative_to(destination) or destination.is_relative_to(source):
@@ -149,6 +149,7 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
            or path.is_relative_to(source) or source.is_relative_to(path) for path in managed):
         raise ExportError("旧安装路径无效。")
     existing = {}
+    originals = {}
     unchanged = False
     for path in [target, *(destination / item for item in sorted(set(retire))), *managed]:
         if path.is_symlink():
@@ -163,6 +164,7 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                 if not archive_existing:
                     raise ExportError("已有旧包或本地修改。先查看 diff；要保留备份后替换，显式使用 --archive-existing。")
             else:
+                originals[path] = previous
                 unchanged = previous == manifest
                 if unchanged:
                     continue
@@ -172,6 +174,7 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
             # A native discovery root may still contain an earlier managed copy.
             # Only verified packages can be retired by a one-click reinstall.
             previous = check(path)
+            originals[path] = previous
             if previous["name"] != name or (previous["version"] == manifest["version"] and previous != manifest):
                 raise ExportError("旧安装与当前版本冲突，请先核对内容。")
         elif not archive_existing:
@@ -204,6 +207,21 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
             backup_run.mkdir(mode=0o700)
             if backup_run.stat().st_dev != destination.stat().st_dev:
                 raise ExportError("备份须与安装目录位于同一文件系统，才能保留编辑器仍在写入的原文件。")
+            packages = {}
+            for path, files in existing.items():
+                relative = path.name if path not in managed else ("legacy-" + str(managed.index(path) + 1) + "/" + name)
+                original = originals.get(path)
+                provenance = (original_receipts or {}).get(str(path))
+                if not original or not provenance or provenance.get("manifest_sha256") != files.get("manifest.json") or provenance.get("version") != original["version"]:
+                    provenance = None
+                packages[relative] = {"managed": original is not None,
+                    "manifest_sha256": files.get("manifest.json"),
+                    "version": original["version"] if original else None,
+                    "release": provenance}
+            (backup_run / "backup.json").write_text(json.dumps({
+                "kind": "sai-skill-backup/v1", "created_at": datetime.now(timezone.utc).isoformat(),
+                "packages": packages,
+            }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         moved = []
         published = False
         try:
@@ -266,6 +284,7 @@ def main() -> int:
     p = commands.add_parser("current", help="校验并读回当前本地版本")
     p.add_argument("--store", type=Path, required=True)
     p.add_argument("--require-index", action="store_true")
+    p.add_argument("--hold", action="store_true", help="读回一行 JSON，等待 stdin 确认后释放读取锁")
     p = commands.add_parser("install-user", help="以本人登录身份安装供命令行 Agent 使用的副本")
     p.add_argument("--store", type=Path, required=True)
     p.add_argument("--agent", choices=("codex", "opencode", "claude"), required=True)
@@ -285,7 +304,10 @@ def main() -> int:
             from skill_update import install_user
             result = install_user(args.store, agent=args.agent, dry_run=args.dry_run)
         elif args.command == "current":
-            from skill_update import current
+            from skill_update import current, current_hold
+            if args.hold:
+                current_hold(args.store, require_index=args.require_index)
+                return 0
             result = current(args.store, require_index=args.require_index)
         elif args.command == "runtime":
             result = runtime(args.output)
