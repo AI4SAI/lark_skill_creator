@@ -1,4 +1,5 @@
 import hashlib
+import http.server
 import io
 import json
 import os
@@ -7,9 +8,12 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
+import time
 import types
 import unittest
 import zipfile
+import urllib.request
 from pathlib import Path
 from unittest.mock import patch
 
@@ -97,6 +101,179 @@ class SkillUpdateTests(unittest.TestCase):
         with self.assertRaisesRegex(UpdateError, "校验失败"):
             self.refresh()
         self.assert_old(before)
+
+    def mirror_fetch(self, url, limit, deadline):
+        self.calls.append(url)
+        if url == skill_update.OFFICIAL_MIRROR + "release.json":
+            return json.dumps({"name": "sai-user-guide", "version": self.version,
+                               "sha256": self.digest, "archive": f"sai-user-guide-v{self.version}.zip",
+                               "release": f"https://github.com/AI4SAI/lark_skill_creator/releases/tag/sai-user-guide-v{self.version}"}).encode()
+        if url == skill_update.OFFICIAL_MIRROR + f"sai-user-guide-v{self.version}.zip":
+            return self.content
+        raise UpdateError("DOWNLOAD_FAILED", "Primary offline")
+
+    def test_official_mirror_is_transport_only_and_keeps_release_identity(self):
+        before = self.refresh()
+        self.assertEqual(before["source"], "github")
+        self.assertFalse(any(url.startswith(skill_update.OFFICIAL_MIRROR) for url in self.calls))
+        self.publish("1.1.0", "Mirrored release")
+        deadlines = {}
+
+        def fetch(url, limit, deadline):
+            deadlines[url] = deadline
+            return self.mirror_fetch(url, limit, deadline)
+
+        result = update(self.store, require_index=True, fetch=fetch)
+        self.assertEqual(result["source"], "sai")
+        self.assertEqual(result["release"], "https://github.com/AI4SAI/lark_skill_creator/releases/tag/sai-user-guide-v1.1.0")
+        self.assertEqual(result["sha256"], self.digest)
+        self.assertGreater(deadlines[skill_update.OFFICIAL_MIRROR + "release.json"]
+                           - deadlines["https://github.com/AI4SAI/lark_skill_creator/releases/latest"], 119)
+        receipt = json.loads((Path(result["path"]).parent / "release.json").read_text())
+        self.assertNotIn("source", receipt)
+        self.assertEqual(current(self.store)["update"]["source"], "sai")
+
+    def test_archive_transport_fallback_requires_same_selected_version(self):
+        self.refresh()
+        self.publish("1.1.0", "Mirrored release")
+
+        def fetch(url, limit, deadline):
+            if url.startswith(skill_update.OFFICIAL_MIRROR):
+                return self.mirror_fetch(url, limit, deadline)
+            if url.endswith(".zip"):
+                raise UpdateError("DOWNLOAD_FAILED", "Primary ZIP offline")
+            return self.fetch(url, limit, deadline)
+
+        self.assertEqual(update(self.store, require_index=True, fetch=fetch)["source"], "sai")
+        self.publish("1.2.0", "Next release")
+        original = self.mirror_fetch
+
+        def changed_mirror(url, limit, deadline):
+            body = original(url, limit, deadline)
+            if url.endswith("release.json"):
+                metadata = json.loads(body)
+                metadata["sha256"] = "0" * 64
+                return json.dumps(metadata).encode()
+            return body
+
+        with patch.object(self, "mirror_fetch", changed_mirror):
+            with self.assertRaises(UpdateError) as error:
+                update(self.store, require_index=True, fetch=fetch)
+        self.assertEqual(error.exception.code, "VERSION_CONFLICT")
+        self.assertEqual(self.installed()["version"], "1.1.0")
+
+    def test_bad_checksums_conflicts_and_downgrades_do_not_switch_sources(self):
+        before = snapshot(Path(self.refresh()["path"]))
+        self.publish("1.1.0", "New release")
+        self.content += b"bad bytes"
+        self.calls.clear()
+        with self.assertRaises(UpdateError) as error:
+            self.refresh()
+        self.assertEqual(error.exception.code, "CHECKSUM_MISMATCH")
+        self.assertFalse(any(url.startswith(skill_update.OFFICIAL_MIRROR) for url in self.calls))
+        with self.assertRaises(UpdateError) as error:
+            update(self.store, require_index=True, fetch=self.mirror_fetch)
+        self.assertEqual(error.exception.code, "CHECKSUM_MISMATCH")
+        self.assert_old(before)
+        for version, code in (("1.0.0", "VERSION_CONFLICT"), ("0.9.0", "OLDER_RELEASE")):
+            self.publish(version, "Different bytes")
+            with self.assertRaises(UpdateError) as error:
+                update(self.store, require_index=True, fetch=self.mirror_fetch)
+            self.assertEqual(error.exception.code, code)
+            self.assert_old(before)
+
+    def test_invalid_primary_metadata_does_not_consult_mirror(self):
+        self.refresh()
+        for invalid_part in ("tag", "checksum"):
+            self.calls.clear()
+
+            def fetch(url, *args):
+                if url.endswith("/releases/latest") and invalid_part == "tag":
+                    self.calls.append(url)
+                    return b"https://github.com/other/repo/releases/tag/sai-user-guide-v9.0.0"
+                if url.endswith(".sha256") and invalid_part == "checksum":
+                    self.calls.append(url)
+                    return b"not a SHA-256 receipt"
+                return self.fetch(url, *args)
+
+            with self.assertRaises(UpdateError) as error:
+                update(self.store, require_index=True, fetch=fetch)
+            self.assertIn(error.exception.code, {"INVALID_RELEASE", "CHECKSUM_MISMATCH"})
+            self.assertFalse(any(url.startswith(skill_update.OFFICIAL_MIRROR) for url in self.calls))
+
+    def test_mirror_metadata_cannot_redirect_to_another_path_or_identity(self):
+        before = snapshot(Path(self.refresh()["path"]))
+        for field, value in (("archive", "../other.zip"), ("archive", "https://example.org/file.zip"),
+                             ("release", "https://example.org/release"), ("name", "other-guide"),
+                             ("version", "1.2.0-rc.1"), ("sha256", "bad")):
+            def fetch(url, limit, deadline):
+                body = self.mirror_fetch(url, limit, deadline)
+                if url.endswith("release.json"):
+                    metadata = json.loads(body); metadata[field] = value
+                    return json.dumps(metadata).encode()
+                return body
+            with self.assertRaises(UpdateError) as error:
+                update(self.store, require_index=True, fetch=fetch)
+            self.assertEqual(error.exception.code, "INVALID_RELEASE")
+            self.assert_old(before)
+        for url in ("https://www.open-sai.com/docs/skills/../private.zip", "https://www.open-sai.com/other/release.json",
+                    "http://www.open-sai.com/docs/skills/release.json", "https://example.org/docs/skills/release.json"):
+            with self.assertRaises(UpdateError):
+                skill_update._release_url(url)
+
+    def test_actual_http_static_mirror_after_primary_http_failure(self):
+        fixture = self
+        requests = []
+        slow_body = threading.Event()
+
+        class Static(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+
+            def do_HEAD(self):
+                requests.append((self.command, self.path))
+                self.send_error(503)
+
+            def do_GET(self):
+                requests.append((self.command, self.path))
+                body = fixture.mirror_fetch("https://www.open-sai.com" + self.path, 0, 0)
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                if slow_body.is_set():
+                    time.sleep(0.12)
+                try:
+                    self.wfile.write(body)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+
+        server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Static)
+        thread = threading.Thread(target=server.serve_forever, daemon=True); thread.start()
+        native_opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+        class LoopbackTransport:
+            def open(self, request, timeout):
+                # Only route authority to an isolated HTTP fixture. The actual
+                # request, HTTP failure, response streaming and updater execute.
+                url = f"http://127.0.0.1:{server.server_port}" + skill_update.urlsplit(request.full_url).path
+                return native_opener.open(urllib.request.Request(url, method=request.method), timeout=timeout)
+
+        try:
+            with patch.object(skill_update.urllib.request, "build_opener", return_value=LoopbackTransport()):
+                result = update(self.store, require_index=True)
+            self.assertEqual(result["source"], "sai")
+            self.assertEqual(self.installed()["version"], "1.0.0")
+            self.assertEqual(requests, [("HEAD", "/AI4SAI/lark_skill_creator/releases/latest"),
+                                        ("GET", "/docs/skills/release.json"), ("GET", "/docs/skills/sai-user-guide-v1.0.0.zip")])
+            slow_body.set()
+            started = time.monotonic()
+            with patch.object(skill_update.urllib.request, "build_opener", return_value=LoopbackTransport()):
+                with self.assertRaises(UpdateError) as error:
+                    skill_update._fetch(skill_update.OFFICIAL_MIRROR + "release.json", 4096, started + 0.04)
+            self.assertEqual(error.exception.code, "DOWNLOAD_FAILED")
+            self.assertLess(time.monotonic() - started, 0.3)
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=5)
 
     def test_same_version_change_and_downgrade_are_refused(self):
         before = snapshot(Path(self.refresh()["path"]))

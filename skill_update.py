@@ -18,6 +18,7 @@ import zipfile
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
+from urllib.parse import urlsplit
 
 from skill_package import NAME, check, install, snapshot
 from wiki_exporter.bundle import canonical_directory
@@ -25,6 +26,7 @@ from wiki_exporter.lark import ExportError
 
 
 REPOSITORY = "AI4SAI/lark_skill_creator"
+OFFICIAL_MIRROR = "https://www.open-sai.com/docs/skills/"
 VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+")
 HOSTS = {"github.com", "release-assets.githubusercontent.com",
          "objects.githubusercontent.com", "github-releases.githubusercontent.com"}
@@ -47,9 +49,12 @@ class _ReleaseRedirect(urllib.request.HTTPRedirectHandler):
 
 
 def _release_url(url):
-    from urllib.parse import urlsplit
     parsed = urlsplit(url)
-    if (parsed.scheme != "https" or parsed.hostname not in HOSTS
+    official = (parsed.hostname == "www.open-sai.com" and url.startswith(OFFICIAL_MIRROR)
+                and not parsed.query and not parsed.fragment
+                and re.fullmatch(r"(?:release\.json|sai-user-guide-v[0-9]+\.[0-9]+\.[0-9]+\.zip)",
+                                 parsed.path.removeprefix("/docs/skills/")))
+    if (parsed.scheme != "https" or not (parsed.hostname in HOSTS or official)
             or parsed.username or parsed.password or parsed.port not in (None, 443)):
         raise UpdateError("INVALID_RELEASE", "发行包地址无效。")
 
@@ -59,7 +64,10 @@ def _fetch(url, limit, deadline):
     request = urllib.request.Request(url, method="HEAD" if limit == 0 else "GET",
                                      headers={"User-Agent": "sai-skill-package", "Accept": "application/octet-stream"})
     try:
-        with urllib.request.build_opener(_ReleaseRedirect()).open(request, timeout=20) as response:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise UpdateError("DOWNLOAD_FAILED", "更新超时，已有版本保留。")
+        with urllib.request.build_opener(_ReleaseRedirect()).open(request, timeout=min(20, remaining)) as response:
             if limit == 0:
                 return response.geturl().encode("utf-8")
             if response.headers.get("Content-Length") and int(response.headers["Content-Length"]) > limit:
@@ -68,7 +76,7 @@ def _fetch(url, limit, deadline):
             while True:
                 if time.monotonic() > deadline:
                     raise UpdateError("DOWNLOAD_FAILED", "更新超时，已有版本保留。")
-                block = response.read(min(65536, limit + 1 - len(data)))
+                block = response.read1(min(65536, limit + 1 - len(data)))
                 if not block:
                     return bytes(data)
                 data.extend(block)
@@ -89,12 +97,52 @@ def _release(repository, name, fetch, deadline):
     if not release.startswith(prefix) or not VERSION.fullmatch(version):
         raise UpdateError("INVALID_RELEASE", "没有可用的正式 Skill 版本。")
     base = f"https://github.com/{repository}/releases/download/{name}-v{version}/{name}.zip"
-    result = {"name": name, "version": version, "release": release, "archive": base, "checksum": base + ".sha256"}
+    result = {"name": name, "version": version, "release": release, "archive": base,
+              "checksum": base + ".sha256", "source": "github"}
     checksum = fetch(result["checksum"], 4096, deadline).decode("ascii").strip()
     match = re.fullmatch(r"([0-9a-f]{64})\s+\*?" + re.escape(name) + r"\.zip", checksum)
     if not match:
         raise UpdateError("CHECKSUM_MISMATCH", "发行校验值不一致，已有版本保留。")
     return {**result, "sha256": match[1]}
+
+
+def _mirror_release(fetch, deadline):
+    """The existing official static site mirrors the exact published ZIP."""
+    metadata = json.loads(fetch(OFFICIAL_MIRROR + "release.json", 4096, deadline))
+    if not isinstance(metadata, dict):
+        raise UpdateError("INVALID_RELEASE", "官网备用版本清单无效。")
+    version = metadata.get("version")
+    if (metadata.get("name") != "sai-user-guide" or not isinstance(version, str)
+            or not VERSION.fullmatch(version)
+            or not isinstance(metadata.get("sha256"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", metadata["sha256"])
+            or metadata.get("archive") != f"sai-user-guide-v{version}.zip"
+            or metadata.get("release") != f"https://github.com/{REPOSITORY}/releases/tag/sai-user-guide-v{version}"):
+        raise UpdateError("INVALID_RELEASE", "官网备用版本清单与正式来源不一致。")
+    return {**metadata, "archive": OFFICIAL_MIRROR + metadata["archive"], "source": "sai"}
+
+
+def _discover(repository, name, fetch, primary_deadline, deadline):
+    try:
+        return _release(repository, name, fetch, primary_deadline)
+    except UpdateError as error:
+        if error.code != "DOWNLOAD_FAILED" or (repository, name) != (REPOSITORY, "sai-user-guide"):
+            raise
+        return _mirror_release(fetch, deadline)
+
+
+def _archive(release, fetch, primary_deadline, deadline):
+    try:
+        return fetch(release["archive"], MAX_ARCHIVE, primary_deadline if release["source"] == "github" else deadline)
+    except UpdateError as error:
+        if (error.code != "DOWNLOAD_FAILED" or release["source"] != "github"
+                or release["release"] != f"https://github.com/{REPOSITORY}/releases/tag/sai-user-guide-v{release['version']}"):
+            raise
+        mirrored = _mirror_release(fetch, deadline)
+        if any(mirrored[key] != release[key] for key in ("name", "version", "sha256", "release")):
+            raise UpdateError("VERSION_CONFLICT", "官网备用版本与本次正式版本不一致。")
+        release["source"] = "sai"
+        return fetch(mirrored["archive"], MAX_ARCHIVE, deadline)
 
 
 def validate_index(root, required=False):
@@ -153,7 +201,7 @@ def _current(store, require_index=False):
     if status.is_file() and not status.is_symlink():
         try:
             attempt = json.loads(status.read_text(encoding="utf-8"))
-            result["update"] = {key: attempt[key] for key in ("state", "checked_at", "code", "error") if key in attempt}
+            result["update"] = {key: attempt[key] for key in ("state", "checked_at", "code", "error", "source") if key in attempt}
         except (OSError, ValueError, TypeError):
             result["update"] = {"state": "unknown"}
     else:
@@ -416,7 +464,8 @@ def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index
         try:
             previous = current_package(store, name, require_index)
             deadline = time.monotonic() + 180
-            release = _release(repository, name, fetch or _fetch, deadline)
+            primary_deadline = min(deadline, time.monotonic() + 60)
+            release = _discover(repository, name, fetch or _fetch, primary_deadline, deadline)
             version = release["version"]
             if previous and tuple(map(int, version.split("."))) < tuple(map(int, previous["manifest"]["version"].split("."))):
                 raise UpdateError("OLDER_RELEASE", "正式源版本早于已安装版本，未自动降级。")
@@ -434,7 +483,7 @@ def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index
             else:
                 with tempfile.TemporaryDirectory(prefix=".download-", dir=store) as temporary:
                     staging = Path(temporary)
-                    content = (fetch or _fetch)(release["archive"], MAX_ARCHIVE, deadline)
+                    content = _archive(release, fetch or _fetch, primary_deadline, deadline)
                     if hashlib.sha256(content).hexdigest() != release["sha256"]:
                         raise UpdateError("CHECKSUM_MISMATCH", "发行包校验失败，已有版本保留。")
                     _extract(content, staging, name)
@@ -466,6 +515,7 @@ def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index
                               "version": version, "path": active["path"], "current": str(store / "current" / name),
                               "previous": previous["manifest"]["version"] if previous else None,
                               "updated": changed, "sha256": release["sha256"], "release": release["release"],
+                              "source": release["source"],
                               "checked_at": datetime.now(timezone.utc).isoformat()}
                     _json_atomic(store / "status.json", result)
                 except BaseException:
