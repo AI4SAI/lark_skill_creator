@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 
-from skill_package import NAME, check, install, snapshot
+from skill_package import NAME, check, install, open_files, snapshot
 from wiki_exporter.bundle import canonical_directory
 from wiki_exporter.lark import ExportError
 
@@ -279,37 +279,6 @@ def prune_versions(store, version, previous):
     return {"removed_versions": removed, "retained_versions": retained}
 
 
-def _open_backup_files(root):
-    """Preserve observed open editor handles on this host, including aliases."""
-    files = {(path.stat().st_dev, path.stat().st_ino) for path in root.rglob("*") if path.is_file()}
-    try:
-        processes = list(Path("/proc").iterdir())
-    except OSError:
-        return True
-    for process in processes:
-        if not process.name.isdecimal():
-            continue
-        try:
-            if process.stat().st_uid != os.geteuid():
-                continue
-            descriptors = list((process / "fd").iterdir())
-            for descriptor in descriptors:
-                try:
-                    info = descriptor.stat()
-                    if (info.st_dev, info.st_ino) in files:
-                        return True
-                except FileNotFoundError:
-                    continue
-        except FileNotFoundError:
-            continue
-        except PermissionError:
-            # Other namespaces/hosts may hide process descriptors. Only
-            # observed handles establish a hold; content is checked again after
-            # rename below, without widening process or home permissions.
-            continue
-    return False
-
-
 def prune_backups(root, keep=None, dry_run=False):
     """Keep one rollback; retain changed, unknown, or observably open originals."""
     retained, removed, candidates = [], [], []
@@ -326,6 +295,12 @@ def prune_backups(root, keep=None, dry_run=False):
                         or not isinstance(receipt.get("destination"), str) or not Path(receipt["destination"]).is_absolute()
                         or not receipt.get("packages")):
                     raise ValueError("unmanaged")
+                for original in receipt.get("retained_originals", []):
+                    path = Path(original["path"])
+                    if path.is_absolute() and path.exists():
+                        retained.append({"path": str(path), "reason": "cross_mount_cleanup"})
+                if receipt.get("retained_originals"):
+                    raise ValueError("retained originals")
                 expected = {"backup.json"}
                 for relative, original in receipt["packages"].items():
                     path = PurePosixPath(relative)
@@ -358,7 +333,7 @@ def prune_backups(root, keep=None, dry_run=False):
         for _, run, before, _ in candidates:
             if str(run) in keep_paths:
                 continue
-            if _open_backup_files(run):
+            if open_files(run):
                 retained.append({"path": str(run), "reason": "open_or_unobservable"})
             elif not dry_run:
                 # Retire the old pathname first, then recheck the original
@@ -368,7 +343,7 @@ def prune_backups(root, keep=None, dry_run=False):
                     retained.append({"path": str(run), "reason": "unmanaged"})
                     continue
                 run.rename(retired)
-                if snapshot(retired) != before or _open_backup_files(retired):
+                if snapshot(retired) != before or open_files(retired):
                     if not run.exists() and not run.is_symlink():
                         retired.rename(run)
                     retained.append({"path": str(run if run.exists() else retired), "reason": "modified_or_open"})
