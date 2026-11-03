@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 
-from skill_package import NAME, check, install, open_files, snapshot
+from skill_package import NAME, InstallPlanChanged, check, install, open_files, snapshot
 from wiki_exporter.bundle import canonical_directory
 from wiki_exporter.lark import ExportError
 
@@ -519,16 +519,53 @@ def update(store, *, name="sai-user-guide", repository=REPOSITORY, require_index
             raise UpdateError("INVALID_PACKAGE", "更新未完成，已有版本保留。") from error
 
 
-def install_user(store, *, agent, dry_run=False):
+def install_user(store, *, agent, dry_run=False, archive_existing=False, expected_plan_sha256=None):
     if os.geteuid() == 0 or os.getuid() != os.geteuid():
         raise UpdateError("IDENTITY_UNAVAILABLE", "请使用本人登录账号安装。")
     with reading(store):
-        return _install_user(store, agent=agent, dry_run=dry_run)
+        return _install_user(store, agent=agent, dry_run=dry_run, archive_existing=archive_existing,
+                             expected_plan_sha256=expected_plan_sha256)
 
 
-def _install_user(store, *, agent, dry_run=False):
+def _legacy_copies(paths, receipts):
+    managed, unmanaged = [], []
+    for path in paths:
+        try:
+            try:
+                info = path.lstat()
+            except FileNotFoundError:
+                continue
+            canonical_directory(path)
+            if not stat.S_ISDIR(info.st_mode):
+                raise ExportError("旧指引不是普通目录。")
+            try:
+                (path / "manifest.json").lstat()
+            except FileNotFoundError:
+                if str(path) in receipts:
+                    raise ExportError("受管理的指引缺少原清单，原文件保留。")
+                entry = (path / "SKILL.md").lstat()
+                if str(path) not in receipts and stat.S_ISREG(entry.st_mode):
+                    # Native inventory below verifies read access and rejects
+                    # redirected resources before offering archival confirmation.
+                    snapshot(path)
+                    unmanaged.append(path)
+                    continue
+            check(path)
+            managed.append(path)
+        except OSError as error:
+            raise UpdateError("SOURCE_UNAVAILABLE", "无法读取已有指引，请检查目录权限。",
+                              destination=str(path)) from error
+        except (ExportError, ValueError, KeyError, TypeError, AttributeError) as error:
+            raise UpdateError("LOCAL_MODIFIED", "已有指引校验未通过，原文件保留。",
+                              destination=str(path)) from error
+    return tuple(managed), tuple(unmanaged)
+
+
+def _install_user(store, *, agent, dry_run=False, archive_existing=False, expected_plan_sha256=None):
     if agent not in {"codex", "opencode", "claude"}:
         raise UpdateError("INSTALL_FAILED", "请选择支持的命令行 Agent。")
+    if archive_existing != (expected_plan_sha256 is not None) or expected_plan_sha256 is not None and not re.fullmatch(r"[0-9a-f]{64}", expected_plan_sha256):
+        raise UpdateError("PLAN_CHANGED", "请刷新后确认保留原副本并更新。")
     try:
         home = Path(pwd.getpwuid(os.geteuid()).pw_dir).resolve(strict=True)
         if not home.is_absolute() or home.stat().st_uid != os.geteuid():
@@ -538,14 +575,6 @@ def _install_user(store, *, agent, dry_run=False):
     destination = home / (".claude" if agent == "claude" else ".agents") / "skills"
     legacy = () if agent == "claude" else (
         home / ".codex/skills/sai-user-guide", home / ".config/opencode/skills/sai-user-guide")
-    # Reject personal or symlinked copies before touching any discovery root.
-    # Unchanged managed copies use the same installer transaction and backups.
-    for path in legacy:
-        if path.exists() or path.is_symlink():
-            try:
-                check(path)
-            except (ExportError, OSError, ValueError, KeyError, TypeError, AttributeError) as error:
-                raise UpdateError("LOCAL_MODIFIED", "旧目录已有个人指引，请保留后再安装。", destination=str(path)) from error
     try:
         source = current_package(Path(store), require_index=True)
         if not source:
@@ -572,12 +601,26 @@ def _install_user(store, *, agent, dry_run=False):
                 if path.exists() and receipt and receipt.get("manifest_sha256") != hashlib.sha256((path / "manifest.json").read_bytes()).hexdigest():
                     raise UpdateError("LOCAL_MODIFIED", "已有个人修改，请保留后再安装。", destination=str(path))
 
+        def install_copies(receipts, preview):
+            managed, unmanaged = _legacy_copies(legacy, receipts)
+            protect_personal(receipts)
+            options = dict(backup=home / ".local/share/sai-skill-backups", retire_managed=managed,
+                           retire_unmanaged=unmanaged, original_receipts=receipts)
+            if unmanaged and (preview or not archive_existing):
+                plan = install(Path(source["path"]), destination, dry_run=True, **options)
+                raise UpdateError("UNMANAGED_EXISTING", "已有未受管理的同名技能。", destination=str(unmanaged[0]),
+                                  recovery="archive-and-install", plan_sha256=plan["plan_sha256"])
+            if archive_existing and not unmanaged:
+                plan = install(Path(source["path"]), destination, dry_run=True, **options)
+                if not plan["already_current"]:
+                    raise UpdateError("PLAN_CHANGED", "已有指引状态已变化，请刷新后确认。")
+                return plan  # The exact released result already exists; do not repeat a write.
+            return install(Path(source["path"]), destination, dry_run=preview,
+                           expected_plan_sha256=expected_plan_sha256, **options)
+
         if dry_run:
             receipts = installed_receipts()
-            protect_personal(receipts)
-            result = install(Path(source["path"]), destination,
-                             backup=home / ".local/share/sai-skill-backups", dry_run=True, retire_managed=legacy,
-                             original_receipts=receipts)
+            result = install_copies(receipts, True)
             result.update(prune_backups(home / ".local/share/sai-skill-backups", dry_run=True))
         else:
             # Keep independent browser requests from replacing each other's copies.
@@ -588,10 +631,7 @@ def _install_user(store, *, agent, dry_run=False):
                 prior_signal = signal.signal(signal.SIGTERM, interrupted)
                 try:
                     receipts = installed_receipts()
-                    protect_personal(receipts)
-                    result = install(Path(source["path"]), destination,
-                                     backup=home / ".local/share/sai-skill-backups", retire_managed=legacy,
-                                     original_receipts=receipts)
+                    result = install_copies(receipts, False)
                     for old in result["retire_from"]:
                         receipts.pop(old, None)
                     receipts[result["destination"]] = source["receipt"]
@@ -604,6 +644,8 @@ def _install_user(store, *, agent, dry_run=False):
                     signal.signal(signal.SIGTERM, prior_signal)
     except UpdateError:
         raise
+    except InstallPlanChanged as error:
+        raise UpdateError("PLAN_CHANGED", "旧指引或平台版本已变化，请刷新后确认。") from error
     except ExportError as error:
         raise UpdateError("LOCAL_MODIFIED", "已有本地修改，请保留后再安装。", destination=str(destination / "sai-user-guide")) from error
     except (OSError, ValueError, KeyError) as error:

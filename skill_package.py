@@ -24,6 +24,10 @@ KIND = "sai-user-skill/v1"
 NAME = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 
 
+class InstallPlanChanged(ExportError):
+    code = "PLAN_CHANGED"
+
+
 def snapshot(root: Path) -> dict[str, str]:
     files = inventory(root)
     manifest = root / "manifest.json"
@@ -163,7 +167,8 @@ def diff(old: Path, new: Path) -> str:
 
 def install(source: Path, destination: Path, *, backup: Path | None = None,
             archive_existing: bool = False, retire: tuple[str, ...] = (), dry_run: bool = False,
-            retire_managed: tuple[Path, ...] = (), original_receipts: dict | None = None) -> dict:
+            retire_managed: tuple[Path, ...] = (), original_receipts: dict | None = None,
+            retire_unmanaged: tuple[Path, ...] = (), expected_plan_sha256: str | None = None) -> dict:
     source, destination = canonical_directory(source), canonical_directory(destination)
     manifest = check(source)
     if source.is_relative_to(destination) or destination.is_relative_to(source):
@@ -172,19 +177,26 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
     if any(not NAME.fullmatch(item) or len(item) > 64 or item == name for item in retire):
         raise ExportError("停用名称无效，不能停用正在安装的 Skill。")
     target = destination / name
-    managed = tuple(canonical_directory(path) for path in retire_managed)
+    unmanaged = frozenset(canonical_directory(path) for path in retire_unmanaged)
+    managed = tuple(canonical_directory(path) for path in (*retire_managed, *retire_unmanaged))
+    if len(set(managed)) != len(managed):
+        raise ExportError("旧安装路径重复。")
     if any(path.name != name or path.is_relative_to(destination) or destination.is_relative_to(path)
            or path.is_relative_to(source) or source.is_relative_to(path) for path in managed):
         raise ExportError("旧安装路径无效。")
     existing = {}
     originals = {}
+    observed = {}
     unchanged = False
     for path in [target, *(destination / item for item in sorted(set(retire))), *managed]:
         if path.is_symlink():
             raise ExportError(f"{path.name} 是符号链接，请由客户端原有安装方式管理。")
         if not path.exists():
+            observed[str(path)] = None
             continue
         files = snapshot(path)
+        info = path.stat()
+        observed[str(path)] = {"dev": info.st_dev, "ino": info.st_ino, "files": files}
         if path == target:
             try:
                 previous = check(path)
@@ -198,6 +210,11 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                     continue
                 if previous["version"] == manifest["version"]:
                     raise ExportError("相同版本却有不同内容，请先核对来源或更新版本号。")
+        elif path in unmanaged:
+            # Only the original install-user preflight admits a no-manifest
+            # legacy copy. Its content is archived, never sealed or rewritten.
+            if "manifest.json" in files or "SKILL.md" not in files:
+                raise InstallPlanChanged("旧指引状态已变化，请刷新后确认。")
         elif path in managed:
             # A native discovery root may still contain an earlier managed copy.
             # Only verified packages can be retired by a one-click reinstall.
@@ -217,6 +234,15 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
     plan = {"name": name, "version": manifest["version"], "destination": str(target),
             "replace": [p.name for p in existing], "already_current": unchanged and not existing,
             "dry_run": dry_run, "retire_from": [str(path) for path in managed if path in existing]}
+    if unmanaged or expected_plan_sha256 is not None:
+        plan["plan_sha256"] = hashlib.sha256(json.dumps({
+            "uid": os.geteuid(), "source": manifest, "destination": str(target),
+            "backup": str(backup), "existing": observed,
+        }, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if expected_plan_sha256 is not None and expected_plan_sha256 != plan["plan_sha256"]:
+            raise InstallPlanChanged("旧指引或平台版本已变化，请刷新后确认。")
+        if unmanaged and not dry_run and expected_plan_sha256 is None:
+            raise InstallPlanChanged("请先确认保留原副本并更新。")
     if dry_run or (unchanged and not existing):
         return plan
     destination.mkdir(parents=True, exist_ok=True)
@@ -254,9 +280,13 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
         copied = []
         retired = []
         published = False
+        def unchanged_source(path, files):
+            info = path.stat()
+            before = observed[str(path)]
+            return (info.st_dev, info.st_ino) == (before["dev"], before["ino"]) and snapshot(path) == files
         try:
             for path, files in existing.items():
-                if snapshot(path) != files:
+                if not unchanged_source(path, files):
                     raise ExportError("已有内容发生变化，未替换。")
                 # Keep the actual old inodes, including writes through already-open
                 # editor handles. A pre-update copy is not a sufficient backup.
@@ -270,12 +300,12 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
                         raise
                     moved.pop()
                     # An exact native bind mount can reject rename even when
-                    # both paths share st_dev. Only unchanged managed legacy
-                    # copies may use this byte-preserving migration.
+                    # both paths share st_dev. Only unchanged managed or
+                    # explicitly confirmed no-manifest legacy copies enter here.
                     if open_files(path):
                         raise ExportError(f"旧指引正在被使用，请关闭编辑器后重试：{path}")
                     shutil.copytree(path, saved)
-                    if snapshot(saved) != files or snapshot(path) != files:
+                    if snapshot(saved) != files or not unchanged_source(path, files):
                         raise ExportError(f"复制期间旧指引发生变化，原目录保留：{path}")
                     copied.append((path, saved, files))
             if not unchanged:
@@ -288,7 +318,7 @@ def install(source: Path, destination: Path, *, backup: Path | None = None,
             # Publish and verify the new copy before retiring any cross-mount
             # original. The in-place move retains its inodes for rollback.
             for path, saved, files in copied:
-                if snapshot(path) != files or open_files(path):
+                if not unchanged_source(path, files) or open_files(path):
                     raise ExportError(f"旧指引发生变化或正在被使用，原目录保留：{path}")
                 temporary = path.with_name(".skill-retired-" + uuid.uuid4().hex)
                 retired.append((path, temporary))
@@ -377,6 +407,8 @@ def main() -> int:
     p.add_argument("--store", type=Path, required=True)
     p.add_argument("--agent", choices=("codex", "opencode", "claude"), required=True)
     p.add_argument("--dry-run", action="store_true")
+    p.add_argument("--archive-existing", action="store_true")
+    p.add_argument("--expect-plan-sha256")
     p = commands.add_parser("runtime", help="生成仅使用 Python 标准库的安装工具")
     p.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -390,7 +422,9 @@ def main() -> int:
                             require_index=args.require_index)
         elif args.command == "install-user":
             from skill_update import install_user
-            result = install_user(args.store, agent=args.agent, dry_run=args.dry_run)
+            result = install_user(args.store, agent=args.agent, dry_run=args.dry_run,
+                                  archive_existing=args.archive_existing,
+                                  expected_plan_sha256=args.expect_plan_sha256)
         elif args.command == "current":
             from skill_update import current, current_hold
             if args.hold:
