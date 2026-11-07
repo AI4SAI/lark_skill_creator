@@ -6,7 +6,7 @@
 - [5分钟上手](df8c6d77197060d17cc2d0d2/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/HrR6wu98kiiAvpk6LW6cIXnanRg) · 修订 1100
 - [用户手册](527115bd2c82557339314691/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/BcNrwvz1biY2zrkIRsqc4mhInwd) · 修订 44
 - [团队协作与资源管理](8bda3bdc3e54a43733f37e8f/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f) · 修订 10
-- [账号、计费与资金](de0cae9d9928cde1be3cc6b6/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d) · 修订 957
+- [账号、计费与资金](de0cae9d9928cde1be3cc6b6/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d) · 修订 959
 - [卫星集群和姊妹集群](ac41bc6f8d0c7984e7e26283/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/Wg0owQs5qi2qHqki87Sclw0gnl7) · 修订 198
 - [自建超算vs租用SAI](ebba2f16f1ab67424d3750bf/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/UMpowUQHaiB1mlkA0WacvFiqnK3) · 修订 474
 - [致谢SAI的论文列表](62134adbb553eda913b863d3/index.md) · [飞书原文](https://vcnn7siwx4yx.feishu.cn/wiki/WZfCwZHRsiSSvAklxVEcYK3inJb) · 修订 164
