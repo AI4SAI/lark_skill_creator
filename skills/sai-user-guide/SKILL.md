@@ -2,7 +2,7 @@
 name: sai-user-guide
 description: 使用 SAI 科研计算平台时的统一指引，涵盖控制台、账号与团队、存储、任务与费用、Pilot 科研工作台及 BBS 社区。用于选择产品、解释规则、开展已授权的操作和排查使用问题。
 metadata:
-  version: "0.3.2"
+  version: "0.3.3"
 ---
 
 # SAI
@@ -19,7 +19,7 @@ metadata:
 | 使用科学软件、环境和模板，排查性能 | [软件与性能](references/software.md) |
 | 用自然语言开展科研、管理 Agent 工作和计算 | [SAI Pilot](references/pilot.md) |
 | 查经验、提问、回答、分享成果，向社区求助 | [SAI BBS](references/community.md) |
-| 查费用、充值、订阅、合同、Credit 或论文激励 | [费用与服务](references/billing.md) |
+| 选择按量、随心算或合同组合，查费用、Credit 和激励 | [费用与服务](references/billing.md) |
 | 让当前 Agent 实际操作 SAI | [工具使用](references/tools.md) |
 
 查询当前价格、站点资源、权限、额度、余额和任务状态时，使用当前可用工具返回的事实。手册中的金额、分区和配额示例不代表用户此刻的条件。无法查询时说明缺口，不猜数。

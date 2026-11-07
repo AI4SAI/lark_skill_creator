@@ -156,6 +156,9 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 
 ### 费用与资金相关
 
+- [只想提高并行算力，必须买随心算吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcndlX3B0EsO4E3ZOt8sFYDwh)
+- [同一个课题组能同时用合同和随心算吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnUpcfxQqDIBTNr3qouXOVGf)
+- [合同计算价和 SAI Credit 怎么配合？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn2IdkOzz9Fk0hPd63fh91ib)
 - [页面上的运行中费用没变化，就说明没有继续计费吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnrO9zkVwM7mAzDAGLS8KFGf)
 - [还有 SAI Credit，为什么也会扣现金？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn7TZC7w7FBVN0IO6qUKNycd)
 - [组织还有钱，为什么我的任务提示余额不足？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn0I9LA1uzcs3MN9zG0PS5kd)
