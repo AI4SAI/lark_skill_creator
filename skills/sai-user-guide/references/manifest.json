@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-07T17:24:04.124634+00:00",
+  "fetched_at": "2026-11-07T17:31:10.057663+00:00",
   "source": "Published SAI guide and handbook",
   "documents": [
     {
@@ -72,12 +72,12 @@
       "doc_id": "WbogdSYJcoIGRJxwmcwcH2GjnPb",
       "title": "账号、计费与资金",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d",
-      "revision": 959,
+      "revision": 960,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/de0cae9d9928cde1be3cc6b6/index.md",
-      "characters": 3635,
-      "sha256": "0b041416600f0e72f3898e1cc490ed423a288de2687c203d4b855b4e0e74ce45"
+      "characters": 3638,
+      "sha256": "2b387de7dd409265cac6e33c7bcdb4ca9a135d88c348dd99e688379e143d8ea2"
     },
     {
       "doc_id": "G9Yxd4e4coXn4FxajC3czvISnjw",
@@ -269,7 +269,7 @@
     {
       "doc_id": "sai-user-guide:billing.md",
       "title": "费用与服务",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/sai-user-guide-v0.3.5/skills/sai-user-guide/references/billing.md",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/2b6df8da59aaf9f35357d7c883979dd44ad32e62/skills/sai-user-guide/references/billing.md",
       "revision": "0.3.5",
       "sharing": "anyone_readable",
       "status": "fetched",
