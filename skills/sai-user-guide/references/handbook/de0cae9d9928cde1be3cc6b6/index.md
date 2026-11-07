@@ -18,7 +18,7 @@
 
 算力等级决定可同时使用的资源上限，计算单价决定用了以后花多少钱，两项可以分别谈。需要确定时段独占整节点，可选专属资源，按预订的整段时间付费，空闲时也计费。
 
-按量使用和随心算在[控制台](https://www.open-sai.com/portal/)办理。合同采购可邮件联系团队 <meow@ai-4s.com>，或加入[用户交流群](https://vcnn7siwx4yx.feishu.cn/wiki/RTqhwh7utixXB6kjvkwc4PAInjf#QsqCdLwBGoA68AxDp2UcHbfdnRb)沟通。说明预算、所需资源、使用期限，以及由组织还是独立项目使用，再确认报价和开通安排。
+按量使用和随心算在[控制台](https://www.open-sai.com/portal/)办理。合同采购可邮件联系团队 <meow@open-sai.com>，或加入[用户交流群](https://vcnn7siwx4yx.feishu.cn/wiki/RTqhwh7utixXB6kjvkwc4PAInjf#QsqCdLwBGoA68AxDp2UcHbfdnRb)沟通。说明预算、所需资源、使用期限，以及由组织还是独立项目使用，再确认报价和开通安排。
 
 充值是把钱存入账户，购买方式和权益由订单或合同确定。具体价格在控制台或报价中查看。
 
