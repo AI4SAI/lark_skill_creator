@@ -1,9 +1,9 @@
 {
   "kind": "sai-user-skill/v1",
   "name": "sai-user-guide",
-  "version": "0.3.6",
+  "version": "0.3.5",
   "files": {
-    "SKILL.md": "7b877738447393c34bf8b6b466addc1248ab568abab9a547c3dff1b385f5d7aa",
+    "SKILL.md": "7a35084446726a4ac1b1259b9e7a5194037cb39803836763e2178fe97c7b18a4",
     "references/access.md": "3b8bd42527cef12cef6168a762b57027c33b0f847b39b3e8f44e256dc97b1ec6",
     "references/billing.md": "a2a669b6eb65f002f37397704a463703a66e24bda10dead985a0837f6afa1e1b",
     "references/collaboration.md": "d6cbf3fb40a354fedbacc9fa9223807f4552ff33a5a72f0ca0bb9e928771bddb",
