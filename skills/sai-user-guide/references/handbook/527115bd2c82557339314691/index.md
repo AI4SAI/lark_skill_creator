@@ -2,6 +2,8 @@
 
 第一次使用，先完成[账号申请](../5be412539311c935c3d4b2cb/index.md)，再按下面的步骤开始计算。
 
+准备购买算力，先看[按量、随心算和合同怎么选](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnmOmx5075SQB5LPeJgLPhhe)。合同可以按需要组合算力、存储和团队资源。
+
 想让 Agent 帮你读文件、写脚本和准备计算，可使用 [SAI Pilot](https://pilot.open-sai.com/)；想找同行经验、提问或分享成果，可到 [SAI BBS](https://bbs.open-sai.com/)。自己的命令行 Agent 可[安装 SAI Skill](https://www.open-sai.com/docs/agents/)。
 
 1.  [登录超算：连接主机、用户名与密钥](../891ee584b71ab6f7b0d6d62d/index.md)
