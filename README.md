@@ -1,6 +1,6 @@
 # SAI 用户 Skill 与文档工具
 
-普通用户安装一个 [sai-user-guide](skills/sai-user-guide/SKILL.md) 即可。它按任务连接控制台、团队协作、存储、计算、费用、Pilot 和 BBS，详细资料按需读取。完整教程仍由作者在飞书维护。
+普通用户安装一个 [sai-user-guide](skills/sai-user-guide/SKILL.md) 即可。当前仅保留一份经过验证的预览安装包，日常文档修订在 Git 中汇总后统一发布。它按任务连接控制台、团队协作、存储、计算、费用、Pilot 和 BBS，详细资料按需读取。完整教程仍由作者在飞书维护。
 
 **[下载安装包](https://github.com/AI4SAI/lark_skill_creator/releases/latest/download/sai-user-guide.zip)** · [版本说明与校验值](https://github.com/AI4SAI/lark_skill_creator/releases/latest) · [官网安装指引](https://www.open-sai.com/docs/agents/)
 
@@ -16,7 +16,7 @@
 
 ## 安装与更新
 
-- **Codex**：让自带的 `skill-installer` 安装本仓库的 `skills/sai-user-guide`，指定你选择的 tag 或完整提交号。保留整个目录，不只复制 `SKILL.md`。
+- **Codex**：让自带的 `skill-installer` 安装本仓库的 `skills/sai-user-guide`，使用正式下载入口对应的 tag。保留整个目录，不只复制 `SKILL.md`。
 - **其他客户端**：把该目录放入客户端支持的 Skill 位置。发行 ZIP 解压后的目录结构相同，无需飞书账号、Pandoc 或本仓库的 Python 环境。
 - **Pilot／DSH**：复用同一包，放入已有 Skill 目录或通过原生 `customSkillDirs`／`bundledSkillDir` 配置加载。平台托管包固定经过验证的版本，不改变用户私有 Skill 或工作台权限。
 
