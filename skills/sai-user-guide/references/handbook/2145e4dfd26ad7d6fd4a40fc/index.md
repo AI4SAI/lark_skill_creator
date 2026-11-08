@@ -6,7 +6,7 @@ rclone 可把 SFTP 等远程存储挂载为本地目录。首次配置先运行 
 
 缓存可以让重复读写更顺手。开启写回缓存时，要等上传队列完成再提交计算或退出客户端。
 
-GUI开发中：https://github.com/Stardust0831/ssh-mountmate
+MountMate 已有[SAI Windows 预发布版](https://github.com/Entropy-Enthalpy/ssh-mountmate/releases/tag/sai-windows-drives-20261106-46b4847)，可通过浏览器登录并选择已获授权的站点和目录。已有 SAI 连接要追加挂载，打开“设置 → + 选择 SAI 目录”。
 
 ## 🔥 RaiDrive挂载 (强烈推荐)
 

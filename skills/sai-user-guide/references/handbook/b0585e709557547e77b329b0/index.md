@@ -30,6 +30,8 @@
 
 ------------------------------------------------------------------------
 
+- [修改默认身份，会影响其他站点吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnHosWXpHU41v3opMmLy3dnf)
+
 ### 硬件资源相关
 
 #### Q: 4V100分区和4V100PX分区有什么区别？
@@ -154,6 +156,8 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 
 > **A：**容易让不同软件的库和命令互相干扰。把环境放进独立脚本，或在作业脚本里按需加载，更容易复现和排错。
 
+- [商业软件的授权在哪里办理？](https://vcnn7siwx4yx.feishu.cn/wiki/XEHTw8Y9bidBD6klGh5cuZvbnQb#doxcnRUlkF1Zx6lMFbTfFnTDLIh)
+
 ### 费用与资金相关
 
 - [只想提高并行算力，必须买随心算吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcndlX3B0EsO4E3ZOt8sFYDwh)
@@ -162,6 +166,9 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 - [页面上的运行中费用没变化，就说明没有继续计费吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnrO9zkVwM7mAzDAGLS8KFGf)
 - [还有 SAI Credit，为什么也会扣现金？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn7TZC7w7FBVN0IO6qUKNycd)
 - [组织还有钱，为什么我的任务提示余额不足？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn0I9LA1uzcs3MN9zG0PS5kd)
+- [有了 SAI Credit，现金欠款就结清了吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnQ4cF8kO7bJC6NtvEAxGFof)
+- [要退回未用款，应先退款还是开票？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnCVYIPpIK1mtsaDZX3r3QGf)
+- [当期升级随心算，费用和周期怎么算？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnwPUg1pj7XLX7IGpTOXD9Nd)
 
 ### 存储空间相关
 
@@ -170,6 +177,7 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 - [把文件存到计算节点本地缓存，任务结束后会自动保存吗？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcndNysAVgMcfFqylGq8cuv1f)
 - [已经获得共享权限，为什么有些文件仍打不开？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnZrUARXBEbpNuadOSd6KxXg)
 - [用硬链接分享文件，撤销原目录权限就能收回吗？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnKZUH9GafHfthrXylpwH2fh)
+- [共用目录的 quota 统计哪些数据？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnxl8WEweETQT5ohiDfBxsUe)
 
 ### 团队协作相关
 
@@ -180,12 +188,22 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 - [只想共享项目里一个子目录，怎么做？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnFsggEqEIAD8r1MFQlbX8ad)
 - [设为“查看”后，对方为什么还能修改某些文件？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcngn1TYjkiDKiRcuqJbQdIwh)
 - [移除协作者后，旧连接会马上失去访问吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnnOr5veIBZLzuwzoHINrZ8b)
+- [组织服务账号怎么申请？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnndoGe5r8yzUw3z9rzcS4wh)
+- [一张协作邀请二维码可以发给多个人吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnN5IeXm8N5Y6WcO53f5T0Mf)
 
 ### Pilot 与 BBS
 
 #### Q: Pilot 的模型费用和计算任务费用怎么区分？
 
 > **A：**模型调用与 Slurm 计算分别计费。让 Pilot 分析输入、写脚本会产生模型用量；提交计算任务后，另按占用的算力资源计费。两项费用分别在对应明细中核对。
+
+#### Q: AI 服务设置的金额会限制累计消费吗？
+
+> **A：**该金额用于预留，结算后会按可用资金补足，累计消费可以超过它。未用预留会减少本账户可用于其他服务的资金。停用平台 AI 服务并确认回收后释放未用预留，已发生费用照常结算。
+
+#### Q: 在 Pilot 换了工作目录，费用记到哪里？
+
+> **A：**SAI 模型调用和托管计算按各自当前工作目录确定费用账户。换目录影响后续请求，已确认的计算方案、任务和已产生费用保留原账户。
 
 #### Q: Pilot 对话停了，已经提交的计算任务会怎样？
 
