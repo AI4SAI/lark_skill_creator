@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-07T17:31:10.057663+00:00",
+  "fetched_at": "2026-11-08T00:52:06.581695+00:00",
   "source": "Published SAI guide and handbook",
   "documents": [
     {
@@ -61,12 +61,12 @@
       "doc_id": "RZcTdxGjnofpb4xu4ZXcySLOnqb",
       "title": "团队协作与资源管理",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f",
-      "revision": 10,
+      "revision": 16,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/8bda3bdc3e54a43733f37e8f/index.md",
-      "characters": 2428,
-      "sha256": "2cf1408ed05abac48ddde8897abdcff9b5c808acf62bbbceae552525c446cbdd"
+      "characters": 2866,
+      "sha256": "58e0f5508f5e0d1a5b91272b51cfd80bef17e7f428baca4636ac4dc32d7d3efc"
     },
     {
       "doc_id": "WbogdSYJcoIGRJxwmcwcH2GjnPb",
@@ -193,12 +193,12 @@
       "doc_id": "NQ5ydVRceoXlNPxH347cz6l1nfc",
       "title": "存储空间",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf",
-      "revision": 133,
+      "revision": 136,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/440de28fe59b369e89df5e1c/index.md",
-      "characters": 1075,
-      "sha256": "b9e824f0e019c79bc9bf44b9b3ef83096e4f2c4eb3980f817e3fc609c8696ab2"
+      "characters": 1353,
+      "sha256": "c29d427ea91939fc12d5c741e83d1878bea5908df289ffa4b41239b75899aa20"
     },
     {
       "doc_id": "GdUQdxgTioXaEIxV6VGczohCnMe",
@@ -248,12 +248,12 @@
       "doc_id": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "title": "FAQ",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg",
-      "revision": 812,
+      "revision": 815,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/b0585e709557547e77b329b0/index.md",
-      "characters": 8301,
-      "sha256": "cc9791def362ab04e3c1194e44c792ecfb778b2d8fadcf88a4821fa573805beb"
+      "characters": 8892,
+      "sha256": "4bba6d94671760aeb5b9594883fee68f61a03c386a2e713f7f142b93dd40b6b1"
     },
     {
       "doc_id": "sai-user-guide:access.md",
@@ -280,13 +280,13 @@
     {
       "doc_id": "sai-user-guide:collaboration.md",
       "title": "团队协作",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/collaboration.md",
-      "revision": "0.2.4",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/652c8333b862d1beb50104e54f23d54b787186d9/skills/sai-user-guide/references/collaboration.md",
+      "revision": "652c8333b862d1beb50104e54f23d54b787186d9",
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "collaboration.md",
-      "characters": 982,
-      "sha256": "d6cbf3fb40a354fedbacc9fa9223807f4552ff33a5a72f0ca0bb9e928771bddb"
+      "characters": 1252,
+      "sha256": "0e6d6b18131316bbbb99d54539bbc273d7607e8048fb4e7475244f0167c5b043"
     },
     {
       "doc_id": "sai-user-guide:community.md",
@@ -346,13 +346,13 @@
     {
       "doc_id": "sai-user-guide:storage.md",
       "title": "存储与数据",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/eeaff0927abc9c1bff40b7f32f99f576a768f217/skills/sai-user-guide/references/storage.md",
-      "revision": "0.2.4",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/652c8333b862d1beb50104e54f23d54b787186d9/skills/sai-user-guide/references/storage.md",
+      "revision": "652c8333b862d1beb50104e54f23d54b787186d9",
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "storage.md",
-      "characters": 742,
-      "sha256": "3b8164dcab755890dd9c0940af748dadacd62a60809bd62991191efbff41b163"
+      "characters": 1039,
+      "sha256": "e5ddb27cca5aa718c636cb1ba6c2e3ac7b52334071be4893512d6ac5361e9745"
     },
     {
       "doc_id": "sai-user-guide:tools.md",
@@ -370,22 +370,22 @@
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "LXq3dX9yVsB9xSbvwAccosAlnRe",
-      "revision": 812
+      "revision": 815
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "Y7ORdw9h1sTJjtbINohcJxu4ngc",
-      "revision": 812
+      "revision": 815
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "QagOdTbmwsOF1VbYWhDc5ekInmd",
-      "revision": 812
+      "revision": 815
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "HjIHdJxYuszonUbafg9c6scbn9R",
-      "revision": 812
+      "revision": 815
     }
   ]
 }
