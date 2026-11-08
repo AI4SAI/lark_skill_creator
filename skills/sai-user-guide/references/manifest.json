@@ -346,13 +346,13 @@
     {
       "doc_id": "sai-user-guide:storage.md",
       "title": "存储与数据",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/652c8333b862d1beb50104e54f23d54b787186d9/skills/sai-user-guide/references/storage.md",
-      "revision": "652c8333b862d1beb50104e54f23d54b787186d9",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/7ebe2745c2dcb7d4f48867e1f7227aa339c6a44f/skills/sai-user-guide/references/storage.md",
+      "revision": "7ebe2745c2dcb7d4f48867e1f7227aa339c6a44f",
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "storage.md",
-      "characters": 1039,
-      "sha256": "e5ddb27cca5aa718c636cb1ba6c2e3ac7b52334071be4893512d6ac5361e9745"
+      "characters": 1554,
+      "sha256": "b1a7e34e392c6c2263315f718314b37e7eafaf40e2b76be1ddf30ed1bc76cdf1"
     },
     {
       "doc_id": "sai-user-guide:tools.md",
