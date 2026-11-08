@@ -24,7 +24,7 @@ MountMate 已有[SAI Windows 预发布版](https://github.com/Entropy-Enthalpy/s
 
 ![图片展示了RaiDrive挂载时的控件位置示意。画面中，有多个控件和文字说明。上方有“单击此处添加一个新的挂载”等操作指引，如选择NAS、SFTP等。下方有“新虚拟驱动器”区域，可选择服务类型、协议、虚拟驱动器名称等。还有“虚拟驱动器”区域，可设置挂载在本地的盘符和名称，以及输入SAL的域名和端口等信息。该图与文档中新建挂载时选择NAS→SFTP的操作步骤说明相呼应，直观呈现了操作控件位置。](assets/78b3092ab9c377a9e93283ef58c0f8a3821163d8c2090cb0a0a4f50ce5631ea9.jpeg)
 
-缓存默认占用本机磁盘。C 盘空间紧张时，可在设置中换到其他磁盘；传输大文件前留足空间。
+缓存默认占用本机磁盘。C 盘空间紧张时，可在设置中换到其他磁盘。传输大文件前留足空间。
 
 ![图片展示了RaiDrive的设置界面，其中“临时目录”默认为“RaiDriveCache”，并有黄色箭头指向该路径。界面还显示了磁盘、语言、检查更新、代理等设置选项。该图片与文档中介绍RaiDrive挂载时的文件缓存路径相关，说明RaiDrive会将上传和下载文件缓存在临时目录，该路径默认在C盘，可手动改到其他盘，且这一路径不局限于固态硬盘，使用机械硬盘通常也不会有明显效率损失。](assets/4647045bce37f5c4dd55e59413a69bdd414f4c5b626412a1858db4f1d966fe09.jpeg)
 
@@ -32,7 +32,7 @@ MountMate 已有[SAI Windows 预发布版](https://github.com/Entropy-Enthalpy/s
 
 ## SFTP/SCP
 
-少量文件直接用 MobaXterm 的 SFTP 面板拖放，很方便；也可使用命令行 `sftp`。需要重复同步整个目录时，推荐下面的 `rsync`：
+少量文件直接用 MobaXterm 的 SFTP 面板拖放，很方便。也可使用命令行 `sftp`。需要重复同步整个目录时，推荐下面的 `rsync`：
 
 ``` bash
 sftp -P 12022 username@c0.sai.ai-4s.com
@@ -42,13 +42,13 @@ get result.dat
 bye
 ```
 
-重复同步目录时，可在本机使用 rsync；先做预览，再去掉 `--dry-run` 执行：
+重复同步目录时，可在本机使用 rsync。先做预览，再去掉 `--dry-run` 执行：
 
 ``` bash
 rsync -av --dry-run -e "ssh -p 12022" ./inputs/ username@c0.sai.ai-4s.com:/已授权的目标目录/
 ```
 
-替换用户名和目标目录。源目录末尾的 `/` 表示复制其中的内容；大量小文件可先打包，通常比逐个传输快。
+替换用户名和目标目录。源目录末尾的 `/` 表示复制其中的内容。大量小文件可先打包，通常比逐个传输快。
 
 ![图片展示了MobaXterm的Session settings界面中SSH设置部分。界面中有多个选项卡，当前选中“Advanced SSH settings”。在“SSH-browser type”处，有“SCP (enhanced speed)”和“Try to follow SSH path in browser”两个选项，其中“SCP (enhanced speed)”被红色箭头指向。界面右下角有“OK”和“Cancel”按钮。图片与上下文的关系是，上下文提到在使用MobaXterm的SFTP面板拖放少量文件时很方便，但大量小文件打包传输更高效，此图则提示在重复同步目录时，推荐使用SCP（enhanced speed）以获得更丝滑的文件传输体验。](assets/ce53a1339a7cb3e41dab8e388b4a51fef45cb25cdfb842cf226bdd30fe92874e.png)
 

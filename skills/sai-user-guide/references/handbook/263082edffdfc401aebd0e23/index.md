@@ -2,7 +2,7 @@
 
 > SAI 的 Slurm 命令支持 **TAB 自动补全**，很好用，强烈推荐多试试。第一次提交可以先跟着[5分钟上手](../df8c6d77197060d17cc2d0d2/index.md)跑一遍。
 
-> 从干净的登录会话提交任务，在脚本里加载计算环境。没有明确需要，不要额外设置 `--export`；使用 Agent 提交任务时也一样。
+> 从干净的登录会话提交任务，在脚本里加载计算环境。没有明确需要，不要额外设置 `--export`。使用 Agent 提交任务时也一样。
 
 ## ✨sbatch脚本模板`/opt/sbatch_examples`
 
@@ -23,7 +23,7 @@
 - 第1行以`#!/bin/``ba``sh`指定该脚本的解释器，`ba``sh`可以变为`sh`、`csh`等，在SAI中推荐使用`bash`
 - 在可执行命令之前的每行`#SBATCH`前缀后跟的参数作为作业调度系统参数。 在任何非注释及空白之后的`#SBATCH`将不再作为Slurm参数处理
 
-下面用 ABACUS 脚本说明资源参数；运行前从 `/opt/sbatch_examples` 取当前模板，并用 `sai account local --format table` 确认可用 Slurm 账户。软件模块名以当前模板为准。
+下面用 ABACUS 脚本说明资源参数。运行前从 `/opt/sbatch_examples` 取当前模板，并用 `sai account local --format table` 确认可用 Slurm 账户。模块名和版本可在模板中查看。
 
 简单解释：“默认身份”决定登录后的起始目录和默认账户。任务实际记到哪个账户，Slurm按以下优先级顺序决定：①你手动通过--account指定的账户；②作业工作目录；③门户网站上设置的默认身份。例如个人home目录通常记个人，组织下的个人目录、共享文件夹目录记组织，项目目录则记对应项目。
 
@@ -56,7 +56,7 @@ exit
 - `--ntasks=4`应该设置为`Nodes` 、`GPUs-per-node` 和`Ranks-per-GPU`三者之乘积
   - **⚠**注意：此参数代表“进程数”，不代表“CPU核数”或“GPU卡数”，设置错误可能导致性能雪崩！
 - `--gpus-per-node=4`指定了每个节点使用4个GPU
-- `--qos=rush-gpu` 指定本例使用的 QOS。QOS 决定资源上限、时限及排队优先级；完整规则见[快速开始](../10e455cfa1c14a90040e58a5/index.md)。1–2 卡短时测试可考虑分区允许的 `rush-1o2gpu`。
+- `--qos=rush-gpu` 指定本例使用的 QOS。QOS 决定资源上限、时限及排队优先级。完整规则见[快速开始](../10e455cfa1c14a90040e58a5/index.md)。1–2 卡短时测试可考虑分区允许的 `rush-1o2gpu`。
 
 任务提交后，可使用[`squeue`](https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc#KyZIdvMRyoeFFcxKX8FcB9XVnrb)查看任务排队与资源占用情况，可使用[`scancel`](https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc#X0D1d3HtvoGyjFxiH6ecUNxFntd)取消特定任务，后文将介绍细节
 
@@ -74,7 +74,7 @@ exit
 >
 > `srun`一般用于短时间测试性作业任务，若确实需要长时间运行`srun`，则推荐在[Tmux](https://blog.csdn.net/CSSDCC/article/details/121231906)中运行。
 
-在 `srun` 后加 `--pty bash` 可打开计算节点终端。下例申请 4V100 的 1 卡、最多 5 分钟；先将 `ACCOUNT` 替换为 `sai account local --format table` 显示的可用账户。进入后正常计费，完成后执行 `exit` 释放资源。
+在 `srun` 后加 `--pty bash` 可打开计算节点终端。下例申请 4V100 的 1 卡、最多 5 分钟。先将 `ACCOUNT` 替换为 `sai account local --format table` 显示的可用账户。进入后正常计费，完成后执行 `exit` 释放资源。
 
 ```shell
 srun --account=ACCOUNT --partition=4V100 --qos=rush-1o2gpu --nodes=1 --ntasks=1 --gpus-per-node=1 --time=00:05:00 --pty bash
@@ -88,11 +88,11 @@ srun --account=ACCOUNT --partition=4V100 --qos=rush-1o2gpu --nodes=1 --ntasks=1 
 
 在登录节点运行 `sai jobs local --format table` 可查看任务，无需登录 Portal。也可使用 Slurm 的 `squeue`。
 
-> 日常查看任务可直接用 `job`、`jm` 或 `sqm`；`ja`/`sqa` 查看当前计算账户范围。脚本或 Agent 用上一行的正式命令。
+> 日常查看任务可直接用 `job`、`jm` 或 `sqm`。`ja`/`sqa` 查看当前计算账户范围。脚本或 Agent 用上一行的正式命令。
 
 `squeue` 常用筛选：`-p` 分区、`-q` QOS、`-A` 账户、`-u` 用户、`-t` 状态。完整参数见 `squeue --help`。
 
-下面用旧版任务列表说明各字段；任务 ID、节点和时间仅作示例。
+下面用一个任务列表示例说明各字段。
 
 *squeue*
 
@@ -114,7 +114,7 @@ Note: 1. 'GPU' indicates per-Node allocation of GPUs.
 >
 > 此外还需注意：
 >
-> - `Slots` 不能直接当作 GPU 数或 MPI 进程数。资源分配后，用 `scontrol show job <任务ID>` 核对 `NumCPUs`、`NumTasks` 和 GPU 申请；CPU 按分区的每卡规则配套分配。
+> - `Slots` 不能直接当作 GPU 数或 MPI 进程数。资源分配后，用 `scontrol show job <任务ID>` 核对 `NumCPUs`、`NumTasks` 和 GPU 申请。CPU 按分区的每卡规则配套分配。
 
 其他字段解释（由用户指定的参数，可通过提交命令、Sbatch脚本或`scontrol update`指定）：
 
@@ -164,7 +164,7 @@ sacct -X --format=jobid,jobname%15,NodeList,QOS%15,Start,End,State,AllocTRES%50,
 
 💡`sacct`的重点功能非常多，无法逐一列举，建议阅读[Slurm官方文档](https://slurm.schedmd.com/sacct.html)，并多用**TAB键**来补全命令
 
-> `sacct` 记录作业运行情况；最终扣费和账单明细请查看[账号、计费与资金](../de0cae9d9928cde1be3cc6b6/index.md)。
+> `sacct` 记录作业运行情况。最终扣费和账单明细请查看[账号、计费与资金](../de0cae9d9928cde1be3cc6b6/index.md)。
 
 ------------------------------------------------------------------------
 
@@ -196,7 +196,7 @@ scontrol update jobid=<任务ID> qos=<新QOS>
 scontrol update JobId=JOB_ID Gres=gpu:8 NumTasks=8 NumCPUs=64
 ```
 
-`NumTasks` 是总 MPI 进程数。这里的 `NumCPUs` 是总 CPU 逻辑核数，按该分区每 GPU 8 个逻辑核计算；它与提交脚本中的 `--cpus-per-task` 不是一回事。
+`NumTasks` 是总 MPI 进程数。这里的 `NumCPUs` 是总 CPU 逻辑核数，按该分区每 GPU 8 个逻辑核计算。提交脚本中的 `--cpus-per-task` 指每个任务的 CPU 数。
 
 ### 修改节点数量
 
@@ -219,7 +219,7 @@ GPU 数没变，配套 CPU 数也不变。应用必须支持对应的每卡多 R
 ### Tips
 
 - `jobid=<任务ID>`也可用`jobid=[任务ID列表]`（格式如`[114-514,1919,810]`）或`jobname=<任务名称>`代替
-- 运行中的任务先保存检查点，再用 `scontrol requeuehold JOB_ID` 停止当前执行并重新排队。修改后 `scontrol release JOB_ID` 放行，续算由程序和脚本处理；已经运行的费用照常结算。
+- 运行中的任务先保存检查点，再用 `scontrol requeuehold JOB_ID` 停止当前执行并重新排队。修改后 `scontrol release JOB_ID` 放行，续算由程序和脚本处理。已经运行的费用照常结算。
 
 #### 同时调整多项资源
 
@@ -230,7 +230,7 @@ scontrol update JobId=JOB_ID NumNodes=4 Gres=gpu:16 NumTasks=128 NumCPUs=512 QOS
 scontrol show job JOB_ID
 ```
 
-看输出中的 `Partition`、`QOS`、`NumNodes`、`NumTasks`、`NumCPUs` 和 `TresPerNode`，确认各项对应。跨分区修改还要匹配目标分区的每卡 CPU/内存规则；不要照搬另一个分区的数字。
+看输出中的 `Partition`、`QOS`、`NumNodes`、`NumTasks`、`NumCPUs` 和 `TresPerNode`，确认各项对应。跨分区修改时，要按目标分区的每卡 CPU/内存规则调整。
 
 ### 降低任务优先级
 
@@ -243,8 +243,8 @@ scontrol show job JOB_ID
 ### `scontrol`的其他重要功能
 
 - `scontrol hold <任务ID>`：暂不启动排队中的任务。
-- `scontrol requeue <任务ID>`：重新排队；运行中的任务会停止，续算依赖程序检查点。
-- `scontrol suspend <任务ID>`：需要相应权限；暂停不等于释放全部资源或停止计费。
+- `scontrol requeue <任务ID>`：重新排队。运行中的任务会停止，续算依赖程序检查点。
+- `scontrol suspend <任务ID>`：需要相应权限。暂停期间仍保留部分资源并计费。
 - ……
 
 💡`scontrol`的重要功能非常多，无法逐一列举，建议阅读[Slurm官方文档](https://slurm.schedmd.com/scontrol.html)，并多用**TAB键**来补全命令
@@ -265,7 +265,7 @@ scontrol show job JOB_ID
 
 ## ✨查看计算节点空闲状态 **`gpu`/`cpu`**
 
-想知道哪些节点空闲，日常直接用 `gpu` 或 `cpu`。脚本或 Agent 可用 `sai resources local --format table`；详细分区规则用 `scontrol show partition 分区名`。
+想知道哪些节点空闲，日常直接用 `gpu` 或 `cpu`。脚本或 Agent 可用 `sai resources local --format table`。详细分区规则用 `scontrol show partition 分区名`。
 
 ### GPU 资源
 
@@ -278,11 +278,11 @@ scontrol show partition 4V100
 
 用户日常使用最需要关注的信息如下：
 
-- **GPU 总量**：节点的资源规模，不等于当前可申请数量。
-- **空闲 GPU**：当前尚未分配的数量；任务还需满足 QOS、账户额度和节点状态等条件。
-- **CPU 资源**：区分物理核心、逻辑核心和 MPI 进程数；不要仅凭节点总 CPU 数推算任务的 `Ranks-per-GPU`。
+- **GPU 总量**：节点的 GPU 数量。
+- **空闲 GPU**：当前尚未分配的数量。任务还需满足 QOS、账户额度和节点状态等条件。
+- **CPU 资源**：物理核心、逻辑核心和 MPI 进程数需分别查看。`Ranks-per-GPU` 要结合软件的并行方式设置。
 - `Status`字段：`IDLE`表示计算节点完全空闲，`MIXED`表示计算节点部分空闲，`ALLOCATED`表示计算节点被全部占用
-- **可用 QOS**：查看 `scontrol show partition <分区名>` 中的 `AllowQos`。单卡 QOS 已不限于 4V100，各分区允许的组合不同，完整规则见[快速开始](../10e455cfa1c14a90040e58a5/index.md)。
+- **可用 QOS**：查看 `scontrol show partition <分区名>` 中的 `AllowQos`。各分区允许的 QOS 不同，完整规则见[快速开始](../10e455cfa1c14a90040e58a5/index.md)。
 
 ### `cpu`
 
@@ -294,9 +294,9 @@ scontrol show partition CPU-MISC
 scontrol show partition DSPRHBM
 ```
 
-2026-10-13 核验：CPU-MISC 只允许 `rush-cpu`；DSPRHBM 允许 `rush-cpu` 和 `huge-cpu`。
+在输出的 `AllowQos` 字段查看 CPU 分区允许的 QOS。
 
-CPU 配额以 Slurm 的逻辑核心数为准。`--ntasks` 表示任务进程数，不能直接当作物理核心数。
+CPU 配额按 Slurm 的逻辑核心数计算。`--ntasks` 表示任务进程数。
 
 ## 进入计算节点查看任务和硬件状态
 
@@ -334,9 +334,9 @@ CPU 配额以 Slurm 的逻辑核心数为准。`--ntasks` 表示任务进程数�
 
 如任务所在节点提供[Netdata](https://www.netdata.cloud)，可通过网页查看 CPU、内存、GPU、网络和存储状态，辅助性能分析与排错。
 
-历史数据保留范围以该节点页面实际可查的时间为准；排错时请记录任务 ID、节点和起止时间。
+在任务节点的 Netdata 页面选择可查询的时段，查看监控曲线。排错时记录任务 ID、节点和起止时间。
 
-下面用 MobaXterm 的 MobaSSHTunnel 建立本地端口转发。截图为旧版示意：登录主机和端口请使用[登录超算](../891ee584b71ab6f7b0d6d62d/index.md)中的当前连接信息；远程目标是自己任务所在节点的 `19999` 端口。
+下面用 MobaXterm 的 MobaSSHTunnel 建立本地端口转发。登录主机和端口见[登录超算](../891ee584b71ab6f7b0d6d62d/index.md)，远程目标填写自己任务所在节点及 `19999` 端口。
 
 MobaSSHTunnel可通过如下方式打开：
 
@@ -362,11 +362,11 @@ MobaSSHTunnel可通过如下方式打开：
 
 ![图片展示的是一个命令行界面，用户在登录节点上执行\`sbatch -p gpu_cp2k.sbatch\`命令。命令执行后，出现“error: QOSMinGRES”报错，提示“Batch job submission failed: Job violates accounting/QOS policy (job submit limit, user's size and/or time limits)”。该图片与文档中关于“error：QOSMinGRES”报错的解释相关，直观呈现了报错时的命令执行情况及报错信息，帮助用户理解报错原因。](assets/6859ce68fbfdf2ac72545ae8a5a3d128ffab2072efe3d169e146a30fdcc400a2.png)
 
-> **A：**申请的 GPU 数低于所选 QOS 的最低要求。先对照脚本中的 GPU 数和 QOS，再查[快速开始的 QOS 规则](../10e455cfa1c14a90040e58a5/index.md)。以下图片是历史报错示意。
+> **A：**申请的 GPU 数低于所选 QOS 的最低要求。先对照脚本中的 GPU 数和 QOS，再查[快速开始的 QOS 规则](../10e455cfa1c14a90040e58a5/index.md)。
 >
 > ![图片展示的是一个系统提示信息，其中关键内容被红色框突出显示。提示信息指出，不满足\[GPUsPerNode=4N(N\>0)\]条件的任务，对某些QOS来说是不允许的，若要使用不正确的GPU数量，请选择专门的QOS和分区。该图片与上文“下面这些任务的排队原因是什么？”的问题相关，是对其中“排队原因1：AssocGrpGRES”中任务排队原因的说明，即因不满足GPU数量条件而被某些QOS拒绝。](assets/5febd4b4bb314d8667f32c701133ff31191d60eafb669882fc91bf8506a8d1af.png)
 >
-> 申请 1 或 2 卡时，可选择该分区允许的 `improper-gpu`、`rush-1o2gpu` 或 `flood-1o2gpu`。用 `scontrol show partition <分区名>` 核对 `AllowQos`；只改 QOS 名称仍需满足时限和额度要求。
+> 申请 1 或 2 卡时，可选择该分区允许的 `improper-gpu`、`rush-1o2gpu` 或 `flood-1o2gpu`。用 `scontrol show partition <分区名>` 核对 `AllowQos`。提交时还需满足所选 QOS 的时限和额度要求。
 >
 > ![图片展示了一段Bash脚本代码，其中关键部分是用红色框突出显示的\`#SBATCH --qos=improper-gpu\`指令。该指令用于指定任务的优先级，其优先级顺序为\`rush-4gpu = rush-8gpu \> improper-gpu \> huge-gpu\`。此脚本代码与文档中关于提交任务相关的内容相关，用于说明在申请1或2卡时，可选择分区允许的\`improper-gpu\`等QoS名称，以及核对\`AllowQos\`时只改QOS名称仍需满足时限和额度要求。](assets/b630890e6ed20e097bfed8292661bcef38c0144da2ab1375ae9477978ee55c27.png)
 
@@ -378,13 +378,13 @@ MobaSSHTunnel可通过如下方式打开：
 
 ![图片展示的是\`testuser01\`在\`login-01\`登录节点下的\`squeue\`命令输出结果。表格中列出了job ID、Priority、Name、User、Submit/Start at、ST、Run/Wait、Partition、QOS、Nodes、Slots、GPU、MemPerU、array_ID、Reason/Modelist等信息。其中，job ID为3142的记录显示其处于运行状态（R），Partition为AV100，QOS为improper-gpu 1，GPU数量为32，Slots为32，MemPerU为23000M，Reason/Modelist为\`AssocGrpGRES\`。该图片与上文排队原因1相关，直观呈现了因账户同时使用GPU额度达到总额度而排队的情况。](assets/0b1a671fb05bc1e282410f1d1bbba1cd5da6abd3b1b7f997421fc9e134536bab.png)
 
-这个账户同时使用的 GPU 已经达到总额度，需等已有任务结束，或联系管理员增加额度。用 `sai account local --format table` 查看自己的账户关联；图中 64 卡是当时这个账户的额度。
+这个账户同时使用的 GPU 已经达到总额度，需等已有任务结束，或联系管理员增加额度。用 `sai account local --format table` 查看自己的账户关联。图中这个账户的额度为 64 卡。
 
 排队原因2：`QOSMaxGRESPerUser`
 
 ![图片展示的是\`qqueue\`命令的输出结果，用于查看队列信息。其中，job-ID为3139、3140、3141的三条记录中，job-ID为3141的记录状态为PD，对应QOS为rush - 4gpu，节点数、槽位数、GPU数均为1，MemPerU为23000M，array_ID为空，Reason/NodeList显示为“QOSMaxGRESPerUser”。该图片与上下文关于排队原因的说明相关，直观呈现了达到每用户上限时的队列信息。](assets/9fe69c41e42c4d967146dcddb9b0a03bf5c16abccbc4fe6e2c268a55e5bc7f07.png)
 
-你在所选 QOS 下同时使用的 GPU 达到每用户上限了。用 `job` 看正在运行的任务，再对照[快速开始](../10e455cfa1c14a90040e58a5/index.md)的 QOS 表；当前提交用表中的名称。
+你在所选 QOS 下同时使用的 GPU 达到每用户上限了。用 `job` 看正在运行的任务，再对照[快速开始](../10e455cfa1c14a90040e58a5/index.md)的 QOS 表核对上限，提交时使用表中的 QOS 名称。
 
 ------------------------------------------------------------------------
 
@@ -404,15 +404,15 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 
 #### Q: GPU 利用率为 0，还会计费吗？
 
-> **A：**会。计算费用按任务占用的资源和时间计算。读文件、等待通信或程序卡住时，资源仍可能被占用；请查日志和监控，及时取消不再需要的任务。
+> **A：**会。计算费用按任务占用的资源和时间计算。读文件、等待通信或程序卡住时，资源仍可能被占用。请查日志和监控，及时取消不再需要的任务。
 
 #### Q: 排队、hold 和 suspend 的费用一样吗？
 
-> **A：**普通按量任务在首次启动前排队，尚未占用计算资源，这段时间不收计算费；hold 是让未启动的任务暂缓调度。suspend 是暂停已运行的任务，仍保留资源，正常计费。预约资源、订阅等另按订单约定。
+> **A：**普通按量任务在首次启动前排队，尚未占用计算资源，这段时间不收计算费。hold 是让未启动的任务暂缓调度。suspend 是暂停已运行的任务，仍保留资源，正常计费。预约资源、订阅等另按订单约定。
 
 #### Q: 关闭 SSH 或 Pilot 网页，任务就结束了吗？
 
-> **A：**已提交的 sbatch 任务会继续，资源占用期间照常计费。交互式 srun 则可能随终端断开而结束，使用 tmux 时还可能继续。以任务状态为准；要结束计算，请取消对应任务。
+> **A：**已提交的 sbatch 任务会继续，资源占用期间照常计费。交互式 srun 则可能随终端断开而结束，使用 tmux 时还可能继续。请查看任务状态。要结束计算，请取消对应任务。
 
 #### Q: 程序报错、计算失败，已经花的费用怎么算？
 
@@ -420,19 +420,19 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 
 #### Q: scancel 执行完，就已经停止计费了吗？
 
-> **A：**先确认任务已经结束并释放资源。取消请求发出后可能还有清理过程；如果长时间停在 COMPLETING 或仍占着节点，把任务 ID 和时间交给管理员。
+> **A：**先确认任务已经结束并释放资源。取消请求发出后可能还有清理过程。如果长时间停在 COMPLETING 或仍占着节点，把任务 ID 和时间交给管理员。
 
 #### Q: 想过几天再继续算，可以一直 suspend 吗？
 
-> **A：**暂停期间仍正常计费。需要长期停下来时，先按软件支持的方式保存检查点，再结束任务；之后从检查点重新提交。
+> **A：**暂停期间仍正常计费。需要长期停下来时，先按软件支持的方式保存检查点，再结束任务，之后从检查点重新提交。
 
 #### Q: 切换默认身份后，之前提交的任务也会换账户吗？
 
-> **A：**已提交任务保留原来的账户。新任务先用命令、脚本或环境变量指定的账户，其次按工作目录推定，最后用本站已生效的默认账户；排队任务若需更正账户，应单独修改并核对。
+> **A：**已提交任务保留原来的账户。新任务先用命令、脚本或环境变量指定的账户，其次按工作目录推定，最后用本站已生效的默认账户。排队任务若需更正账户，应单独修改并核对。
 
 #### Q: 余额不足，任务会自动停止吗？
 
-> **A：**是否自动取消取决于站点规则。任务仍在运行或暂停时，资源占用继续计费。收到欠费提醒后，请及时补足资金；需要停止计算时，请取消对应任务并确认已结束。
+> **A：**是否自动取消取决于站点规则。任务仍在运行或暂停时，资源占用继续计费。收到欠费提醒后，请及时补足资金。需要停止计算时，请取消对应任务并确认已结束。
 
 #### Q: 通知说任务会被取消，到了时间却还在运行或暂停，怎么办？
 

@@ -43,7 +43,7 @@ ml load atomkit
 >
 > 101代表输出格式为ABACUS
 
-转换后用 `ml purge` 卸载模块；如果还开着 Conda，再执行 `conda deactivate`。回到干净环境后提交任务，计算环境由脚本加载。
+转换后用 `ml purge` 卸载模块。如果还开着 Conda，再执行 `conda deactivate`。回到干净环境后提交任务，计算环境由脚本加载。
 
 首先进行SCF计算来获取电子密度，ABACUS运行依赖于`INPUT`文件、`KPT`文件和结构文件，我们复制scf计算的example文件为相应的文件名。而结构文件在`INPUT`文件中被设定为了我们上一步得到的`PRIMCELL.STRU`。该步操作的具体命令：
 
@@ -80,7 +80,7 @@ ml load atomkit
 
 ![图片展示了在ABACUS计算环境中使用\`squeue\`命令查看作业排队和运行状态的界面。界面上方显示了作业ID、优先级、用户、提交/开始时间等信息，如作业ID为11374，用户为saiuser01，提交时间为2025 - 11 - 28 00:29:47，状态为R，运行/等待时间为0:02，节点数为8，GPU数为1等。下方有注释说明“GPU”表示每个节点分配的GPU，“MemPerU”表示每个GPU或每个CPU核心分配的主机内存。该图片与上文提到的使用\`squeue\`查看排队和运行状态的内容相呼应。](assets/532f817ed89cef4b2cfb117672693a95ecbbb7bd029a2cafcc99ab0c62e4aa20.png)
 
-用 [任务提交和管理](../263082edffdfc401aebd0e23/index.md) 中的 `squeue` 查看排队和运行状态，`gpu` 查看 GPU 资源。作业结束后还要检查 Slurm 日志和 ABACUS 输出，确认 SCF 收敛；进入运行状态或从队列消失都不等于计算成功。
+用 [任务提交和管理](../263082edffdfc401aebd0e23/index.md) 中的 `squeue` 查看排队和运行状态，`gpu` 查看 GPU 资源。作业结束后检查 Slurm 日志和 ABACUS 输出，确认 SCF 收敛。
 
 ![图片展示的是在abacus用户指南中，使用\`squeue\`命令查看作业排队和运行状态的终端界面。界面中显示了作业ID、作业名称、用户、提交时间、运行时间、节点数、GPU数、作业状态等信息。其中，作业ID为11374，作业名为ABACUS，用户为sauser1，提交时间为2025 - 11 - 28 00:29:47，运行时间为4V1000，节点数为1，GPU数为1，状态为RUN/WAIT。该图片与上文提到的使用\`squeue\`查看排队和运行状态的内容相呼应。](assets/e1efb702c4f0799e9bb58784b3ab54cf010ca298b99687678e6951cf2c7fb38d.png)
 
@@ -110,7 +110,7 @@ nano gpu_mace-train.sbatch   # 核对环境、输入文件和资源设置
 sbatch gpu_mace-train.sbatch
 ```
 
-**查看状态：**运行 `sqm` 查看自己的任务；状态及等待原因以当前输出为准。下图是一次历史运行示例。
+**查看状态：**运行 `sqm` 查看自己的任务状态和等待原因，显示如下：
 
 ![图片展示的是使用\`vim\`打开MACE训练输出日志的内容。日志中显示了job-ID、Prior、Name、User、Submit/Start at、ST、Run/Wait、Partition、QoS、Nodes、Slots、GPU、MemPerU、array_ID、Reason/Modelist等信息。其中，job-ID为12595，Name为General，User为某用户，Submit/Start at为2025 - 11 - 30 00:07:59，Run/Wait为5:06，Partition为4V100，QoS为improper - gpu，Nodes为1，Slots为8，GPU为1，MemPerU为23000M，Reason/Modelist为4v100pxn04。该图片与文档中MACE训练和使用部分相关，用于展示训练输出日志情况。](assets/6f11d5137289d6f77e5166ea589005fa24fd1c085978f10e384ec8d407d0f171.png)
 
@@ -186,7 +186,7 @@ sbatch gpu_lmp-mace.sbatch
     timestep        0.002000
     run             1000
 
-**提交脚本示例：**下例申请 4 个节点、每节点 4 张 GPU，共 16 张 GPU。这是示例规模；请按实际任务调整节点数、GPU 数、MPI 进程数和 QOS，先用短任务验证结果及资源利用率。
+**提交脚本示例：**下例申请 4 个节点、每节点 4 张 GPU，共 16 张 GPU。请按任务需要调整节点数、GPU 数、MPI 进程数和 QOS，先用短任务验证结果及资源利用率。
 
 ``` bash
 #!/bin/bash
@@ -256,11 +256,11 @@ System init for write_data ...
 Total wall time: 0:02:25 # 总耗时
 ```
 
-本例使用 MACE。MACE-LES 的 LAMMPS 接口请查对应版本说明，历史问题见 [issue \#1283](https://github.com/ACEsuit/mace/issues/1283)。
+本例使用 MACE。使用 MACE-LES 时，请查对应版本的 LAMMPS 接口说明。相关讨论见 [issue \#1283](https://github.com/ACEsuit/mace/issues/1283)。
 
 #### MD效率测试
 
-比较性能时固定结构、模型、精度与模拟步数，分别记录不同 GPU 数下的 `Performance` 和总耗时。先检查结果一致性，再判断增加 GPU 是否有收益；上方日志只代表该次示例运行。
+比较性能时固定结构、模型、精度与模拟步数，分别记录不同 GPU 数下的 `Performance` 和总耗时。先检查结果一致性，再判断增加 GPU 是否有收益。
 
 ------------------------------------------------------------------------
 
@@ -367,11 +367,11 @@ python /app/alphafold/run_alphafold.py \
 
 ##### 特殊用法：批量计算
 
-> 这个批量用法会依次处理输入文件，适合在一个任务里省去反复提交。想让多个预测同时跑，就用 [Slurm Job Array](https://slurm.schedmd.com/job_array.html)；仅增加 GPU 数不会让循环自动并行。
+> 这个批量用法会依次处理输入文件，适合在一个任务里省去反复提交。想让多个预测同时跑，就用 [Slurm Job Array](https://slurm.schedmd.com/job_array.html)。
 
 - 删除包含`AF3_INPUT_JSON`的行
 - 在python命令中添加`--input_dir=/root/af_input`
-- 按单次运行的 CPU、内存和 GPU 需求设置资源及 QOS；不要仅因输入文件增多就增加 GPU 数。
+- 按单次运行的 CPU、内存和 GPU 需求设置资源及 QOS。不要仅因输入文件增多就增加 GPU 数。
 
 下面以 `af3_st1_msa.sbatch` 为例，`af3_st2_infer.sbatch` 也可按同样方式改为读取输入目录。推理阶段的输入应为已完成 MSA 的 `*_data.json` 文件。
 

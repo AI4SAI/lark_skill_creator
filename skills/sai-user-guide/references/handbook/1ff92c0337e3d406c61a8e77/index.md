@@ -1,24 +1,24 @@
 # 性能调优✨✨✨
 
-先用 SAI 的应用模板，Rank 映射和通信设置已经配在相应脚本里。想继续榨性能，再按下面的方法逐项试；固定输入和软件版本，比较耗时、显存与计算结果。
+先用 SAI 的应用模板，Rank 映射和通信设置已经配在相应脚本里。想继续榨性能，再按下面的方法逐项试。固定输入和软件版本，比较耗时、显存与计算结果。
 
 ## 通用性能调优
 
 ### MPI Rank 映射
 
-> 先用[当前 sbatch 脚本模板](https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc#AxIvdck6toE2UHxaa5bc2oTqnPf)运行；需要调整时，再检查 MPI Rank、CPU 核与 GPU 的对应关系。
+> 先用[当前 sbatch 脚本模板](https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc#AxIvdck6toE2UHxaa5bc2oTqnPf)运行。需要调整时，再检查 MPI Rank、CPU 核与 GPU 的对应关系。
 >
-> 分区映射脚本位于 `/opt/sai/runtime/mps_mapping.d`；旧路径 `/opt/sai_config/mps_mapping.d`目前是兼容链接。
+> 分区映射脚本位于 `/opt/sai/runtime/mps_mapping.d`。`/opt/sai_config/mps_mapping.d` 是兼容链接。
 
-> 下面是 Open MPI 的映射示例。不同 MPI 实现、Slurm 分配范围和节点拓扑会影响实际绑定；先查看当前任务的绑定结果。
+> 下面是 Open MPI 的映射示例。不同 MPI 实现、Slurm 分配范围和节点拓扑会影响实际绑定。先查看当前任务的绑定结果。
 
 #### 什么是 MPI Rank 映射？为什么需要它？
 
-用 `mpirun -np 16` 启动 16 个 MPI 进程时，映射和绑定由 MPI 实现、启动参数及 Slurm 分配共同决定。默认配置可能已做绑定；需要关注的是这些进程、内存与 GPU 是否匹配当前节点拓扑。
+用 `mpirun -np 16` 启动 16 个 MPI 进程时，映射和绑定由 MPI 实现、启动参数及 Slurm 分配共同决定。默认配置可能已做绑定。请检查进程、内存与 GPU 是否匹配当前节点拓扑。
 
-Open MPI 的 `--map-by` 控制 Rank 如何分布在节点、NUMA 或缓存域等资源上；`--bind-to` 控制进程绑定。可用 `--report-bindings` 检查结果。它们不会单独替你完成应用内的 GPU 分配。
+Open MPI 的 `--map-by` 控制 Rank 如何分布在节点、NUMA 或缓存域等资源上。`--bind-to` 控制进程绑定。可用 `--report-bindings` 检查结果。GPU 分配由应用另行处理。
 
-#### 历史示例：16V100 分区的 5995WX 节点
+#### 示例：16V100 分区的 5995WX 节点
 
 ##### 🤔 单节点硬件拓扑结构简析
 
@@ -26,7 +26,7 @@ Open MPI 的 `--map-by` 控制 Rank 如何分布在节点、NUMA 或缓存域等
 
 > 本例使用 AMD Threadripper PRO 5995WX（64 核 / 128 线程）、8 个 L3 Cache 域、4 个 NUMA 域与 16 张 V100。例图按每个 NUMA 域连接 4 张 GPU 说明亲和性。
 >
-> 实际 NUMA 划分、设备编号和作业可用 CPU 以分配到的节点为准，可在作业内用 `lscpu` 和 `nvidia-smi topo -m` 检查。
+> 在作业内用 `lscpu` 和 `nvidia-smi topo -m` 检查所分配节点的 NUMA 划分、设备编号和作业可用 CPU。
 
 ##### 💪 实战命令解析：`mpirun -np 16 -map-by ppr:2:l3cache:pe=4`
 
@@ -37,7 +37,7 @@ Open MPI 的 `--map-by` 控制 Rank 如何分布在节点、NUMA 或缓存域等
 这是核心！含义是：
 
 > `ppr:2:l3cache`：每个 L3 Cache 域放置 2 个 Rank。\
-> `pe=4`：每个 Rank 使用 4 个处理单元；Open MPI 默认按核计数，启用硬件线程选项时含义会改变。
+> `pe=4`：每个 Rank 使用 4 个处理单元。Open MPI 默认按核计数，启用硬件线程选项时含义会改变。
 
 📌 翻译成**人话**：
 
@@ -49,7 +49,7 @@ Open MPI 的 `--map-by` 控制 Rank 如何分布在节点、NUMA 或缓存域等
 - 每 Rank 占 4 核心 → 总共 16×4 = 64 核心 ✔️（正好用满 CPU）
 - 每个 L3 Cache 域有 8 核 → 2 Ranks × 4 核 = 8 核 ✔️（完美填满）
 
-本例让同一 Rank 的 4 个核心位于同一 L3 Cache 域。缓存容量仍由该域内的核心共享；CPU 绑定并不为 Rank 独占一半缓存。
+本例让同一 Rank 的 4 个核心位于同一 L3 Cache 域。缓存容量由该域内的核心共享。
 
 这个例子使用 64 个物理核心。改完后加 `--report-bindings` 看一眼：每个 Rank 是否绑到了预期的核心，OpenMP 线程数是否与之配套。
 
@@ -116,7 +116,7 @@ Open MPI 的 `--map-by` 控制 Rank 如何分布在节点、NUMA 或缓存域等
 - **CP2K：**MPS 可用来试配“平方数个 MPI Rank”，让进程数与应用的并行划分更合适。
 - **QE：**多 K 点小体系值得试 MPS，配合 `-nk` 分配 K 点并行。
 - **DP-LMP：**按原有调优经验，每卡显存占到约 1 GB 以上时，值得试试 MPS：更多 Rank 可能缩短邻居表构建时间。小任务常常得不偿失，MPI 通信会吃掉收益。对比日志里的 Neigh、Comm 和总耗时，就能看出瓶颈有没有转移。
-- **VASP：**涉及 NCCL 通信的配置按每个 GPU 一个 MPI Rank 使用，不能直接套用每卡多个 Rank 的 MPS 配置。单卡、多 K 点小体系可在应用构建支持时测试 MPS 与 `KPAR`；先用小算例确认正确性和耗时。
+- **VASP：**涉及 NCCL 通信的配置按每个 GPU 一个 MPI Rank 使用，不能直接套用每卡多个 Rank 的 MPS 配置。单卡、多 K 点小体系可在应用构建支持时测试 MPS 与 `KPAR`。先用小算例确认正确性和耗时。
 
 ------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ Open MPI 的 `--map-by` 控制 Rank 如何分布在节点、NUMA 或缓存域等
 
 > 多节点任务先用当前应用模板验证正确运行，再逐步增加节点数，对比总耗时与卡时消耗。
 
-UCX/NCCL 的站点配置位于 `/opt/sai/runtime/ib_map.d`（旧路径 `/opt/sai_config/ib_map.d`目前是兼容链接）。优先沿用应用模块与当前模板的设置；具体任务需要调整时，以实际拓扑和测量结果为依据。
+UCX/NCCL 的站点配置位于 `/opt/sai/runtime/ib_map.d`（`/opt/sai_config/ib_map.d` 是兼容链接）。优先沿用应用模块与当前模板的设置。需要调整时，结合节点拓扑比较调整前后的耗时。
 
 ------------------------------------------------------------------------
 
@@ -132,7 +132,7 @@ UCX/NCCL 的站点配置位于 `/opt/sai/runtime/ib_map.d`（旧路径 `/opt/sai
 
 ### VASP
 
-> GPU 版 VASP 优先关注 `NSIM` 和 `KPAR`。CPU 版常用的 `NPAR`/`NCORE` 设置不要直接照搬；具体支持情况以所用 VASP 构建为准。以下参数是试跑起点。
+> GPU 版 VASP 优先关注 `NSIM` 和 `KPAR`。使用 CPU 版常用的 `NPAR`/`NCORE` 设置前，先查看所用 VASP 构建是否支持。以下参数是试跑起点。
 
 #### **`NSIM`**
 
@@ -144,7 +144,7 @@ UCX/NCCL 的站点配置位于 `/opt/sai/runtime/ib_map.d`（旧路径 `/opt/sai
 
 📌设置`KPAR`的基本原则是**使每个K点的计算所跨的GPU尽可能少**
 
-- 在每个 GPU 使用一个 MPI Rank 的常见配置下，可先测试 GPU 数与实际 K 点数（以 `IBZKPT` 为准）的最大公因数作为 `KPAR`。这是负载均衡的起点，并非必须整除 K 点数的规则。
+- 在每个 GPU 使用一个 MPI Rank 的常见配置下，可先测试 GPU 数与实际 K 点数（以 `IBZKPT` 为准）的最大公因数作为 `KPAR`。这是负载均衡的试跑起点，KPAR 也可以取不能整除 K 点数的值。
 - GPU 数量也是可调的。例如 7 个 K 点，可试 7 张 GPU、`KPAR=7`：主站可用 `8V100V0` 分区、`improper-gpu`、1 个节点、每节点 7 张 GPU 和 7 个 MPI Rank。下面两个反例也说明，K 点分组仍要看具体体系。
 - 上述只是“理想情况”，实际会有很多例外
   - 例如YZrO-88-2kp体系：原子数较少且只有2个K点，经有限测试发现固定`KPAR=2`最佳，包括只使用单块GPU时
@@ -156,13 +156,13 @@ UCX/NCCL 的站点配置位于 `/opt/sai/runtime/ib_map.d`（旧路径 `/opt/sai
 
 http://bbs.keinsci.com/thread-40313-1-1.html
 
-固定输入、力场和步数，比较不同 MPI 进程数与 GPU 数下的总耗时。查看日志中的 Pair、Neigh 和 Comm 用时，定位计算、邻居表或通信开销；先确认结果一致。参数说明见 [LAMMPS 性能指南](https://docs.lammps.org/Speed.html)。
+固定输入、力场和步数，比较不同 MPI 进程数与 GPU 数下的总耗时。查看日志中的 Pair、Neigh 和 Comm 用时，定位计算、邻居表或通信开销。先确认结果一致。参数说明见 [LAMMPS 性能指南](https://docs.lammps.org/Speed.html)。
 
 ------------------------------------------------------------------------
 
 ### DeePMD-kit
 
-先区分模型训练和分子动力学模拟。比较性能时保持模型、后端、数值精度与输入一致；增加 GPU 后同时检查耗时和显存占用。SAI 的具体环境用法见 [软件环境](../f1d4bd8bb10f1064716136f5/index.md)，参数解释见 [DeePMD-kit 文档](https://docs.deepmodeling.com/projects/deepmd/en/latest/)。
+先区分模型训练和分子动力学模拟。比较性能时保持模型、后端、数值精度与输入一致。增加 GPU 后同时检查耗时和显存占用。SAI 的具体环境用法见 [软件环境](../f1d4bd8bb10f1064716136f5/index.md)，参数解释见 [DeePMD-kit 文档](https://docs.deepmodeling.com/projects/deepmd/en/latest/)。
 
 ------------------------------------------------------------------------
 

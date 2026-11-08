@@ -19,7 +19,7 @@ module unload 软件名/版本     # 用完后卸载
 module purge                 # 卸载所有已加载模块
 ```
 
-`module purge` 只处理 Modules 管理的环境；已激活的 Conda 环境需另行 `conda deactivate`。
+`module purge` 只处理 Modules 管理的环境。已激活的 Conda 环境需另行 `conda deactivate`。
 
 ### Conda
 
@@ -33,11 +33,11 @@ module purge                 # 卸载所有已加载模块
 
 ![这张图片展示了Linux系统下\`.bashrc\`文件的部分内容，该文件位于第121至135行，其中第127行的位置标注有醒目的红色“× 错误”标识。这段代码包含了与Conda环境初始化相关的配置逻辑，通过判断命令执行结果的返回值，来加载对应路径的Conda脚本。该图片对应的是软件环境模块下的环境管理内容，涉及个人Conda配置相关的Shell脚本，直观呈现了用户在配置Conda初始化脚本时出现的错误标记。](assets/c94dd131364e6f3ec34834de3edb9e9663387d5374eaf939bd94c70369c99888.png)
 
-下载 Python 包较慢时，可按所用镜像站的说明配置 Conda 或 pip 源；安装失败时先检查包和版本是否在该源中可用。
+下载 Python 包较慢时，可按所用镜像站的说明配置 Conda 或 pip 源。安装失败时先检查包和版本是否在该源中可用。
 
 ### `source`命令
 
-`source` 在当前 Shell 中执行环境脚本，使其中的环境变量立即生效。只加载你信任的脚本；下例的路径需替换为实际文件。
+`source` 在当前 Shell 中执行环境脚本，使其中的环境变量立即生效。只加载你信任的脚本。下例的路径需替换为实际文件。
 
 ``` bash
 source /实际路径/软件.env
@@ -49,7 +49,7 @@ source /实际路径/软件.env
 
 SAI 提供 [Apptainer](https://apptainer.org) 容器（前身为 [Singularity](https://sylabs.io)），可将软件及依赖封装为镜像，减少环境迁移时的配置工作。GPU 和跨节点 MPI 应用仍需匹配站点驱动与通信环境。
 
-用 `module avail apptainer` 查看当前可用版本，再加载需要的版本。[Fakeroot](https://apptainer.org/docs/user/latest/fakeroot.html) 的可用模式受站点配置限制；容器中的 root 身份不等于宿主机管理员权限。
+用 `module avail apptainer` 查看当前可用版本，再加载需要的版本。[Fakeroot](https://apptainer.org/docs/user/latest/fakeroot.html) 的可用模式受站点配置限制。宿主机上的访问仍按个人账号权限管理。
 
 若用户不了解如何在无root权限的超算环境中安装软件，通过Apptainer使用Fakeroot是一个可尝试的选项。
 
@@ -71,7 +71,7 @@ SAI 提供 [Apptainer](https://apptainer.org) 容器（前身为 [Singularity](h
 
 ### sbatch 脚本模板列表
 
-模板位于 `/opt/sbatch_examples`，下表便于按软件查找。复制需要的脚本到工作目录，先改分区、节点数、GPU 数和 QOS，再提交；模块与版本直接看脚本中的 `module load`。
+模板位于 `/opt/sbatch_examples`，下表便于按软件查找。复制需要的脚本到工作目录，先改分区、节点数、GPU 数和 QOS，再提交。模块与版本直接看脚本中的 `module load`。
 
 | 模板名称 | 软件 | 默认软件版本 | 并行能力 | 默认并行设置 |
 |----|----|----|----|----|
@@ -130,7 +130,7 @@ SAI 提供 [Apptainer](https://apptainer.org) 容器（前身为 [Singularity](h
 
 `/opt/envs` 通过Bash直接管理的软件的环境脚本（`.env`，通过`source`命令调用）
 
-`/opt/custom` 用于部分站点的自定义软件；是否部署及如何同步，由所在站点配置决定。
+`/opt/custom` 用于部分站点的自定义软件。是否部署及如何同步，由所在站点配置决定。
 
 ------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ SAI 提供 [Apptainer](https://apptainer.org) 容器（前身为 [Singularity](h
 
 #### Q: 任务已经 RUNNING，为什么 GPU 还没开始算？
 
-> **A：**程序可能正在读数据、初始化或做 CPU 计算，也可能环境有错或卡住。先看输出日志和 GPU 监控；任务开始占用资源就会计费，发现异常要及时处理。
+> **A：**程序可能正在读数据、初始化或做 CPU 计算，也可能环境有错或卡住。先看输出日志和 GPU 监控。任务开始占用资源就会计费，发现异常要及时处理。
 
 #### Q: 把 Conda 和各种软件环境都写进 .bashrc，会更方便吗？
 

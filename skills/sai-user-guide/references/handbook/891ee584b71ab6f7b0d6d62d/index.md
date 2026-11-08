@@ -7,7 +7,7 @@
 > 1.  登录节点是用户访问超算的窗口，不可直接运行计算任务
 > 2.  登录节点仅用于任务提交/管理、软件安装、文件编辑、数据上传/下载等用途
 >
-> - 登录节点资源有限；需要较多 CPU 或内存的软件编译、数据处理，也请通过 Slurm 申请计算资源。
+> - 编译软件或处理数据需要较多 CPU、内存时，请通过 Slurm 申请计算资源。
 > - 若要进入计算节点进行交互式操作，可在sbatch任务开始运行后通过SSH进入任务分配的计算节点，或使用`srun`命令搭配`--pty bash`后缀，或使用`salloc`命令，[提交任务](https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc#QBQMdiT9wojo3WxVjoKcUjo0nSa)章节将详细介绍
 >
 > 1.  SAI的登录节点和计算节点均可直接访问互联网、直接下载文件
@@ -28,13 +28,13 @@
 ssh -p 12022 username@c0.sai.ai-4s.com
 ```
 
-已领取私钥时，可加 `-i 私钥文件路径`；也可按下文配置 SSH 别名。
+已领取私钥时，可加 `-i 私钥文件路径`，也可按下文配置 SSH 别名。
 
-> 优先使用本人持有的登录密钥。新账号按通行证页面领取或管理密钥；旧账号仍能用密码登录时，可按下文下载自己已有的预置密钥。
+> 登录密钥在通行证页面领取和管理。仍用密码登录的账号，也可以按下文下载已有的预置密钥。
 >
-> 如果服务器提示修改初始密码，`Current Password` 指当前密码。按屏幕要求设置新密码；输入时不显示字符是正常现象。
+> 如果服务器提示修改初始密码，`Current Password` 指当前密码。按提示设置新密码，输入时不显示字符是正常现象。
 >
-> 连续失败时先停止重试，核对地址、端口、用户名和凭据。仍无法登录，提供时间和报错向官方支持求助；不要发送密码或私钥。
+> 登录失败时，先检查地址、端口、用户名和密钥。仍无法连接，可提供时间和报错向支持人员求助，请勿提供密码或私钥。
 
 ------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ ssh -p 12022 username@c0.sai.ai-4s.com
 
 > MobaXterm是常用的远程终端工具，可在此处下载：https://mobaxterm.mobatek.net/download.html
 
-视频和截图展示 MobaXterm 的操作位置；连接时填上面的主站地址、自己的用户名和密钥。
+跟着视频和截图操作，连接时填写上面的主站地址、自己的用户名和密钥。
 
 <figure>
 <a href="attachments/91c7fea2ca1d10d9268ae93c9603fbbeac76c723928de1689a74920bbe114ae2.bin" download="MobaXterm_login_v5.mp4">MobaXterm_login_v5.mp4</a>
@@ -73,7 +73,7 @@ Windows PowerShell、macOS 和 Linux 终端都可以使用下面的 OpenSSH 命�
 ssh -p 12022 username@c0.sai.ai-4s.com
 ```
 
-> Windows 按 Win + R，输入 `powershell` 即可打开终端；安装了 PowerShell 7 的用户也可输入 `pwsh`。
+> Windows 按 Win + R，输入 `powershell` 即可打开终端。安装了 PowerShell 7 的用户也可输入 `pwsh`。
 
 输入上述命令进行SSH连接：
 
@@ -96,7 +96,7 @@ get .ssh/id_ed25519 .ssh/sai_ed25519
 
 ![图片展示了在Windows PowerShell中使用sftp命令进行文件传输的界面。左侧显示了登录信息，包括用户名、IP地址和端口号。中间部分是sftp提示符，显示已连接到指定IP地址。右侧是传输操作，显示从/home/testgroup01/testuser01/.ssh/id_ed25519到.ssh/id_ed25519的传输进度，传输速度为2.4KB/s，已传输419字节，传输完成时间为00:00。该图片与文档中介绍使用sftp命令进行文件传输的内容相关，直观呈现了操作过程。](assets/2d17d72ae403701af3d1efb9b10c76944972880e69e6c8477f794b4f8b778e1a.jpeg)
 
-私钥只供本人使用，不要发给别人。macOS/Linux 执行 `chmod 600 ~/.ssh/sai_ed25519` 限制读取权限；Windows 若提示权限过宽，在文件安全属性中仅保留本人访问。
+私钥只供本人使用，请勿发给他人。macOS/Linux 执行 `chmod 600 ~/.ssh/sai_ed25519` 限制读取权限。Windows 若提示权限过宽，在文件安全属性中仅保留本人访问。
 
 用自己熟悉的编辑器打开用户目录中的 `.ssh/config`（没有扩展名）。Windows PowerShell 可以运行：
 
@@ -104,7 +104,7 @@ get .ssh/id_ed25519 .ssh/sai_ed25519
 notepad "$env:USERPROFILE\.ssh\config"
 ```
 
-macOS/Linux 可使用 `nano ~/.ssh/config`，前提是已安装 nano；也可使用 VS Code 等编辑器。编辑已有文件时保留原来的其他 Host 配置。
+macOS/Linux 可使用 `nano ~/.ssh/config`，或使用 VS Code 等编辑器。编辑已有文件时保留原来的其他 Host 配置。
 
 在文件末尾加入以下代码，请将`username`和`用户名`根据实际情况修改：
 
@@ -174,7 +174,7 @@ Termius是一款跨平台的远程终端工具，可以在其官网下载：http
 
 ![图片展示的是首次登录修改密码失败时的提示界面。界面上方显示登录用户为“yehuang”，下方提示“Keyboard-interactive authentication prompts from server:”，接着出现“Password:”等输入框，提示“Password expired. Change your password now.”，并要求输入“Current Password:”，还显示“Password change failed. Server message: Old password not accepted.”，最后提示“Access denied”。该图片与文档中“首次登录修改密码失败，提示‘Old password not accepted’”的问题对应，直观呈现了提示内容。](assets/179b0b90ad5445a005d5319fb8586d0ca1de02e0dbdaefec04dab3651dce650a.jpeg)
 
-> **A：**`Current Password` 要填当前密码；首次登录且尚未修改时，就是收到的初始密码。按提示完成当前密码、新密码和确认密码的输入；若本次失败，重新连接后再试。
+> **A：**`Current Password` 要填当前密码。首次登录且尚未修改时，就是收到的初始密码。按提示输入当前密码、新密码和确认密码。如果失败，重新连接后再试。
 
 ------------------------------------------------------------------------
 
@@ -184,8 +184,8 @@ Termius是一款跨平台的远程终端工具，可以在其官网下载：http
 
 #### Q: 网页能登录，为什么 SSH 还连不上？
 
-> **A：**网页使用 SAI 账号登录；SSH 还需要该计算站点已开通，以及正确的 Linux 用户名和站点支持的登录凭据。先到控制台查看站点状态，再核对登录信息。
+> **A：**网页使用 SAI 账号登录。SSH 还需要该计算站点已开通，以及正确的 Linux 用户名和站点支持的登录凭据。先到控制台查看站点状态，再核对登录信息。
 
 #### Q: 默认身份选了组织，在个人 Home 提交任务会记到哪里？
 
-> **A：**没有通过命令、脚本或环境变量指定账户时，个人 Home 下的任务通常记到个人账户。作业工作目录的优先级高于默认身份；提交前查看账户设置和实际工作目录。
+> **A：**没有通过命令、脚本或环境变量指定账户时，个人 Home 下的任务通常记到个人账户。作业工作目录的优先级高于默认身份。提交前查看账户设置和实际工作目录。
