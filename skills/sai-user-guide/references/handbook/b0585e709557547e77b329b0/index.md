@@ -178,18 +178,24 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 - [已经获得共享权限，为什么有些文件仍打不开？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnZrUARXBEbpNuadOSd6KxXg)
 - [用硬链接分享文件，撤销原目录权限就能收回吗？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnKZUH9GafHfthrXylpwH2fh)
 - [共用目录的 quota 统计哪些数据？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnxl8WEweETQT5ohiDfBxsUe)
+- [文件有写权限，为什么编辑器仍保存失败？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnSB4UysVDuHqjbimc81yTzh)
 
 ### 团队协作相关
 
 - [加入组织，就能访问所有项目和共享文件夹吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnknw4iFFRlhzhaPCagqaI8f)
 - [组织资助我的 Home 扩容，组里的人就能看我的文件吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnWDXdn1lDLBYWpOxuKFCITg)
 - [有文件编辑权限，就能用这个项目的算力吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnryUp3PZcjCy7pFh1CVoc5k)
+- [关闭项目计算许可，已经提交的任务会怎样？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnvHkWZO60C4sdrIzk2rsChb)
 - [组织升级套餐后，独立项目也会一起升级吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcn3gJ29abXXDfT4GyNII7P3e)
 - [只想共享项目里一个子目录，怎么做？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnFsggEqEIAD8r1MFQlbX8ad)
 - [设为“查看”后，对方为什么还能修改某些文件？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcngn1TYjkiDKiRcuqJbQdIwh)
 - [移除协作者后，旧连接会马上失去访问吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnnOr5veIBZLzuwzoHINrZ8b)
 - [组织服务账号怎么申请？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnndoGe5r8yzUw3z9rzcS4wh)
 - [一张协作邀请二维码可以发给多个人吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnN5IeXm8N5Y6WcO53f5T0Mf)
+- [组织管理员能直接读写所有项目的文件吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnV3NQhofgNNCfaQSZSQYd5d)
+- [组织里给某个成员设了限额，他在项目中的任务也受这个限额约束吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcndDnVNgD3KIymh3JMfIDfoh)
+- [共享文件夹停止共享后，文件会怎样？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnSMl1UiEpjLqnvmSzfTurod)
+- [把文件设为 666、子目录设为 777，查看者就能编辑吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcncrL2aslxX8QG1wMDYK5ewE)
 
 ### Pilot 与 BBS
 

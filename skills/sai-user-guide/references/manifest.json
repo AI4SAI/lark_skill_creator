@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-08T16:44:05.931510+00:00",
+  "fetched_at": "2026-11-09T17:01:11.275386+00:00",
   "source": "Published SAI guide and handbook",
   "documents": [
     {
@@ -61,12 +61,12 @@
       "doc_id": "RZcTdxGjnofpb4xu4ZXcySLOnqb",
       "title": "团队协作与资源管理",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f",
-      "revision": 24,
+      "revision": 41,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/8bda3bdc3e54a43733f37e8f/index.md",
-      "characters": 3003,
-      "sha256": "19d5ad210a4f459da6763ce3fd1b9437a4c66ed76d01fc3b6c5ab6adeba65391"
+      "characters": 3917,
+      "sha256": "81deffdec1de36f5e08b92b37b4993b39fba6d8e14c1413565c5870d61f63a06"
     },
     {
       "doc_id": "WbogdSYJcoIGRJxwmcwcH2GjnPb",
@@ -193,12 +193,12 @@
       "doc_id": "NQ5ydVRceoXlNPxH347cz6l1nfc",
       "title": "存储空间",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf",
-      "revision": 142,
+      "revision": 143,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/440de28fe59b369e89df5e1c/index.md",
-      "characters": 1457,
-      "sha256": "4dd687081db7e1f0f78f70803bc12563a4cde93c4aaec0f8c216644bbf6375b8"
+      "characters": 1601,
+      "sha256": "6b882a39baf6fbce40aec7ce37146b316c86a81332399816acb9ba325ccd4722"
     },
     {
       "doc_id": "GdUQdxgTioXaEIxV6VGczohCnMe",
@@ -248,12 +248,12 @@
       "doc_id": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "title": "FAQ",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg",
-      "revision": 841,
+      "revision": 844,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/b0585e709557547e77b329b0/index.md",
-      "characters": 10032,
-      "sha256": "93eea6a8826c436a6b251e6fb88b20fcad9270a77649736acd063300b90dd410"
+      "characters": 10755,
+      "sha256": "38b17ffef76225b453f5ce21eafd23d8a09c057ffe718b673a6b92ae8476f82e"
     },
     {
       "doc_id": "sai-user-guide:access.md",
@@ -285,8 +285,8 @@
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "collaboration.md",
-      "characters": 1415,
-      "sha256": "1badcab5955f12aba9676769415c726f5f3b8287ff934cf78718bbe55de1996d"
+      "characters": 2059,
+      "sha256": "8419729efe587aeb0a6cbd53175f704327bc6005238c3d705a3914a197261187"
     },
     {
       "doc_id": "sai-user-guide:community.md",
@@ -351,8 +351,8 @@
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "storage.md",
-      "characters": 1878,
-      "sha256": "3d9d2741831b0c19f35eaefeec88b643c17fd55038d8d384e6e8f8917bded124"
+      "characters": 1997,
+      "sha256": "cfda665b2d5450ba79187aff9966b72722e9c258a17ab82a9c2ac49e96407f51"
     },
     {
       "doc_id": "sai-user-guide:tools.md",

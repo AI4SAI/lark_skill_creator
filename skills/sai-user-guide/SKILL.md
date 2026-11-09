@@ -13,7 +13,7 @@ metadata:
 | --- | --- |
 | 了解 SAI，选择控制台、终端、Pilot 或社区 | [平台入口](references/platform.md) |
 | 注册、登录、默认工作身份、开通站点、SSH 或挂载文件 | [账号与连接](references/access.md) |
-| 管理组织、选择项目、邀请同事或外部合作者 | [团队协作](references/collaboration.md) |
+| 选择组织或项目、邀请合作者、理解入口查看与文件编辑、设置成员限额 | [团队协作](references/collaboration.md) |
 | 选择目录、共享数据、分配存储额度、处理空间不足 | [存储与数据](references/storage.md) |
 | Slurm 账户推定、任务提交、暂停／suspend、取消与计费误解 | [计算任务](references/compute.md) |
 | 使用科学软件、环境和模板，排查性能 | [软件与性能](references/software.md) |
