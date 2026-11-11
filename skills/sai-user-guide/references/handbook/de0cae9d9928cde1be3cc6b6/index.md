@@ -84,11 +84,11 @@
 
 > **A：**有效 Credit 先抵扣适用的公开计算费，余下的计算用量按合同价结算。例如公开价 100 元，Credit 抵了 40 元，剩余部分按合同八折计算，现金支付 60 × 0.8 = 48 元。存储、订阅和专属资源按各自订单结算。
 
-暂停任务仍保留内存等资源，暂停期间正常计费。[如何释放资源](https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg#doxcnxgnhjTvg6ABcLSWchT1wKd)。
+主站按量任务按 Slurm 记录的累计运行时长计费。暂停期间不累计，进入 CG/COMPLETING 或已结束后停止累计。[如何释放资源](https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg#doxcnxgnhjTvg6ABcLSWchT1wKd)。
 
 #### Q: 页面上的运行中费用没变化，就说明没有继续计费吗？
 
-> **A：**运行中的金额是估算，页面刷新和结算可能晚于实际资源占用。先确认任务是否已结束、资源是否释放，再核对消费流水。
+> **A：**运行中的金额是估算，页面刷新和结算可能稍晚。任务进入 CG/COMPLETING 或已结束后，后台清理和账单生成不会继续增加计费时长。
 
 #### Q: 还有 SAI Credit，为什么也会扣现金？
 
