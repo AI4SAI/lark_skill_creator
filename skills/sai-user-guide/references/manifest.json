@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-08T16:44:05.931510+00:00",
+  "fetched_at": "2026-11-11T23:10:42.250653+00:00",
   "source": "Published SAI guide and handbook",
   "documents": [
     {
@@ -72,12 +72,12 @@
       "doc_id": "WbogdSYJcoIGRJxwmcwcH2GjnPb",
       "title": "账号、计费与资金",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d",
-      "revision": 979,
+      "revision": 981,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/de0cae9d9928cde1be3cc6b6/index.md",
-      "characters": 3937,
-      "sha256": "17e14c77c738cb97e8c5f723cc05956a3f80a1265f12ca9eb7d3039b62c5af27"
+      "characters": 3989,
+      "sha256": "a8496152441d6a805651b0cc301f6eae6fb0e7849f76f50b1545b8996c2afcf0"
     },
     {
       "doc_id": "G9Yxd4e4coXn4FxajC3czvISnjw",
@@ -215,12 +215,12 @@
       "doc_id": "Xy89dsFANog0vsx0J2Vc3qAdnhh",
       "title": "任务提交和管理",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc",
-      "revision": 5103,
+      "revision": 5105,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/263082edffdfc401aebd0e23/index.md",
-      "characters": 18474,
-      "sha256": "7a31468257c899e8df2e6f814fc758cb4ee2daffbb56880fedb628ca571cde3e"
+      "characters": 18461,
+      "sha256": "17aa8f2d287710dd027cc3f6b9f3c32c3ba75de1faca99d188978df40afc1ce3"
     },
     {
       "doc_id": "TgoTdpvNpo2NfUxYItucRiiSndf",
@@ -248,12 +248,25 @@
       "doc_id": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "title": "FAQ",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg",
-      "revision": 841,
+      "revision": "841+billing@851",
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/b0585e709557547e77b329b0/index.md",
-      "characters": 10032,
-      "sha256": "93eea6a8826c436a6b251e6fb88b20fcad9270a77649736acd063300b90dd410"
+      "characters": 10013,
+      "sha256": "c9344aa458a1df49f4c4fd9fba19592c63ae58b138185a6eb9937c6d93287630",
+      "partial_update": {
+        "baseline_revision": 841,
+        "source_revision": 851,
+        "block_ids": [
+          "doxcnqMWODju1OgX9w002bzHgPd",
+          "doxcnXZlldrIC1j3ir7IQMszD2f",
+          "doxcnmZk3pIjRP0IV7PaBaiBore",
+          "doxcnviHd0CGlhkcGxegC6NfgUZ",
+          "doxcnmxkML5VKOWas4SU3XPkAwf",
+          "doxcnjlFg3AsxOuaXUSA6G30KEh",
+          "doxcn6TizZnXtO8RZSSk97uSUxK"
+        ]
+      }
     },
     {
       "doc_id": "sai-user-guide:access.md",
@@ -269,13 +282,13 @@
     {
       "doc_id": "sai-user-guide:billing.md",
       "title": "费用与服务",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/379a85fe1d80301f3ec05d4b8c1cef33ff4a3d94/skills/sai-user-guide/references/billing.md",
-      "revision": "379a85fe1d80301f3ec05d4b8c1cef33ff4a3d94",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/5f2475d65be6e7e70eff171519d2111155e9696a/skills/sai-user-guide/references/billing.md",
+      "revision": "5f2475d65be6e7e70eff171519d2111155e9696a",
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "billing.md",
-      "characters": 1818,
-      "sha256": "3d8fadb7eac6c7af01a18549a38036041d70491aaefed9745b0c2f6b93e8f919"
+      "characters": 1842,
+      "sha256": "585544cb38aee9b11b791bf0a697986878e028f539388d0fe0e734e1600fd205"
     },
     {
       "doc_id": "sai-user-guide:collaboration.md",
@@ -302,13 +315,13 @@
     {
       "doc_id": "sai-user-guide:compute.md",
       "title": "计算任务",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/379a85fe1d80301f3ec05d4b8c1cef33ff4a3d94/skills/sai-user-guide/references/compute.md",
-      "revision": "379a85fe1d80301f3ec05d4b8c1cef33ff4a3d94",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/5f2475d65be6e7e70eff171519d2111155e9696a/skills/sai-user-guide/references/compute.md",
+      "revision": "5f2475d65be6e7e70eff171519d2111155e9696a",
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "compute.md",
-      "characters": 1445,
-      "sha256": "65c6108a481581a3810b7661cb5ca1ea485f1091d1421c8123f8b755e3acfd58"
+      "characters": 1433,
+      "sha256": "b65f7bb6f4cc4a70b4766bf42e2fd3036748f12545cc8fc9e1ccce760769d5b1"
     },
     {
       "doc_id": "sai-user-guide:pilot.md",
@@ -370,22 +383,22 @@
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "LXq3dX9yVsB9xSbvwAccosAlnRe",
-      "revision": 841
+      "revision": 851
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "Y7ORdw9h1sTJjtbINohcJxu4ngc",
-      "revision": 841
+      "revision": 851
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "QagOdTbmwsOF1VbYWhDc5ekInmd",
-      "revision": 841
+      "revision": 851
     },
     {
       "document_token": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "block_id": "HjIHdJxYuszonUbafg9c6scbn9R",
-      "revision": 841
+      "revision": 851
     }
   ]
 }
