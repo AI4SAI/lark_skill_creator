@@ -102,7 +102,7 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 
 #### Q: 任务 suspend（暂停）后还会计费吗？
 
-> **A：**会。suspend 只是暂停程序，内存等资源仍被占用，暂停期间正常计费。要结束这次计算并释放资源，请用 scancel JOB_ID，随后确认任务已结束。
+> **A：**主站普通按量任务按 Slurm 记录的累计运行时长计费，暂停期间不累计。暂停仍保留内存等资源，需要结束任务时，用 scancel JOB_ID 并确认任务状态。
 
 #### Q: GPU 利用率为 0，还会计费吗？
 
@@ -110,23 +110,23 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 
 #### Q: 排队、hold 和 suspend 的费用一样吗？
 
-> **A：**普通按量任务在首次启动前排队，尚未占用计算资源，这段时间不收计算费。hold 是让未启动的任务暂缓调度。suspend 是暂停已运行的任务，仍保留资源，正常计费。预约资源、订阅等另按订单约定。
+> **A：**普通按量任务首次启动前排队或 hold，不收运行费用。suspend 暂停期间不累计运行时长。预约资源、订阅等另按订单约定。
 
 #### Q: 关闭 SSH 或 Pilot 网页，任务就结束了吗？
 
-> **A：**已提交的 sbatch 任务会继续，资源占用期间照常计费。交互式 srun 则可能随终端断开而结束，使用 tmux 时还可能继续。请查看任务状态。要结束计算，请取消对应任务。
+> **A：**已提交的 sbatch 任务会继续，运行期间照常计费。交互式 srun 则可能随终端断开而结束，使用 tmux 时还可能继续。请查看任务状态。要结束计算，请取消对应任务。
 
 #### Q: 程序报错、计算失败，已经花的费用怎么算？
 
-> **A：**已占用资源的时间仍计费。主程序退出后，脚本里的等待或后续命令还可能使任务继续占用资源。发现错误后查任务状态，及时结束无用的计算。
+> **A：**已经运行的时间仍计费。主程序退出后，脚本里的等待或后续命令还可能使任务继续运行。发现错误后查任务状态，及时结束无用的计算。
 
 #### Q: scancel 执行完，就已经停止计费了吗？
 
-> **A：**先确认任务已经结束并释放资源。取消请求发出后可能还有清理过程。如果长时间停在 COMPLETING 或仍占着节点，把任务 ID 和时间交给管理员。
+> **A：**任务进入 CG/COMPLETING（正在结束）或已结束后，不再增加计费时长。消费流水可能稍后入账。若长时间停在 COMPLETING，把任务 ID 和时间交给管理员。
 
 #### Q: 想过几天再继续算，可以一直 suspend 吗？
 
-> **A：**暂停期间仍正常计费。需要长期停下来时，先按软件支持的方式保存检查点，再结束任务，之后从检查点重新提交。
+> **A：**暂停仍占用内存等资源。需要长期停下来时，先按软件支持的方式保存检查点，再结束任务，之后从检查点重新提交。
 
 #### Q: 切换默认身份后，之前提交的任务也会换账户吗？
 
@@ -134,7 +134,7 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 
 #### Q: 余额不足，任务会自动停止吗？
 
-> **A：**是否自动取消取决于站点规则。任务仍在运行或暂停时，资源占用继续计费。收到欠费提醒后，请及时补足资金。需要停止计算时，请取消对应任务并确认已结束。
+> **A：**是否自动取消取决于站点规则。任务运行期间继续累计费用，暂停期间不累计运行时长。收到欠费提醒后，请及时补足资金。需要停止计算时，请取消对应任务并确认已结束。
 
 #### Q: 通知说任务会被取消，到了时间却还在运行或暂停，怎么办？
 
@@ -178,18 +178,24 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 - [已经获得共享权限，为什么有些文件仍打不开？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnZrUARXBEbpNuadOSd6KxXg)
 - [用硬链接分享文件，撤销原目录权限就能收回吗？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnKZUH9GafHfthrXylpwH2fh)
 - [共用目录的 quota 统计哪些数据？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnxl8WEweETQT5ohiDfBxsUe)
+- [文件有写权限，为什么编辑器仍保存失败？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcnSB4UysVDuHqjbimc81yTzh)
 
 ### 团队协作相关
 
 - [加入组织，就能访问所有项目和共享文件夹吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnknw4iFFRlhzhaPCagqaI8f)
 - [组织资助我的 Home 扩容，组里的人就能看我的文件吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnWDXdn1lDLBYWpOxuKFCITg)
 - [有文件编辑权限，就能用这个项目的算力吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnryUp3PZcjCy7pFh1CVoc5k)
+- [关闭项目计算许可，已经提交的任务会怎样？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnvHkWZO60C4sdrIzk2rsChb)
 - [组织升级套餐后，独立项目也会一起升级吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcn3gJ29abXXDfT4GyNII7P3e)
 - [只想共享项目里一个子目录，怎么做？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnFsggEqEIAD8r1MFQlbX8ad)
 - [设为“查看”后，对方为什么还能修改某些文件？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcngn1TYjkiDKiRcuqJbQdIwh)
 - [移除协作者后，旧连接会马上失去访问吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnnOr5veIBZLzuwzoHINrZ8b)
 - [组织服务账号怎么申请？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnndoGe5r8yzUw3z9rzcS4wh)
 - [一张协作邀请二维码可以发给多个人吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnN5IeXm8N5Y6WcO53f5T0Mf)
+- [组织管理员能直接读写所有项目的文件吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnV3NQhofgNNCfaQSZSQYd5d)
+- [组织里给某个成员设了限额，他在项目中的任务也受这个限额约束吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcndDnVNgD3KIymh3JMfIDfoh)
+- [共享文件夹停止共享后，文件会怎样？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcnSMl1UiEpjLqnvmSzfTurod)
+- [把文件设为 666、子目录设为 777，查看者就能编辑吗？](https://vcnn7siwx4yx.feishu.cn/wiki/DxGewwDXgighARk7OWHcAzLqn6f#doxcncrL2aslxX8QG1wMDYK5ewE)
 
 ### Pilot 与 BBS
 
