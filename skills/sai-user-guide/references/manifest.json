@@ -72,12 +72,12 @@
       "doc_id": "WbogdSYJcoIGRJxwmcwcH2GjnPb",
       "title": "账号、计费与资金",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d",
-      "revision": 996,
+      "revision": 1014,
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/de0cae9d9928cde1be3cc6b6/index.md",
-      "characters": 4963,
-      "sha256": "04f6245678c3005940fb0eb9a99cef40a4a6d1b5d3ce250b7e6a46f7fd8b9da3"
+      "characters": 5015,
+      "sha256": "9c28019dfda3333b9fb195fe25e3a8b1691ae5daa692482f022c5115857fd603"
     },
     {
       "doc_id": "G9Yxd4e4coXn4FxajC3czvISnjw",
@@ -258,15 +258,15 @@
       "doc_id": "Y0sddTeCxouM8wxyQTMcM86Jnlh",
       "title": "FAQ",
       "url": "https://vcnn7siwx4yx.feishu.cn/wiki/RsCPw4eUeieHPekYMkCc7A6KnHg",
-      "revision": "841+billing@851+purchase@853",
+      "revision": "841+billing@851+purchase@855",
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "handbook/b0585e709557547e77b329b0/index.md",
-      "characters": 10825,
-      "sha256": "b39812b6d369c9bff6e60a5b4dcfb7ba1673c67ca5c57fe971346e80011c0009",
+      "characters": 10817,
+      "sha256": "96c106176868234944361f24d37ea839c625fac849ac74f351ca6857d18139a8",
       "partial_update": {
         "baseline_revision": 841,
-        "source_revision": 853,
+        "source_revision": 855,
         "block_ids": [
           "doxcnqMWODju1OgX9w002bzHgPd",
           "doxcnXZlldrIC1j3ir7IQMszD2f",
@@ -300,13 +300,13 @@
     {
       "doc_id": "sai-user-guide:billing.md",
       "title": "费用与服务",
-      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/4ddf6f53f87b747d17660f8d66df9e9bb37b8e61/skills/sai-user-guide/references/billing.md",
-      "revision": "4ddf6f53f87b747d17660f8d66df9e9bb37b8e61",
+      "url": "https://github.com/AI4SAI/lark_skill_creator/blob/d354cdd2460a731a6bb55246c5f4fe4341b8a460/skills/sai-user-guide/references/billing.md",
+      "revision": "d354cdd2460a731a6bb55246c5f4fe4341b8a460",
       "sharing": "anyone_readable",
       "status": "fetched",
       "file": "billing.md",
-      "characters": 2226,
-      "sha256": "a3eb603af518cf74d1417f6a47920ffb2cbb67230fce81e5921d51ec9035ef57"
+      "characters": 2268,
+      "sha256": "ef8194eba34ad94a08a8e11a04ca9ea2b3d39dae450953bc497cdedd127ff750"
     },
     {
       "doc_id": "sai-user-guide:collaboration.md",
