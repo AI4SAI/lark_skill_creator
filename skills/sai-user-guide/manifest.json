@@ -5,7 +5,7 @@
   "files": {
     "SKILL.md": "5f1e617ff3dbbb167b1ca30e24fae7bcbdb5fdffa9fb8aa11db871da450dbb1f",
     "references/access.md": "dc853ed96c1f67077540a377a0bd7422b40512dae8b2de824099e42e63a08ba5",
-    "references/billing.md": "585544cb38aee9b11b791bf0a697986878e028f539388d0fe0e734e1600fd205",
+    "references/billing.md": "a3eb603af518cf74d1417f6a47920ffb2cbb67230fce81e5921d51ec9035ef57",
     "references/collaboration.md": "1badcab5955f12aba9676769415c726f5f3b8287ff934cf78718bbe55de1996d",
     "references/community.md": "f394c88f569a53b8faaa208bb93464fa8a46b4d448725a0ec2747af091c015fb",
     "references/compute.md": "b65f7bb6f4cc4a70b4766bf42e2fd3036748f12545cc8fc9e1ccce760769d5b1",
@@ -38,7 +38,7 @@
     "references/handbook/263082edffdfc401aebd0e23/index.md": "17aa8f2d287710dd027cc3f6b9f3c32c3ba75de1faca99d188978df40afc1ce3",
     "references/handbook/3549fe29a2cd64c8d2e79b6a/assets/21c7f22367db8cfe2122064773bc3c5574ec6d90bcc803e7b23acd047939d3f2.png": "ebbd37b05382c2c22c80fd72150ddc890af9eac4ed5c4fe2040251b4e5094732",
     "references/handbook/3549fe29a2cd64c8d2e79b6a/index.md": "290a7400a32b088bf219bc88b148cec89da803b17a7df237efdac19f1b541dad",
-    "references/handbook/440de28fe59b369e89df5e1c/index.md": "4dd687081db7e1f0f78f70803bc12563a4cde93c4aaec0f8c216644bbf6375b8",
+    "references/handbook/440de28fe59b369e89df5e1c/index.md": "8193c415e0a17f952fc2caddfbd5f4c9e4b2924bece2b0bd510e9c4521e17c56",
     "references/handbook/527115bd2c82557339314691/index.md": "e3b854ca98b79e75c6248373746a4447b1c7daf2f0665f33da9049ded4ccc2d8",
     "references/handbook/5be412539311c935c3d4b2cb/index.md": "60e3f3148eed9c3142a5b98fb4ff3ccc2dcc7f14957c157345394e94a3e3c4b6",
     "references/handbook/62134adbb553eda913b863d3/index.md": "78d6aba8651e38a55e5d677f0afe4f7684c13ab36b37140d95f4bedcd851ffb4",
@@ -78,9 +78,9 @@
     "references/handbook/b0585e709557547e77b329b0/assets/6859ce68fbfdf2ac72545ae8a5a3d128ffab2072efe3d169e146a30fdcc400a2.png": "3834b6706391f7795a37780c5909e59d3110a7066ad11a06432db6fbf98d10db",
     "references/handbook/b0585e709557547e77b329b0/assets/9fe69c41e42c4d967146dcddb9b0a03bf5c16abccbc4fe6e2c268a55e5bc7f07.png": "45fec672a8c4818c9b0b70db1008a351cdc5cf520694ab80e25c8a11218804aa",
     "references/handbook/b0585e709557547e77b329b0/assets/b630890e6ed20e097bfed8292661bcef38c0144da2ab1375ae9477978ee55c27.png": "4871be5d14edc99ec093577227bd6449dcbb279c2bec656191f8528d22c54beb",
-    "references/handbook/b0585e709557547e77b329b0/index.md": "c9344aa458a1df49f4c4fd9fba19592c63ae58b138185a6eb9937c6d93287630",
+    "references/handbook/b0585e709557547e77b329b0/index.md": "b39812b6d369c9bff6e60a5b4dcfb7ba1673c67ca5c57fe971346e80011c0009",
     "references/handbook/c62336b8dd845c2de07d2bf9/index.md": "30d8a2c917004b617b2711e7cffdbf3a3c98c9ca2ae3f6f7679e346c1d301f33",
-    "references/handbook/de0cae9d9928cde1be3cc6b6/index.md": "a8496152441d6a805651b0cc301f6eae6fb0e7849f76f50b1545b8996c2afcf0",
+    "references/handbook/de0cae9d9928cde1be3cc6b6/index.md": "04f6245678c3005940fb0eb9a99cef40a4a6d1b5d3ce250b7e6a46f7fd8b9da3",
     "references/handbook/df8c6d77197060d17cc2d0d2/assets/15f5183eb9b8efc6e301d3078f79ef82a2a7b830ff800c7c1b72726ed171388a.png": "4c580c95697cd2a88c8bb6ce0f5c4ebda293e05c4fd63b826fe287c8bf2c526c",
     "references/handbook/df8c6d77197060d17cc2d0d2/assets/2cf3c8cca443c1849e4b589a00522e469dd63e22c4ae0e4216fa6feaf7107783.png": "35ce7444d4f307e4eb12e738670fe07ab4374b99bc16e1303f0894a340046dce",
     "references/handbook/df8c6d77197060d17cc2d0d2/assets/4c2f6ec0d4671dd376de7ae94b29a3a0afec2c96658c25ea60f695af62dff166.png": "1f8e65524550c4b6ec75a3de6018c724e35f5c78352f47e5dba5557950228be7",
@@ -91,11 +91,11 @@
     "references/handbook/f1d4bd8bb10f1064716136f5/assets/c94dd131364e6f3ec34834de3edb9e9663387d5374eaf939bd94c70369c99888.png": "c06e1cbc3d16f4ba0000944b4ff2f3de8f8542aa9b1c3d6d37ac8a8f93b9eb06",
     "references/handbook/f1d4bd8bb10f1064716136f5/index.md": "d03df98ee9a9a20f06d0b9a7c475bb173032e7ac956ea4d1b181d172467f7670",
     "references/handbook/index.md": "058c5ed31b73cc2163fd04330ba66f8ef67e84f0186653bc64542032c4df6069",
-    "references/manifest.json": "5e9c1e34365974ecc35c9b6754a8498add9b1767f30dab188febfaa3de483a4a",
+    "references/manifest.json": "83eb944922e5e8d2e8e2db15f7265951ef01e9d331e2ea3089ea549a94a87a37",
     "references/pilot.md": "bc50929d6d8a4c6f471757068dad5f34a6ba9e3581df15a0eb3a949c95859219",
     "references/platform.md": "6140ecef3fcccf6d775708f02e568402b96a51919d730e5cccec5d7240b15cc2",
     "references/software.md": "ec57570c5ddb51978b3e44d8519beaf7f5f2125fcc124dc666839e96e713c248",
-    "references/storage.md": "3d9d2741831b0c19f35eaefeec88b643c17fd55038d8d384e6e8f8917bded124",
+    "references/storage.md": "3a948d76875c2817b732927862cde0634895deb95c6300e1a9995a08711fea9c",
     "references/tools.md": "4841366e901b4ad0d2467a1c45e0da0686e141434b3df2a9efabcda171c00a33"
   }
 }

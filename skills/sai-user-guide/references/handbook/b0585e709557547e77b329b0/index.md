@@ -162,13 +162,20 @@ sacct -X -j JOB_ID -o JobID,State%30,Reason,ExitCode
 
 - [只想提高并行算力，必须买随心算吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcndlX3B0EsO4E3ZOt8sFYDwh)
 - [同一个课题组能同时用合同和随心算吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnUpcfxQqDIBTNr3qouXOVGf)
-- [合同计算价和 SAI Credit 怎么配合？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn2IdkOzz9Fk0hPd63fh91ib)
+- [合同固定价还能叠加随心算或红包吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn2IdkOzz9Fk0hPd63fh91ib)
 - [页面上的运行中费用没变化，就说明没有继续计费吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnrO9zkVwM7mAzDAGLS8KFGf)
 - [还有 SAI Credit，为什么也会扣现金？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn7TZC7w7FBVN0IO6qUKNycd)
 - [组织还有钱，为什么我的任务提示余额不足？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn0I9LA1uzcs3MN9zG0PS5kd)
 - [有了 SAI Credit，现金欠款就结清了吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnQ4cF8kO7bJC6NtvEAxGFof)
 - [要退回未用款，应先退款还是开票？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnCVYIPpIK1mtsaDZX3r3QGf)
 - [当期升级随心算，费用和周期怎么算？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnwPUg1pj7XLX7IGpTOXD9Nd)
+- [套餐折扣是任务单价再打折吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnUJUVdUEu6kXutXRWeyvkBg)
+- [充值多，或几个课题组一起充值，还能额外要红包吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcn39GjJ7AwVW7EgTh9C1DDJ3)
+- [已经拿过充值赠送，还能买随心算或包机吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnXLRCL6rLGIMiGyGP84GlSB)
+- [合同只列了某种 GPU，其他资源怎么算？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnfzOeH9TnJsCSjw387Pp2Hf)
+- [包机期间没跑满，或者提前结束任务，能少付吗？](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnPBrrKeKxFffNFcpBZpY7vb)
+- [存储怎么收费，没用满也要付吗？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcn4cbPTzqKtq4WKuxw3LGL3f)
+- [合同存储和随心算存储能直接相加吗？](https://vcnn7siwx4yx.feishu.cn/wiki/CYWxwrFPuin9AIk27W7c18ADnSf#doxcndEpCd6my61UJSnCEfJTAVp)
 
 ### 存储空间相关
 
