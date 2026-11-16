@@ -10,7 +10,7 @@
 
 审核后的原文放在 `skills/sai-user-guide/references/handbook/`。bot 现有检索器读取 `references/`，包括原文和 Pilot、BBS 等场景参考；Pilot 和自行安装的客户端加载整个 Skill。三端使用同一个 tag／提交号；各端的索引和安装目录只是可重建副本。接入方式见[维护说明](docs/user-skill-maintenance.md)。
 
-包内包含 23 篇公开手册及十份场景参考，保留原文、公式、图片和演示视频；正文按需读取。内部销售讨论稿与未公开政策不随包分发。
+包内包含 24 篇公开手册及十份场景参考，保留原文、公式、图片和演示视频；正文按需读取。内部销售讨论稿与未公开政策不随包分发。
 
 正式安装包放在 GitHub Releases，官网文档提供固定安装入口，下载带宽由 GitHub 承担。bot、Pilot 和客户端使用本地安装的版本；网络只用于安装／更新，断网时继续读取已有资料。具体发布要求见[维护说明](docs/user-skill-maintenance.md#安装包与可用性)。CI 附件只用于验证，不作为正式下载地址。
 
