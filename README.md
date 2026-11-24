@@ -44,7 +44,7 @@ python skill_package.py check skills/sai-user-guide
 python skill_package.py pack skills/sai-user-guide --output dist
 ```
 
-修改内容时同步更新 `SKILL.md` 的版本号，`seal` 只生成文件清单，不代表人工批准。`check` 检查内容一致性和本地引用，`pack` 生成确定性的 ZIP 与 SHA-256；同版本已有不同内容时拒绝覆盖。CI 执行真实 Pandoc 转换测试、打包及安装迁移测试，并保留待发布包；发布 tag 或 Release 是另外的明确操作。
+日常修订在 Git 中汇总，整批内容定版时更新 `SKILL.md` 的版本号。`seal` 生成文件清单，`check` 检查内容一致性和本地引用，`pack` 生成确定性的 ZIP 与 SHA-256。同版本已有不同内容时，工具拒绝覆盖。CI 执行真实 Pandoc 转换、打包及安装迁移测试，审核通过后按发布流程创建 tag 和 Release。
 
 以下是维护者使用的飞书导出流程，安装用户 Skill 不需要执行。
 

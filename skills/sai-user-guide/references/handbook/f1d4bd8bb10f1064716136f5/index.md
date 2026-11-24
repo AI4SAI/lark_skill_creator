@@ -79,7 +79,7 @@ SAI 提供 [Apptainer](https://apptainer.org) 容器（前身为 [Singularity](h
 | gpu_abacus.sbatch | GPU加速ABACUS | LTS-3.10.1 | 单卡/多卡/多节点 | 1节点 \* 4卡 |
 | gpu_cp2k.sbatch | GPU加速CP2K | 2025.1 | 单卡/多卡/多节点 | 8节点 \* 4卡 |
 | gpu_qe.sbatch | GPU加速Quantum ESPRESSO | 7.3 | 单卡/多卡/多节点 | 1节点 \* 4卡 |
-| gpu_vasp.sbatch | GPU加速VASP | 6.4.2 | 单卡/多卡/多节点 | 4节点 \* 4卡 |
+| gpu_vasp.sbatch | GPU加速VASP | 6.6.0 | 单卡/多卡/多节点 | 4节点 \* 4卡 |
 | gpu_lmp.sbatch | GPU加速LAMMPS (默认Kokkos) | 29Aug2024 | 单卡/多卡/多节点 | 4节点 \* 4卡 |
 | gpu_lmp-dp.sbatch | GPU加速LAMMPS-DeePMD | 29Aug2024-3.0.3 | 单卡/多卡/多节点 | 4节点 \* 4卡 |
 | gpu_dptrain-multigpu-tf.sbatch | GPU加速DeePMD训练 (默认单精度，TensorFlow后端) | 3.1.2 | 单卡/多卡/多节点 | 1节点 \* 4卡 |

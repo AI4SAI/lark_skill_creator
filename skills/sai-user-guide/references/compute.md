@@ -14,7 +14,7 @@
 2. 用 `sbatch` 批处理或 `srun` 交互计算。登录节点做准备，计算按用户授权的账户、规模和费用执行。
 3. 按回执查排队原因、日志、退出状态和结果。`squeue` 看当前任务，`sacct` 看历史。有 CLI 时用其结构化结果。
 
-Job Array、修改排队任务、取消和节点监控见[任务手册](https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc)。关闭网页或 SSH 后，已提交的批任务会继续。需要停止时取消对应任务，并确认已经结束。
+在 Pilot 的「作业」里打开「平台提交记录」，找到对应作业，点「性能」查看执行记录。Job Array、修改排队任务、取消和节点监控见[任务手册](https://vcnn7siwx4yx.feishu.cn/wiki/ZmkawnhNZicpxAkuwh4cNSWGnpc)。关闭网页或 SSH 后，已提交的批任务会继续。需要停止时取消对应任务，并确认已经结束。
 
 原文：[5 分钟上手](https://vcnn7siwx4yx.feishu.cn/wiki/HrR6wu98kiiAvpk6LW6cIXnanRg)、[资源规则](https://vcnn7siwx4yx.feishu.cn/wiki/JEdOwsjbdirwA3kTDW0cBwQWnVe)。
 

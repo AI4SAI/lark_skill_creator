@@ -12,6 +12,6 @@ AI 服务设置的金额是自动补足的预留目标，累计消费可以超�
 
 已有工作优先回到原对话继续。个人 Codex 可以继续使用 SAI CLI。在 Pilot 的“设置 → 导入 Agent 资料”中，可以选择导入已有记忆、Skills 和会话。“设置 → SAI 使用指引”提供给命令行 Agent 安装 SAI Skill 的入口。
 
-自带 API Key、委派 Codex／Claude Code、多个主会话协作和网页终端续接，见作者的 [Pilot 专项问答](handbook/048acb9654a77da0594d4cac/index.md)。
+需要搜索时，选择支持网页搜索的连接。要读公开网页，可以直接把网址发给 Pilot。自带 API Key、委派 Codex／Claude Code、多个主会话协作和网页终端续接，见作者的 [Pilot 专项问答](handbook/048acb9654a77da0594d4cac/index.md)。
 
 遇到需要同行经验的问题，可从原任务检索[BBS](community.md)，挑选适合公开的内容准备提问。工作台提供社区确认入口时，由作者确认提交。没有该入口时，提供草稿和 BBS 链接。发帖后结合帖子和回复继续原科研任务。

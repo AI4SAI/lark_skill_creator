@@ -46,7 +46,7 @@
 
 #### Q: CPU-only 任务免费吗？
 
-> **A：**按所申请资源和占用时间计费，CPU 和内存的申请量都可能影响费用。提交前查看控制台价格和资源要求。
+> **A：**看分区单价。标价为 0 的分区免费，收费分区按核时算。CPU 和主机内存按实际分配量折成核数，取较大的值。[查看计费规则](https://vcnn7siwx4yx.feishu.cn/wiki/LJo9wzMv7ipb5ckeKfEceDEPn4d#doxcnfwFD945SVIK3j8YGTQnGTg)。
 
 #### Q: 4 张 32 GB 显卡有 NVLink，就能当一张 128 GB 显卡用吗？
 
